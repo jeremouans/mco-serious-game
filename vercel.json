@@ -1,3 +1,10 @@
 {
-  "outputDirectory": "src"
+  "rewrites": [
+    { "source": "/host",      "destination": "/src/host/index.html" },
+    { "source": "/host/(.*)", "destination": "/src/host/$1" },
+    { "source": "/join",      "destination": "/src/join/index.html" },
+    { "source": "/join/(.*)", "destination": "/src/join/$1" },
+    { "source": "/lib/(.*)",  "destination": "/src/lib/$1" },
+    { "source": "/data/(.*)", "destination": "/src/data/$1" }
+  ]
 }
