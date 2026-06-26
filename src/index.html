@@ -44,7 +44,7 @@
 <div id="stars" aria-hidden="true"></div>
 <div class="landing">
   <div>
-    <div id="logo-main" class="landing-logo" style="width:80px;height:80px;margin:0 auto 18px;"></div>
+    <img src="/assets/logo-mgen.png" alt="MGEN" class="landing-logo" style="width:96px;height:96px;border-radius:18px;margin:0 auto 18px;display:block;">
     <div class="landing-title">Engagements 2030<br>le Quizz</div>
     <div class="landing-sub">Serious game MGEN · Temps réel</div>
   </div>
@@ -69,10 +69,6 @@
 </div>
 
 <script type="module">
-const LOGO_SVG = `<svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-  <path d="M24 12h72a18 18 0 0 1 18 18v44a18 18 0 0 1-18 18H58l-22 22 4-22h-16a18 18 0 0 1-18-18V30A18 18 0 0 1 24 12Z" fill="#f1e9d2"/>
-  <path d="M60 30 69 49l21 3-15 15 4 21-19-10-19 10 4-21-15-15 21-3z" fill="#6aa517"/></svg>`
-
 function spawnStars() {
   const box = document.getElementById('stars'); if (!box) return; box.innerHTML = ''
   for (let i = 0; i < 12; i++) {
@@ -85,7 +81,6 @@ function spawnStars() {
     box.appendChild(s)
   }
 }
-document.getElementById('logo-main').innerHTML = LOGO_SVG
 spawnStars()
 </script>
 </body>

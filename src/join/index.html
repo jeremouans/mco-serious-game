@@ -133,7 +133,7 @@
   <section class="screen active" id="screen-join">
     <div class="join-card">
       <div class="join-top">
-        <div id="logo-j" style="width:52px;height:52px;flex:none;animation:floatLogo 5s ease-in-out infinite;"></div>
+        <img src="/assets/logo-mgen.png" alt="MGEN" style="width:52px;height:52px;border-radius:10px;flex:none;animation:floatLogo 5s ease-in-out infinite;">
         <div>
           <div class="join-kicker">🎮 Serious game MGEN</div>
           <h1>Rejoindre<br>la partie</h1>
@@ -160,7 +160,7 @@
 
   <!-- ══ WAITING ════════════════════════════════════════════ -->
   <section class="screen" id="screen-waiting">
-    <div id="logo-w" class="wait-logo" style="width:72px;height:72px;"></div>
+    <img src="/assets/logo-mgen.png" alt="MGEN" class="wait-logo" style="width:72px;height:72px;border-radius:14px;">
     <div class="wait-pseudo" id="wait-name"></div>
     <div class="wait-code-pill">Code&nbsp;<span id="wait-code"></span></div>
     <div class="no-host-banner" id="no-host-banner">⚠️ Code invalide ou partie pas encore ouverte.</div>
@@ -507,8 +507,6 @@ function handleGameEnded(payload) {
 }
 
 // ── Init ─────────────────────────────────────────────────────
-$('logo-j').innerHTML = LOGO_SVG
-$('logo-w').innerHTML = LOGO_SVG
 spawnStars()
 </script>
 </body>
