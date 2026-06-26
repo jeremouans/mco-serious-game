@@ -35,6 +35,23 @@
     .err { color: #ff8080; font-size: .9rem; font-weight: 600; display: none; animation: risein .2s; }
     .err.show { display: block; }
     .logo-mark { animation: floatLogo 5s ease-in-out infinite; filter: drop-shadow(0 6px 16px rgba(0,0,0,.35)); }
+    .login-tabs { display: flex; gap: 8px; }
+    .login-tab {
+      flex: 1; font-family: inherit; font-weight: 700; font-size: .9rem;
+      padding: .55em 1em; border-radius: 12px; border: 2px solid transparent; cursor: pointer;
+      background: rgba(255,255,255,.08); color: rgba(243,238,218,.55); transition: all .2s;
+    }
+    .login-tab.active { background: var(--green); color: #fff; border-color: var(--green); }
+    .login-pane { display: none; flex-direction: column; gap: 14px; animation: risein .2s ease-out; }
+    .login-pane.active { display: flex; }
+    .code-inp-big {
+      width: 100%; font-family: inherit; font-weight: 900; letter-spacing: 4px; text-align: center;
+      font-size: clamp(1.4rem,4vw,2rem); color: var(--cream); text-transform: uppercase;
+      background: rgba(255,255,255,.08); border: 2px solid rgba(255,255,255,.15);
+      border-radius: 14px; padding: .65em 1em; outline: none; transition: border-color .2s;
+    }
+    .code-inp-big::placeholder { color: rgba(243,238,218,.2); letter-spacing: 2px; font-size: 1rem; font-weight: 600; text-transform: none; }
+    .code-inp-big:focus { border-color: var(--green); }
 
     /* ── Home ── */
     #screen-home { overflow-y: auto; padding: clamp(20px,3vw,44px); }
@@ -320,15 +337,37 @@
             <h2 style="margin-top:2px;">Connexion</h2>
           </div>
         </div>
-        <p>Saisissez votre adresse e-mail pour recevoir un lien de connexion magique.</p>
-        <form id="login-form" style="display:flex;flex-direction:column;gap:14px;" novalidate>
-          <div>
-            <div class="inp-label">Adresse e-mail</div>
-            <input id="email-inp" class="inp" type="email" placeholder="vous@mgen.fr" autocomplete="email" required>
-          </div>
-          <div id="login-err" class="err"></div>
-          <button type="submit" class="btn big" id="login-btn" style="justify-content:center;">✉️ Recevoir le lien magique</button>
-        </form>
+
+        <div class="login-tabs">
+          <button class="login-tab active" id="tab-magic">✉️ Lien magique</button>
+          <button class="login-tab" id="tab-code">🔑 Code d'accès</button>
+        </div>
+
+        <!-- Onglet lien magique -->
+        <div class="login-pane active" id="pane-magic">
+          <p style="margin:0;">Recevez un lien de connexion par e-mail.</p>
+          <form id="login-form" style="display:flex;flex-direction:column;gap:14px;" novalidate>
+            <div>
+              <div class="inp-label">Adresse e-mail</div>
+              <input id="email-inp" class="inp" type="email" placeholder="vous@mgen.fr" autocomplete="email" required>
+            </div>
+            <div id="login-err" class="err"></div>
+            <button type="submit" class="btn big" id="login-btn" style="justify-content:center;">✉️ Recevoir le lien magique</button>
+          </form>
+        </div>
+
+        <!-- Onglet code d'accès -->
+        <div class="login-pane" id="pane-code">
+          <p style="margin:0;">Entrez le code animateur pour accéder directement.</p>
+          <form id="code-form" style="display:flex;flex-direction:column;gap:14px;" novalidate>
+            <div>
+              <div class="inp-label">Code d'accès</div>
+              <input id="code-inp" class="code-inp-big" type="password" placeholder="••••••••" autocomplete="off" required>
+            </div>
+            <div id="code-err" class="err"></div>
+            <button type="submit" class="btn big" id="code-btn" style="justify-content:center;">🔑 Accéder</button>
+          </form>
+        </div>
       </div>
     </div>
   </section>
@@ -580,6 +619,33 @@ sb.auth.onAuthStateChange((event, session) => {
   } else {
     showScreen('screen-login')
   }
+})
+
+// ── Onglets login ────────────────────────────────────────────
+const ANIMATEUR_EMAIL = 'animateur@mgen.fr'
+
+$('tab-magic').addEventListener('click', () => {
+  $('tab-magic').classList.add('active'); $('tab-code').classList.remove('active')
+  $('pane-magic').classList.add('active'); $('pane-code').classList.remove('active')
+})
+$('tab-code').addEventListener('click', () => {
+  $('tab-code').classList.add('active'); $('tab-magic').classList.remove('active')
+  $('pane-code').classList.add('active'); $('pane-magic').classList.remove('active')
+  $('code-inp').focus()
+})
+
+$('code-form').addEventListener('submit', async e => {
+  e.preventDefault()
+  const code  = $('code-inp').value.trim()
+  const btn   = $('code-btn'); const errEl = $('code-err')
+  btn.disabled = true; btn.textContent = '⏳ Vérification…'; errEl.classList.remove('show')
+  const { error } = await sb.auth.signInWithPassword({ email: ANIMATEUR_EMAIL, password: code })
+  if (error) {
+    errEl.textContent = 'Code incorrect.'
+    errEl.classList.add('show')
+    $('code-inp').value = ''
+  }
+  btn.disabled = false; btn.textContent = '🔑 Accéder'
 })
 
 $('login-form').addEventListener('submit', async e => {
