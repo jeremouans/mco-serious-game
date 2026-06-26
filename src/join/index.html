@@ -13,81 +13,103 @@
     html, body { overflow: hidden; }
 
     /* ── Join ── */
-    #screen-join {
-      justify-content: center; align-items: center; padding: 20px;
-    }
+    #screen-join { justify-content: center; align-items: center; padding: 20px; }
     .join-card {
       background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.12);
       backdrop-filter: blur(18px); border-radius: 28px;
       padding: clamp(28px,6vw,48px); box-shadow: 0 24px 60px rgba(0,0,0,.45);
-      width: min(420px, 100%); display: flex; flex-direction: column;
-      gap: 20px; animation: pop .3s ease-out;
+      width: min(420px, 100%); display: flex; flex-direction: column; gap: 20px; animation: pop .3s ease-out;
     }
     .join-top { display: flex; align-items: center; gap: 14px; }
     .join-top h1 { font-size: clamp(1.3rem,5vw,1.8rem); font-weight: 900; color: var(--cream); line-height: 1.1; }
-    .join-kicker {
-      display: inline-block; font-weight: 800; font-size: .72rem;
-      letter-spacing: 2px; text-transform: uppercase;
-      background: var(--green); color: #fff;
-      padding: .22em .75em; border-radius: 999px; margin-bottom: 4px;
-    }
-
-    .inp-label { font-weight: 700; font-size: .8rem; color: rgba(243,238,218,.7);
-      letter-spacing: .5px; text-transform: uppercase; margin-bottom: 5px; }
+    .join-kicker { display: inline-block; font-weight: 800; font-size: .72rem; letter-spacing: 2px; text-transform: uppercase; background: var(--green); color: #fff; padding: .22em .75em; border-radius: 999px; margin-bottom: 4px; }
+    .inp-label { font-weight: 700; font-size: .8rem; color: rgba(243,238,218,.7); letter-spacing: .5px; text-transform: uppercase; margin-bottom: 5px; }
     .inp {
       width: 100%; font-family: inherit; font-weight: 700;
       font-size: clamp(1rem,4vw,1.2rem); color: var(--cream);
       background: rgba(255,255,255,.09); border: 2px solid rgba(255,255,255,.16);
-      border-radius: 14px; padding: .65em 1em; outline: none;
-      transition: border-color .2s; -webkit-appearance: none;
+      border-radius: 14px; padding: .65em 1em; outline: none; transition: border-color .2s; -webkit-appearance: none;
     }
     .inp::placeholder { color: rgba(243,238,218,.28); }
     .inp:focus { border-color: var(--green); }
-    .inp.code-inp { text-transform: uppercase; letter-spacing: 4px; font-size: clamp(1.4rem,6vw,1.8rem);
-      text-align: center; font-weight: 900; }
+    .inp.code-inp { text-transform: uppercase; letter-spacing: 4px; font-size: clamp(1.4rem,6vw,1.8rem); text-align: center; }
     .err { color: #ff8080; font-size: .88rem; font-weight: 600; display: none; animation: risein .2s; }
     .err.show { display: block; }
 
     /* ── Waiting ── */
-    #screen-waiting {
-      justify-content: center; align-items: center; gap: clamp(18px,4vh,36px);
-      padding: 24px; text-align: center;
-    }
-    .wait-logo { animation: floatLogo 5s ease-in-out infinite;
-      filter: drop-shadow(0 8px 20px rgba(0,0,0,.4)); }
-    .wait-pseudo {
-      font-size: clamp(2rem,8vw,3.4rem); font-weight: 900; color: var(--gold);
-      text-shadow: 0 4px 24px rgba(244,200,74,.35); animation: nameIn .4s ease-out;
-    }
-    .wait-status {
-      font-size: clamp(1rem,3vw,1.3rem); font-weight: 600;
-      color: rgba(243,238,218,.75); max-width: 340px; line-height: 1.4;
-    }
-    .wait-code-pill {
-      display: inline-flex; align-items: center; gap: 8px;
-      background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.12);
-      border-radius: 999px; padding: .3em 1em;
-      font-weight: 800; font-size: .9rem; color: var(--cream);
-    }
+    #screen-waiting { justify-content: center; align-items: center; gap: clamp(14px,3vh,28px); padding: 24px; text-align: center; }
+    .wait-logo { animation: floatLogo 5s ease-in-out infinite; filter: drop-shadow(0 8px 20px rgba(0,0,0,.4)); }
+    .wait-pseudo { font-size: clamp(2rem,8vw,3.4rem); font-weight: 900; color: var(--gold); text-shadow: 0 4px 24px rgba(244,200,74,.35); animation: nameIn .4s ease-out; }
+    .wait-status { font-size: clamp(1rem,3vw,1.3rem); font-weight: 600; color: rgba(243,238,218,.75); max-width: 340px; line-height: 1.4; }
+    .wait-code-pill { display: inline-flex; align-items: center; gap: 8px; background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.12); border-radius: 999px; padding: .3em 1em; font-weight: 800; font-size: .9rem; color: var(--cream); }
     .wait-code-pill span { font-size: 1.1rem; color: var(--green); letter-spacing: 3px; }
-    .player-count-area {
-      display: flex; align-items: center; gap: 10px;
-      background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.1);
-      border-radius: 999px; padding: .4em 1.2em;
-      font-weight: 700; color: var(--cream); font-size: clamp(.9rem,2.5vw,1.1rem);
-    }
+    .player-count-area { display: flex; align-items: center; gap: 10px; background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.1); border-radius: 999px; padding: .4em 1.2em; font-weight: 700; color: var(--cream); font-size: clamp(.9rem,2.5vw,1.1rem); }
     .player-count-area strong { color: var(--green); font-size: 1.3em; }
-    .spinner {
-      width: 36px; height: 36px; border: 3.5px solid rgba(255,255,255,.15);
-      border-top-color: var(--green); border-radius: 50%;
-      animation: spin .9s linear infinite;
-    }
-    .no-host-banner {
-      background: rgba(244,200,74,.12); border: 1.5px dashed rgba(244,200,74,.55);
-      color: var(--gold); border-radius: 14px; padding: .6em 1.2em;
-      font-weight: 700; font-size: .9rem; display: none; animation: risein .3s;
-    }
+    .spinner { width: 36px; height: 36px; border: 3.5px solid rgba(255,255,255,.15); border-top-color: var(--green); border-radius: 50%; animation: spin .9s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg) } }
+    .no-host-banner { background: rgba(244,200,74,.12); border: 1.5px dashed rgba(244,200,74,.55); color: var(--gold); border-radius: 14px; padding: .6em 1.2em; font-weight: 700; font-size: .9rem; display: none; animation: risein .3s; }
     .no-host-banner.show { display: block; }
+
+    /* ── Question (mobile) ── */
+    #screen-question { flex-direction: column; overflow: hidden; }
+    .qp-top {
+      display: flex; align-items: center; gap: 12px; padding: 12px 16px;
+      background: rgba(0,0,0,.25); flex: none;
+    }
+    .qp-badge { background: rgba(255,255,255,.12); border: 1px solid rgba(255,255,255,.12); border-radius: 999px; padding: .2em .75em; font-weight: 800; font-size: .85rem; color: var(--cream); }
+    .qp-timer-wrap { flex: 1; height: 8px; background: rgba(255,255,255,.15); border-radius: 999px; overflow: hidden; }
+    .qp-timer-fill { height: 100%; background: linear-gradient(90deg,var(--green),var(--green-b)); transition: width .2s linear; }
+    .qp-secs { font-size: 1.3rem; font-weight: 900; color: var(--cream); min-width: 1.8em; text-align: right; }
+    .qp-body { flex: 1; overflow-y: auto; padding: clamp(16px,4vw,28px); display: flex; flex-direction: column; gap: 16px; }
+    .qp-text { font-size: clamp(1.2rem,4.5vw,1.9rem); font-weight: 900; color: var(--cream); line-height: 1.15; text-shadow: 0 3px 16px rgba(0,0,0,.3); }
+    .qp-opts { display: grid; gap: 10px; }
+    .qp-opts.two  { grid-template-columns: 1fr 1fr; }
+    .qp-opts.four { grid-template-columns: 1fr 1fr; }
+    .opt-btn {
+      font-family: inherit; font-weight: 800; font-size: clamp(1rem,4vw,1.3rem);
+      color: #fff; border: none; border-radius: 16px;
+      padding: clamp(18px,4vw,28px) 12px; cursor: pointer; text-align: center;
+      display: flex; flex-direction: column; align-items: center; gap: 6px;
+      box-shadow: 0 6px 20px rgba(0,0,0,.3); transition: transform .1s, filter .1s;
+      -webkit-tap-highlight-color: transparent; position: relative; overflow: hidden;
+    }
+    .opt-btn:active { transform: scale(.96); }
+    .opt-btn::after { content:''; position:absolute; inset:0; background: linear-gradient(180deg,rgba(255,255,255,.18),transparent); }
+    .opt-btn-key  { font-size: 1.5em; font-weight: 900; line-height: 1; }
+    .opt-btn-text { font-size: .75em; font-weight: 700; opacity: .95; line-height: 1.2; }
+    .opt-btn.selected { box-shadow: 0 0 0 4px #fff, 0 6px 20px rgba(0,0,0,.3); transform: scale(1.04); }
+    .opt-btn.correct  { box-shadow: 0 0 0 4px #fff, 0 0 30px rgba(39,174,96,.6); }
+    .opt-btn.wrong    { opacity: .35; }
+    .opt-btn:disabled { cursor: default; }
+    .opt-btn.dim      { opacity: .35; cursor: default; }
+
+    /* ── Answered ── */
+    #screen-answered { justify-content: center; align-items: center; gap: clamp(14px,4vh,30px); padding: 24px; text-align: center; }
+    .answered-icon { font-size: clamp(3.5rem,12vw,5.5rem); animation: pop .4s ease-out; }
+    .answered-msg  { font-size: clamp(1.5rem,5vw,2.2rem); font-weight: 900; color: var(--cream); }
+    .answered-sub  { font-size: clamp(1rem,3vw,1.3rem); color: rgba(243,238,218,.65); }
+    .answered-timer { font-size: clamp(1.8rem,7vw,3rem); font-weight: 900; color: var(--green); }
+
+    /* ── Résultat révélation ── */
+    #screen-player-reveal { justify-content: center; align-items: center; gap: clamp(12px,3.5vh,26px); padding: 24px; text-align: center; }
+    .result-icon  { font-size: clamp(4rem,14vw,6rem); animation: pop .5s cubic-bezier(.2,1.6,.4,1) both; }
+    .result-msg   { font-size: clamp(1.6rem,6vw,2.6rem); font-weight: 900; color: var(--cream); }
+    .result-pts   { font-size: clamp(2rem,8vw,3.4rem); font-weight: 900; }
+    .result-pts.gain { color: var(--gold); text-shadow: 0 4px 20px rgba(244,200,74,.4); animation: pop .4s .1s ease-out both; }
+    .result-pts.zero { color: rgba(243,238,218,.4); }
+    .result-total { font-size: clamp(1rem,3.5vw,1.4rem); font-weight: 700; color: rgba(243,238,218,.7); }
+    .result-explain {
+      background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.12);
+      border-radius: 16px; padding: 14px 18px; font-size: clamp(.9rem,2.5vw,1.1rem);
+      color: rgba(243,238,218,.88); line-height: 1.5; max-width: 420px; text-align: left;
+    }
+
+    /* ── Fin de partie joueur ── */
+    #screen-player-gameover { justify-content: center; align-items: center; gap: clamp(12px,3.5vh,26px); padding: 24px; text-align: center; }
+    .go-player-rank  { font-size: clamp(3rem,14vw,6rem); animation: pop .5s ease-out; }
+    .go-player-score { font-size: clamp(1.6rem,6vw,2.4rem); font-weight: 900; color: var(--gold); }
+    .go-player-msg   { font-size: clamp(1rem,3.5vw,1.4rem); font-weight: 700; color: rgba(243,238,218,.8); max-width: 320px; }
+    .go-player-winner { font-size: clamp(.9rem,3vw,1.15rem); font-weight: 600; color: rgba(243,238,218,.55); }
   </style>
 </head>
 <body>
@@ -104,22 +126,17 @@
           <h1>Rejoindre<br>la partie</h1>
         </div>
       </div>
-
       <form id="join-form" style="display:flex;flex-direction:column;gap:16px;" novalidate>
         <div>
           <div class="inp-label">Code de session</div>
-          <input id="code-inp" class="inp code-inp" type="text" maxlength="6"
-            placeholder="XXXXXX" autocomplete="off" autocorrect="off" autocapitalize="characters" spellcheck="false">
+          <input id="code-inp" class="inp code-inp" type="text" maxlength="6" placeholder="XXXXXX" autocomplete="off" autocorrect="off" autocapitalize="characters" spellcheck="false">
         </div>
         <div>
           <div class="inp-label">Ton prénom / pseudo</div>
-          <input id="name-inp" class="inp" type="text" maxlength="24"
-            placeholder="Ex : Camille" autocomplete="nickname">
+          <input id="name-inp" class="inp" type="text" maxlength="24" placeholder="Ex : Camille" autocomplete="nickname">
         </div>
         <div id="join-err" class="err"></div>
-        <button type="submit" class="btn big" id="join-btn" style="justify-content:center;">
-          🚀 Rejoindre
-        </button>
+        <button type="submit" class="btn big" id="join-btn" style="justify-content:center;">🚀 Rejoindre</button>
       </form>
     </div>
   </section>
@@ -129,15 +146,50 @@
     <div id="logo-w" class="wait-logo" style="width:72px;height:72px;"></div>
     <div class="wait-pseudo" id="wait-name"></div>
     <div class="wait-code-pill">Code&nbsp;<span id="wait-code"></span></div>
-    <div class="no-host-banner" id="no-host-banner">
-      ⚠️ Code invalide ou partie pas encore ouverte — vérifiez avec l'animateur.
-    </div>
+    <div class="no-host-banner" id="no-host-banner">⚠️ Code invalide ou partie pas encore ouverte.</div>
     <div class="wait-status">En attente de l'animateur…</div>
-    <div class="player-count-area">
-      <strong id="wait-count">1</strong> participant(s) connecté(s)
-    </div>
+    <div class="player-count-area"><strong id="wait-count">1</strong>&nbsp;participant(s) connecté(s)</div>
     <div class="spinner"></div>
     <button class="btn ghost sm" id="leave-btn">← Changer de code</button>
+  </section>
+
+  <!-- ══ QUESTION ═══════════════════════════════════════════ -->
+  <section class="screen" id="screen-question">
+    <div class="qp-top">
+      <div class="qp-badge">Q <span id="qp-idx">1</span>/<span id="qp-total">14</span></div>
+      <div class="qp-timer-wrap"><div class="qp-timer-fill" id="qp-timer-fill" style="width:100%"></div></div>
+      <div class="qp-secs" id="qp-secs">20</div>
+    </div>
+    <div class="qp-body">
+      <div class="qp-text" id="qp-text"></div>
+      <div class="qp-opts four" id="qp-opts"></div>
+    </div>
+  </section>
+
+  <!-- ══ ANSWERED ═══════════════════════════════════════════ -->
+  <section class="screen" id="screen-answered">
+    <div class="answered-icon">✅</div>
+    <div class="answered-msg">Réponse envoyée !</div>
+    <div class="answered-sub">En attente de la révélation…</div>
+    <div class="answered-timer" id="answered-timer">—</div>
+  </section>
+
+  <!-- ══ RÉSULTAT ═══════════════════════════════════════════ -->
+  <section class="screen" id="screen-player-reveal">
+    <div class="result-icon" id="result-icon"></div>
+    <div class="result-msg"  id="result-msg"></div>
+    <div class="result-pts"  id="result-pts"></div>
+    <div class="result-total" id="result-total"></div>
+    <div class="result-explain" id="result-explain" style="display:none;"></div>
+  </section>
+
+  <!-- ══ FIN DE PARTIE ══════════════════════════════════════ -->
+  <section class="screen" id="screen-player-gameover">
+    <div class="go-player-rank"  id="player-rank"></div>
+    <div class="go-player-score" id="player-final-score"></div>
+    <div class="go-player-msg"   id="player-go-msg"></div>
+    <div class="go-player-winner" id="player-winner-info"></div>
+    <button class="btn cream" id="play-again-btn">🔄 Rejouer</button>
   </section>
 
 </div>
@@ -146,15 +198,31 @@
 import { sb } from '../lib/supabase.js'
 
 // ── Constantes ──────────────────────────────────────────────
+const OPT_COLORS = ['#e74c3c','#2980b9','#f0b429','#27ae60']
+const OPT_KEYS   = ['A','B','C','D']
+
 const LOGO_SVG = `<svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
   <path d="M24 12h72a18 18 0 0 1 18 18v44a18 18 0 0 1-18 18H58l-22 22 4-22h-16a18 18 0 0 1-18-18V30A18 18 0 0 1 24 12Z" fill="#f1e9d2"/>
   <path d="M60 30 69 49l21 3-15 15 4 21-19-10-19 10 4-21-15-15 21-3z" fill="#6aa517"/></svg>`
 
-// ── État ────────────────────────────────────────────────────
-let activeChannel = null
-let hostCheckTimer = null
+// ── État joueur ──────────────────────────────────────────────
+const PS = {
+  tempId:            crypto.randomUUID(),
+  name:              null,
+  code:              null,
+  score:             0,
+  currentQuestionId: null,
+  hasAnswered:       false,
+  selectedOption:    null,
+  timerInterval:     null,
+  endsAt:            0,
+  timerDuration:     0
+}
 
 // ── Utils ───────────────────────────────────────────────────
+let activeChannel   = null
+let hostCheckTimer  = null
+
 const $ = id => document.getElementById(id)
 
 function showScreen(id) {
@@ -163,68 +231,44 @@ function showScreen(id) {
 }
 
 function spawnStars() {
-  const box = $('stars')
-  if (!box) return
-  box.innerHTML = ''
+  const box = $('stars'); if (!box) return; box.innerHTML = ''
   for (let i = 0; i < 12; i++) {
-    const s = document.createElement('span')
-    s.className = 'star'
-    s.textContent = '✦'
-    s.style.left = Math.random() * 100 + '%'
-    s.style.top  = Math.random() * 100 + '%'
+    const s = document.createElement('span'); s.className = 'star'; s.textContent = '✦'
+    s.style.left = Math.random() * 100 + '%'; s.style.top = Math.random() * 100 + '%'
     s.style.fontSize = (8 + Math.random() * 22) + 'px'
     s.style.setProperty('--d', (3 + Math.random() * 4).toFixed(2) + 's')
     s.style.setProperty('--f', (7 + Math.random() * 8).toFixed(2) + 's')
-    s.style.animationDelay = (Math.random() * -6).toFixed(2) + 's, ' + (Math.random() * -8).toFixed(2) + 's'
+    s.style.animationDelay = (Math.random()*-6).toFixed(2)+'s, '+(Math.random()*-8).toFixed(2)+'s'
     box.appendChild(s)
   }
 }
 
-// ── Pré-remplissage depuis URL ──────────────────────────────
+// ── Pré-remplissage URL ──────────────────────────────────────
 const params = new URLSearchParams(window.location.search)
 const codeFromUrl = (params.get('code') || '').toUpperCase().replace(/[^A-Z0-9]/g, '')
 if (codeFromUrl) $('code-inp').value = codeFromUrl
 
-// ── Formulaire de jonction ───────────────────────────────────
+// ── Formulaire join ───────────────────────────────────────────
 $('join-form').addEventListener('submit', async e => {
   e.preventDefault()
-
   const code  = $('code-inp').value.trim().toUpperCase().replace(/[^A-Z0-9]/g, '')
   const name  = $('name-inp').value.trim()
-  const errEl = $('join-err')
-  const btn   = $('join-btn')
-
+  const errEl = $('join-err'); const btn = $('join-btn')
   errEl.classList.remove('show')
-
-  if (code.length !== 6) {
-    errEl.textContent = 'Le code doit comporter 6 caractères.'; errEl.classList.add('show'); return
-  }
-  if (!name) {
-    errEl.textContent = 'Saisis ton prénom ou un pseudo.'; errEl.classList.add('show'); return
-  }
-
-  btn.disabled = true
-  btn.textContent = '⏳ Connexion…'
-
-  try {
-    await joinLobby(code, name)
-  } catch (err) {
-    errEl.textContent = err.message
-    errEl.classList.add('show')
-    btn.disabled = false
-    btn.textContent = '🚀 Rejoindre'
-  }
+  if (code.length !== 6) { errEl.textContent = 'Le code doit comporter 6 caractères.'; errEl.classList.add('show'); return }
+  if (!name) { errEl.textContent = 'Saisis ton prénom ou un pseudo.'; errEl.classList.add('show'); return }
+  btn.disabled = true; btn.textContent = '⏳ Connexion…'
+  try { await joinLobby(code, name) }
+  catch (err) { errEl.textContent = err.message; errEl.classList.add('show') }
+  finally { btn.disabled = false; btn.textContent = '🚀 Rejoindre' }
 })
 
-// ── Connexion au lobby ───────────────────────────────────────
+// ── Rejoindre le lobby ───────────────────────────────────────
 async function joinLobby(code, name) {
-  if (activeChannel) {
-    clearTimeout(hostCheckTimer)
-    await activeChannel.unsubscribe()
-    activeChannel = null
-  }
+  PS.name = name; PS.code = code; PS.score = 0
 
-  // Afficher l'écran d'attente
+  if (activeChannel) { clearTimeout(hostCheckTimer); await activeChannel.unsubscribe(); activeChannel = null }
+
   $('wait-name').textContent = name
   $('wait-code').textContent = code
   $('wait-count').textContent = '1'
@@ -236,44 +280,164 @@ async function joinLobby(code, name) {
   activeChannel
     .on('presence', { event: 'sync' }, () => {
       const state = activeChannel.presenceState()
-      const all     = Object.values(state).flat()
-      const players = all.filter(p => p.role === 'player')
-      $('wait-count').textContent = players.length
-
-      // Vérifier si un hôte est présent
-      const hasHost = all.some(p => p.role === 'host')
-      if (hostCheckTimer && hasHost) {
-        clearTimeout(hostCheckTimer)
-        hostCheckTimer = null
-        $('no-host-banner').classList.remove('show')
+      const all = Object.values(state).flat()
+      $('wait-count').textContent = all.filter(p => p.role === 'player').length
+      if (hostCheckTimer && all.some(p => p.role === 'host')) {
+        clearTimeout(hostCheckTimer); hostCheckTimer = null; $('no-host-banner').classList.remove('show')
       }
     })
+    .on('broadcast', { event: 'question:show' },  ({ payload }) => handleQuestionShow(payload))
+    .on('broadcast', { event: 'question:reveal' }, ({ payload }) => handleReveal(payload))
+    .on('broadcast', { event: 'game:ended' },      ({ payload }) => handleGameEnded(payload))
     .subscribe(async status => {
       if (status === 'SUBSCRIBED') {
-        await activeChannel.track({ role: 'player', name })
-
-        // Si pas d'hôte au bout de 5s → avertissement
+        await activeChannel.track({ role: 'player', name, tempId: PS.tempId })
         hostCheckTimer = setTimeout(() => {
           const state = activeChannel.presenceState()
-          const hasHost = Object.values(state).flat().some(p => p.role === 'host')
-          if (!hasHost) $('no-host-banner').classList.add('show')
+          if (!Object.values(state).flat().some(p => p.role === 'host'))
+            $('no-host-banner').classList.add('show')
         }, 5000)
       }
     })
 }
 
-// ── Quitter le lobby ─────────────────────────────────────────
 $('leave-btn').addEventListener('click', async () => {
-  clearTimeout(hostCheckTimer)
-  hostCheckTimer = null
-  if (activeChannel) {
-    await activeChannel.unsubscribe()
-    activeChannel = null
-  }
-  $('join-btn').disabled = false
-  $('join-btn').textContent = '🚀 Rejoindre'
+  clearTimeout(hostCheckTimer); hostCheckTimer = null
+  clearInterval(PS.timerInterval)
+  if (activeChannel) { await activeChannel.unsubscribe(); activeChannel = null }
+  $('join-btn').disabled = false; $('join-btn').textContent = '🚀 Rejoindre'
   showScreen('screen-join')
 })
+
+$('play-again-btn').addEventListener('click', () => showScreen('screen-join'))
+
+// ── Question reçue ────────────────────────────────────────────
+function handleQuestionShow(payload) {
+  PS.currentQuestionId = payload.questionId
+  PS.hasAnswered       = false
+  PS.selectedOption    = null
+  PS.endsAt            = payload.endsAt
+  PS.timerDuration     = payload.timer
+  clearInterval(PS.timerInterval)
+
+  $('qp-idx').textContent   = payload.idx + 1
+  $('qp-total').textContent = payload.total
+  $('qp-text').textContent  = payload.text
+
+  const opts = $('qp-opts'); opts.innerHTML = ''
+  payload.options.forEach((opt, i) => {
+    const txt = typeof opt === 'string' ? opt : opt.text
+    const btn = document.createElement('button')
+    btn.className = 'opt-btn'
+    btn.style.background = OPT_COLORS[i]
+    btn.dataset.idx = i
+    btn.innerHTML = `<span class="opt-btn-key">${OPT_KEYS[i]}</span><span class="opt-btn-text">${txt}</span>`
+    btn.addEventListener('click', () => submitAnswer(i))
+    opts.appendChild(btn)
+  })
+  opts.className = 'qp-opts ' + (payload.options.length === 2 ? 'two' : 'four')
+
+  showScreen('screen-question')
+
+  // Countdown
+  PS.timerInterval = setInterval(() => {
+    const rem   = PS.endsAt - Date.now()
+    const ratio = Math.max(0, rem / (PS.timerDuration * 1000))
+    $('qp-secs').textContent = Math.max(0, Math.ceil(rem / 1000))
+    $('qp-timer-fill').style.width = (ratio * 100) + '%'
+    $('qp-timer-fill').style.background = ratio > 0.33
+      ? 'linear-gradient(90deg,var(--green),var(--green-b))'
+      : ratio > 0.15 ? 'linear-gradient(90deg,#e8a020,#f4c84a)'
+      : 'linear-gradient(90deg,#c0392b,#e74c3c)'
+    if (rem <= 0) {
+      clearInterval(PS.timerInterval)
+      if (!PS.hasAnswered) showNoAnswer()
+    }
+  }, 200)
+}
+
+function showNoAnswer() {
+  PS.hasAnswered = true
+  const el = document.createElement('div')
+  el.style.cssText = 'position:fixed;inset:0;z-index:9;display:flex;align-items:center;justify-content:center;'
+  el.innerHTML = '<div style="text-align:center;color:var(--cream)"><div style="font-size:4rem">⏰</div><div style="font-weight:900;font-size:1.5rem;margin-top:8px">Temps écoulé !</div></div>'
+  document.body.appendChild(el)
+  setTimeout(() => { el.remove(); showScreen('screen-answered'); $('answered-timer').textContent = '' }, 1200)
+}
+
+// ── Soumettre une réponse ─────────────────────────────────────
+function submitAnswer(value) {
+  if (PS.hasAnswered || Date.now() > PS.endsAt) return
+  PS.hasAnswered    = true
+  PS.selectedOption = value
+  clearInterval(PS.timerInterval)
+
+  // Feedback visuel
+  document.querySelectorAll('.opt-btn').forEach((btn, i) => {
+    if (i === value) btn.classList.add('selected'); else btn.classList.add('dim')
+    btn.disabled = true
+  })
+
+  activeChannel.send({ type: 'broadcast', event: 'answer', payload: {
+    tempId:     PS.tempId,
+    name:       PS.name,
+    questionId: PS.currentQuestionId,
+    value:      String(value),
+    clientTs:   Date.now()
+  }})
+
+  showScreen('screen-answered')
+
+  // Countdown pendant l'attente
+  PS.timerInterval = setInterval(() => {
+    const rem = PS.endsAt - Date.now()
+    $('answered-timer').textContent = rem > 0 ? Math.ceil(rem / 1000) + 's' : '⏳'
+    if (rem <= 0) clearInterval(PS.timerInterval)
+  }, 200)
+}
+
+// ── Révélation reçue ─────────────────────────────────────────
+function handleReveal(payload) {
+  clearInterval(PS.timerInterval)
+
+  const myEntry   = payload.scores.find(s => s.tempId === PS.tempId)
+  const isCorrect = PS.hasAnswered && String(PS.selectedOption) === String(payload.correct)
+  const delta     = myEntry?.delta ?? 0
+  PS.score        = myEntry?.total ?? PS.score
+
+  $('result-icon').textContent = isCorrect ? '✅' : PS.hasAnswered ? '❌' : '⏰'
+  $('result-msg').textContent  = isCorrect ? 'Bonne réponse !' : PS.hasAnswered ? 'Raté !' : 'Pas de réponse'
+  $('result-pts').textContent  = delta > 0 ? `+${delta} pts` : '0 pt'
+  $('result-pts').className    = 'result-pts ' + (delta > 0 ? 'gain' : 'zero')
+  $('result-total').textContent = `Total : ${PS.score} pt${PS.score > 1 ? 's' : ''}`
+
+  const expEl = $('result-explain')
+  if (payload.explain) { expEl.textContent = payload.explain; expEl.style.display = 'block' }
+  else expEl.style.display = 'none'
+
+  showScreen('screen-player-reveal')
+}
+
+// ── Fin de partie reçue ───────────────────────────────────────
+function handleGameEnded(payload) {
+  clearInterval(PS.timerInterval)
+
+  const myEntry = payload.scoreboard.find(s => s.tempId === PS.tempId)
+  const rank    = myEntry?.rank  ?? '?'
+  const score   = myEntry?.score ?? PS.score
+  const winner  = payload.scoreboard[0]
+  const total   = payload.scoreboard.length
+
+  const rankStr  = rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : `#${rank}`
+  const placeStr = `${rank === 1 ? '1ère' : rank === 2 ? '2e' : rank === 3 ? '3e' : rank + 'e'} place sur ${total}`
+
+  $('player-rank').textContent        = rankStr
+  $('player-final-score').textContent = `${score} pts`
+  $('player-go-msg').textContent      = rank === 1 ? '🎉 Tu as gagné !' : placeStr
+  $('player-winner-info').textContent = rank === 1 ? '' : `👑 Vainqueur : ${winner?.name ?? '—'} (${winner?.score ?? 0} pts)`
+
+  showScreen('screen-player-gameover')
+}
 
 // ── Init ─────────────────────────────────────────────────────
 $('logo-j').innerHTML = LOGO_SVG

@@ -28,8 +28,7 @@
       width: 100%; font-family: inherit; font-weight: 600;
       font-size: clamp(1rem,2vw,1.15rem); color: var(--cream);
       background: rgba(255,255,255,.08); border: 2px solid rgba(255,255,255,.15);
-      border-radius: 14px; padding: .65em 1em; outline: none;
-      transition: border-color .2s;
+      border-radius: 14px; padding: .65em 1em; outline: none; transition: border-color .2s;
     }
     .inp::placeholder { color: rgba(243,238,218,.3); }
     .inp:focus { border-color: var(--green); }
@@ -46,8 +45,7 @@
     .quiz-card {
       background: var(--panel); color: var(--ever); border-radius: 22px;
       padding: clamp(18px,2.8vw,30px); box-shadow: var(--shadow-sm);
-      display: flex; align-items: center; gap: 18px; flex-wrap: wrap;
-      animation: risein .4s ease-out;
+      display: flex; align-items: center; gap: 18px; flex-wrap: wrap; animation: risein .4s ease-out;
     }
     .quiz-icon { font-size: 2.8rem; flex: none; }
     .quiz-info { flex: 1; min-width: 200px; }
@@ -58,8 +56,7 @@
       display: inline-flex; align-items: center; gap: 10px;
       background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.12);
       border-radius: 14px; padding: .5em 1em; margin: 0 8px 8px 0;
-      font-weight: 700; font-size: .95rem; color: var(--cream); cursor: pointer;
-      transition: background .15s;
+      font-weight: 700; font-size: .95rem; color: var(--cream); cursor: pointer; transition: background .15s;
     }
     .session-chip:hover { background: rgba(255,255,255,.14); }
     .session-chip .code { font-weight: 900; color: var(--green); }
@@ -70,49 +67,113 @@
     .lobby-wrap { width: min(980px,100%); margin: auto; display: flex; flex-direction: column; gap: 20px; }
     .lobby-topbar { display: flex; align-items: center; gap: 12px; }
     .lobby-topbar h2 { font-size: clamp(1.1rem,2.5vw,1.7rem); font-weight: 900; color: var(--cream); flex: 1; }
-    .lobby-grid { display: grid; grid-template-columns: 240px 1fr; gap: 20px; align-items: start; }
+    .lobby-grid { display: grid; grid-template-columns: 272px 1fr; gap: 20px; align-items: start; }
     @media (max-width: 620px) { .lobby-grid { grid-template-columns: 1fr; } }
-
     .code-panel {
       background: var(--panel); color: var(--ever); border-radius: 22px;
-      padding: 22px; display: flex; flex-direction: column; align-items: center; gap: 14px;
-      box-shadow: var(--shadow);
+      padding: 20px; display: flex; flex-direction: column; align-items: center; gap: 14px;
+      box-shadow: var(--shadow); overflow: hidden; min-width: 0;
     }
-    .code-lbl { font-size: .72rem; font-weight: 800; text-transform: uppercase;
-      letter-spacing: 2px; color: #4a5a4f; }
-    .big-code {
-      font-size: clamp(2.4rem,5vw,3.4rem); font-weight: 900; letter-spacing: 6px;
-      color: var(--ever); line-height: 1; text-align: center;
-    }
-    #qr-wrap { line-height: 0; border-radius: 12px; overflow: hidden; }
-    #qr-wrap img, #qr-wrap canvas { display: block; border-radius: 12px; }
+    .code-lbl { font-size: .72rem; font-weight: 800; text-transform: uppercase; letter-spacing: 2px; color: #4a5a4f; }
+    .big-code { font-size: clamp(1.9rem,3.5vw,2.6rem); font-weight: 900; letter-spacing: 4px; color: var(--ever); line-height: 1; text-align: center; }
+    #qr-wrap { width: 100%; line-height: 0; border-radius: 12px; overflow: hidden; }
+    #qr-wrap img, #qr-wrap canvas { display: block; width: 100%; height: auto; border-radius: 12px; }
     .join-url { font-size: .72rem; color: #4a5a4f; text-align: center; word-break: break-all; }
-
     .players-panel {
       background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.09);
       border-radius: 22px; padding: 20px; display: flex; flex-direction: column; gap: 14px;
     }
     .players-top { display: flex; align-items: center; justify-content: space-between; }
     .players-top h3 { font-weight: 800; font-size: clamp(1rem,2vw,1.25rem); color: var(--cream); }
-    .count-pill {
-      background: var(--green); color: #fff; font-weight: 900;
-      font-size: .88rem; padding: .22em .75em; border-radius: 999px; min-width: 2em; text-align: center;
-    }
+    .count-pill { background: var(--green); color: #fff; font-weight: 900; font-size: .88rem; padding: .22em .75em; border-radius: 999px; min-width: 2em; text-align: center; }
     #player-list { display: flex; flex-wrap: wrap; gap: 10px; min-height: 56px; }
     .p-chip {
       display: flex; align-items: center; gap: 8px;
       background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.1);
-      border-radius: 999px; padding: .3em .8em .3em .35em;
-      animation: badgeIn .3s ease-out;
+      border-radius: 999px; padding: .3em .8em .3em .35em; animation: badgeIn .3s ease-out;
     }
-    .p-chip .av {
-      width: 1.8em; height: 1.8em; border-radius: 50%; display: grid; place-items: center;
-      font-weight: 900; font-size: .78em; color: #fff; flex: none;
-    }
+    .p-chip .av { width: 1.8em; height: 1.8em; border-radius: 50%; display: grid; place-items: center; font-weight: 900; font-size: .78em; color: #fff; flex: none; }
     .p-chip .nm { font-weight: 700; font-size: .95rem; color: var(--cream); }
     .empty-msg { color: rgba(243,238,218,.35); font-size: .95rem; font-style: italic; }
     .lobby-footer { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
-    .lobby-footer .hint { color: rgba(243,238,218,.45); font-size: .88rem; }
+    .lobby-footer .hint { color: rgba(243,238,218,.55); font-size: .88rem; }
+
+    /* ── Jeu actif ── */
+    #screen-game { overflow-y: auto; padding: clamp(14px,2.2vw,32px); }
+    .game-wrap { width: min(1100px,100%); margin: auto; display: flex; flex-direction: column; gap: 16px; }
+    .game-topbar { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+    .q-badge { background: var(--green); color: #fff; font-weight: 900; font-size: .85rem; padding: .3em .9em; border-radius: 999px; white-space: nowrap; }
+    .timer-wrap { flex: 1; display: flex; align-items: center; gap: 10px; }
+    .timer-track { flex: 1; height: 10px; background: rgba(255,255,255,.15); border-radius: 999px; overflow: hidden; }
+    .timer-fill { height: 100%; border-radius: 999px; background: linear-gradient(90deg,var(--green),var(--green-b)); transition: width .15s linear; }
+    .timer-secs { font-size: 1.5rem; font-weight: 900; color: var(--cream); min-width: 2em; text-align: right; }
+    .ans-badge { background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.1); border-radius: 999px; padding: .25em .85em; font-weight: 800; font-size: .88rem; color: var(--cream); white-space: nowrap; }
+    .q-text-host { font-size: clamp(1.5rem,3.8vw,3rem); font-weight: 900; color: var(--cream); line-height: 1.08; text-shadow: 0 4px 24px rgba(0,0,0,.3); }
+    .opts-host { display: grid; gap: 12px; }
+    .opts-host.two  { grid-template-columns: 1fr 1fr; }
+    .opts-host.four { grid-template-columns: 1fr 1fr; }
+    .opt-host {
+      display: flex; align-items: center; gap: 12px;
+      background: var(--panel); border-radius: 16px; padding: .65em 1em;
+      box-shadow: var(--shadow-sm); transition: opacity .2s, background .2s;
+      animation: optIn .35s ease-out backwards;
+    }
+    @keyframes optIn { from { opacity:0; transform:translateY(14px) scale(.97) } to { opacity:1; transform:none } }
+    .opts-host .opt-host:nth-child(1){ animation-delay:.04s }
+    .opts-host .opt-host:nth-child(2){ animation-delay:.08s }
+    .opts-host .opt-host:nth-child(3){ animation-delay:.12s }
+    .opts-host .opt-host:nth-child(4){ animation-delay:.16s }
+    .opt-key-host { width: 2em; height: 2em; border-radius: 10px; display: grid; place-items: center; font-weight: 900; color: #fff; font-size: 1rem; flex: none; }
+    .opt-text-host { flex: 1; font-weight: 700; font-size: clamp(.95rem,2vw,1.3rem); color: var(--ever); }
+    .opt-bar-wrap { width: clamp(60px,10vw,120px); height: 8px; background: #e8f0e0; border-radius: 999px; overflow: hidden; flex: none; }
+    .opt-bar { height: 100%; background: var(--green); border-radius: 999px; transition: width .4s ease; }
+    .opt-cnt { font-weight: 900; font-size: 1rem; color: #4a5a4f; min-width: 1.4em; text-align: right; }
+    .opt-host.correct { background: var(--green); }
+    .opt-host.correct .opt-text-host { color: #fff; }
+    .opt-host.correct .opt-cnt { color: rgba(255,255,255,.9); }
+    .opt-host.correct .opt-bar-wrap { background: rgba(255,255,255,.25); }
+    .opt-host.correct .opt-bar { background: #fff; }
+    .opt-host.dim { opacity: .3; }
+    .explain-box {
+      background: var(--cream); color: var(--ever); border-radius: 16px;
+      padding: clamp(12px,2vw,20px); border-left: 8px solid var(--green);
+      font-size: clamp(.95rem,1.8vw,1.2rem); line-height: 1.5; display: none; animation: risein .3s ease-out;
+    }
+    .game-actions { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+
+    /* ── Scoreboard (between questions) ── */
+    #screen-scoreboard-host { overflow-y: auto; padding: clamp(16px,3vw,44px); }
+    .sb-wrap { width: min(860px,100%); margin: auto; display: flex; flex-direction: column; gap: 18px; }
+    .sb-title { font-size: clamp(1.8rem,5vw,3.4rem); font-weight: 900; color: var(--cream); text-align: center; text-shadow: 0 6px 30px rgba(0,0,0,.35); animation: nameIn .4s ease-out; }
+    #sb-lines { display: flex; flex-direction: column; gap: 10px; }
+    .sb-line {
+      display: flex; align-items: center; gap: 12px;
+      background: var(--panel); color: var(--ever); border-radius: 16px;
+      box-shadow: var(--shadow-sm); padding: .5em .9em; animation: risein .5s backwards;
+    }
+    .sb-rank { font-size: clamp(1.2rem,2.5vw,1.9rem); font-weight: 900; color: var(--green); width: 1.8em; text-align: center; }
+    .sb-nm   { font-weight: 700; font-size: clamp(1rem,2vw,1.5rem); color: var(--ever); flex: 1; }
+    .sb-bar  { flex: 2; height: clamp(10px,1.6vw,18px); border-radius: 999px; background: #e8f0e0; overflow: hidden; position: relative; }
+    .sb-bar i { display: block; height: 100%; background: linear-gradient(90deg,var(--green),var(--green-b)); transition: width .9s cubic-bezier(.2,1,.3,1); position: relative; overflow: hidden; }
+    .sb-bar i::after { content:''; position:absolute;inset:0;background:linear-gradient(110deg,transparent 30%,rgba(255,255,255,.5) 50%,transparent 70%);transform:translateX(-120%);animation:sweep 2.2s linear infinite; }
+    @keyframes sweep { to { transform: translateX(230%) } }
+    .sb-sc   { font-weight: 900; font-size: clamp(1.1rem,2.5vw,1.9rem); color: var(--ever); min-width: 2.4em; text-align: right; }
+    .sb-actions { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
+
+    /* ── Fin de partie ── */
+    #screen-gameover-host { overflow-y: auto; padding: clamp(16px,3vw,44px); justify-content: center; align-items: center; text-align: center; gap: clamp(12px,2.4vh,24px); }
+    .crown   { font-size: clamp(2.8rem,7vw,5rem); animation: floatY 2.4s ease-in-out infinite; }
+    .win-name { font-size: clamp(2.4rem,9vw,6.4rem); font-weight: 900; color: var(--gold); text-shadow: 0 0 40px rgba(244,200,74,.5); animation: nameIn .45s ease-out; }
+    .go-ranks { display: flex; flex-direction: column; gap: 8px; width: min(640px,92vw); }
+    .go-rank-row {
+      display: flex; align-items: center; gap: 12px;
+      background: var(--panel); color: var(--ever); border-radius: 14px;
+      padding: .5em .9em; box-shadow: var(--shadow-sm); font-size: clamp(.95rem,1.8vw,1.3rem);
+      animation: risein .5s backwards;
+    }
+    .go-rank-num   { font-weight: 900; font-size: 1.2em; color: var(--green); width: 1.5em; text-align: center; }
+    .go-rank-name  { font-weight: 700; flex: 1; }
+    .go-rank-score { font-weight: 900; color: var(--green); }
   </style>
 </head>
 <body>
@@ -137,9 +198,7 @@
             <input id="email-inp" class="inp" type="email" placeholder="vous@mgen.fr" autocomplete="email" required>
           </div>
           <div id="login-err" class="err"></div>
-          <button type="submit" class="btn big" id="login-btn" style="justify-content:center;">
-            ✉️ Recevoir le lien magique
-          </button>
+          <button type="submit" class="btn big" id="login-btn" style="justify-content:center;">✉️ Recevoir le lien magique</button>
         </form>
       </div>
     </div>
@@ -151,7 +210,7 @@
       <div class="card" style="text-align:center;align-items:center;">
         <div style="font-size:4rem;animation:floatY 2.5s ease-in-out infinite;line-height:1;">📬</div>
         <h2>Vérifiez vos e-mails !</h2>
-        <p>Un lien de connexion a été envoyé à<br><strong id="email-sent" style="color:var(--green);"></strong>.<br>Cliquez dessus pour ouvrir l'espace animateur.</p>
+        <p>Un lien de connexion a été envoyé à<br><strong id="email-sent" style="color:var(--green);"></strong>.</p>
         <button class="btn ghost sm" id="back-login-btn">← Autre adresse</button>
       </div>
     </div>
@@ -168,16 +227,14 @@
         </div>
         <button class="btn ghost sm" id="logout-btn">Déconnexion</button>
       </div>
-
       <div class="quiz-card">
         <div class="quiz-icon">🎯</div>
         <div class="quiz-info">
           <h3>Engagements 2030 — le Quizz</h3>
-          <p>Serious game MGEN · Questions à choix multiples · Temps réel</p>
+          <p>14 questions auto-scorées · Serious game MGEN · Temps réel</p>
         </div>
         <button class="btn big" id="create-btn">▶ Créer une session</button>
       </div>
-
       <div class="sessions-section" id="sessions-section" style="display:none;">
         <h3>Sessions ouvertes</h3>
         <div id="sessions-list"></div>
@@ -192,33 +249,67 @@
         <button class="btn ghost sm" id="back-home-btn">← Accueil</button>
         <h2>🏠 Salle d'attente</h2>
       </div>
-
       <div class="lobby-grid">
-        <!-- Code + QR -->
         <div class="code-panel">
           <div class="code-lbl">Code de session</div>
           <div class="big-code" id="code-display">——</div>
           <div id="qr-wrap"></div>
           <div class="join-url" id="join-url"></div>
         </div>
-
-        <!-- Joueurs -->
         <div class="players-panel">
           <div class="players-top">
             <h3>👥 Participants</h3>
             <span class="count-pill" id="player-count">0</span>
           </div>
-          <div id="player-list">
-            <p class="empty-msg">En attente des participants…</p>
-          </div>
+          <div id="player-list"><p class="empty-msg">En attente des participants…</p></div>
         </div>
       </div>
-
       <div class="lobby-footer">
         <button class="btn big" id="start-btn" disabled>▶ Démarrer la partie</button>
-        <span class="hint" id="start-hint">Phase 2 — boucle de jeu à venir</span>
+        <span class="hint" id="start-hint">En attente de joueurs…</span>
       </div>
     </div>
+  </section>
+
+  <!-- ══ JEU ACTIF ═══════════════════════════════════════════ -->
+  <section class="screen" id="screen-game">
+    <div class="game-wrap">
+      <div class="game-topbar">
+        <div class="q-badge">Q <span id="q-num">1</span> / <span id="q-total">14</span></div>
+        <div class="timer-wrap">
+          <div class="timer-track"><div class="timer-fill" id="timer-fill" style="width:100%"></div></div>
+          <div class="timer-secs" id="timer-secs">20</div>
+        </div>
+        <div class="ans-badge"><span id="ans-count">0</span> / <span id="ans-total">0</span> réponses</div>
+      </div>
+      <div class="q-text-host" id="q-text-host"></div>
+      <div class="opts-host four" id="opts-host"></div>
+      <div class="explain-box" id="explain-box"></div>
+      <div class="game-actions">
+        <button class="btn gold" id="reveal-btn">🔍 Révéler la réponse</button>
+        <button class="btn" id="scores-btn" style="display:none;">📊 Scores →</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ SCOREBOARD ══════════════════════════════════════════ -->
+  <section class="screen" id="screen-scoreboard-host">
+    <div class="sb-wrap">
+      <div class="sb-title">🏆 Classement</div>
+      <div id="sb-lines"></div>
+      <div class="sb-actions">
+        <button class="btn big" id="next-q-btn">Question suivante →</button>
+        <button class="btn dark" id="end-game-btn">🏁 Terminer la partie</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ FIN DE PARTIE ══════════════════════════════════════ -->
+  <section class="screen" id="screen-gameover-host">
+    <div class="crown">👑</div>
+    <div class="win-name" id="winner-name"></div>
+    <div class="go-ranks" id="go-ranks"></div>
+    <button class="btn big" id="new-session-btn">🔄 Nouvelle session</button>
   </section>
 
 </div>
@@ -228,16 +319,20 @@ import { sb } from '../lib/supabase.js'
 import QRCode from 'https://esm.sh/qrcode@1.5.3'
 
 // ── Constantes ──────────────────────────────────────────────
-const PCOLORS = ['#6aa517','#86bfeb','#3f7e2e','#2b6a8c','#8cc63f','#1f6b3a','#5aa0d8','#9bd06a','#124c15','#6fb0d6']
+const PCOLORS  = ['#6aa517','#86bfeb','#3f7e2e','#2b6a8c','#8cc63f','#1f6b3a','#5aa0d8','#9bd06a','#124c15','#6fb0d6']
+const OPT_COLORS = ['#e74c3c','#2980b9','#f0b429','#27ae60']
+const OPT_KEYS   = ['A','B','C','D']
 
 const LOGO_SVG = `<svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
   <path d="M24 12h72a18 18 0 0 1 18 18v44a18 18 0 0 1-18 18H58l-22 22 4-22h-16a18 18 0 0 1-18-18V30A18 18 0 0 1 24 12Z" fill="#f1e9d2"/>
   <path d="M60 30 69 49l21 3-15 15 4 21-19-10-19 10 4-21-15-15 21-3z" fill="#6aa517"/></svg>`
 
 // ── État ────────────────────────────────────────────────────
-let currentUser = null
+let currentUser   = null
 let activeChannel = null
 let activeSession = null
+let QUIZ          = null   // questions auto-scorées
+let GS            = null   // game state
 
 // ── Utils ───────────────────────────────────────────────────
 const $ = id => document.getElementById(id)
@@ -248,37 +343,29 @@ function showScreen(id) {
 }
 
 function spawnStars() {
-  const box = $('stars')
-  if (!box) return
-  box.innerHTML = ''
+  const box = $('stars'); if (!box) return; box.innerHTML = ''
   for (let i = 0; i < 12; i++) {
-    const s = document.createElement('span')
-    s.className = 'star'
-    s.textContent = '✦'
-    s.style.left = Math.random() * 100 + '%'
-    s.style.top  = Math.random() * 100 + '%'
+    const s = document.createElement('span'); s.className = 'star'; s.textContent = '✦'
+    s.style.left = Math.random() * 100 + '%'; s.style.top = Math.random() * 100 + '%'
     s.style.fontSize = (8 + Math.random() * 22) + 'px'
     s.style.setProperty('--d', (3 + Math.random() * 4).toFixed(2) + 's')
     s.style.setProperty('--f', (7 + Math.random() * 8).toFixed(2) + 's')
-    s.style.animationDelay = (Math.random() * -6).toFixed(2) + 's, ' + (Math.random() * -8).toFixed(2) + 's'
+    s.style.animationDelay = (Math.random()*-6).toFixed(2)+'s, '+(Math.random()*-8).toFixed(2)+'s'
     box.appendChild(s)
   }
 }
 
 function generateCode() {
   const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'
-  let c = ''
-  for (let i = 0; i < 6; i++) c += chars[Math.floor(Math.random() * chars.length)]
-  return c
+  let c = ''; for (let i = 0; i < 6; i++) c += chars[Math.floor(Math.random() * chars.length)]; return c
 }
 
 function colorFor(name) {
-  let h = 0
-  for (let i = 0; i < (name || '').length; i++) h = (name.charCodeAt(i) + ((h << 5) - h)) | 0
+  let h = 0; for (let i = 0; i < (name||'').length; i++) h = (name.charCodeAt(i)+((h<<5)-h))|0
   return PCOLORS[Math.abs(h) % PCOLORS.length]
 }
 
-const initial = n => (n || '?').trim().charAt(0).toUpperCase()
+const initial = n => (n||'?').trim().charAt(0).toUpperCase()
 
 // ── Auth ────────────────────────────────────────────────────
 sb.auth.onAuthStateChange((event, session) => {
@@ -295,181 +382,323 @@ sb.auth.onAuthStateChange((event, session) => {
 $('login-form').addEventListener('submit', async e => {
   e.preventDefault()
   const email = $('email-inp').value.trim()
-  const btn   = $('login-btn')
-  const errEl = $('login-err')
-
-  btn.disabled = true
-  btn.textContent = '⏳ Envoi…'
-  errEl.classList.remove('show')
-
-  const { error } = await sb.auth.signInWithOtp({
-    email,
-    options: { emailRedirectTo: window.location.origin + '/host/' }
-  })
-
-  if (error) {
-    errEl.textContent = error.message
-    errEl.classList.add('show')
-  } else {
-    $('email-sent').textContent = email
-    showScreen('screen-check-email')
-  }
-
-  btn.disabled = false
-  btn.textContent = '✉️ Recevoir le lien magique'
+  const btn = $('login-btn'); const errEl = $('login-err')
+  btn.disabled = true; btn.textContent = '⏳ Envoi…'; errEl.classList.remove('show')
+  const { error } = await sb.auth.signInWithOtp({ email, options: { emailRedirectTo: window.location.origin + '/host/' } })
+  if (error) { errEl.textContent = error.message; errEl.classList.add('show') }
+  else { $('email-sent').textContent = email; showScreen('screen-check-email') }
+  btn.disabled = false; btn.textContent = '✉️ Recevoir le lien magique'
 })
-
 $('back-login-btn').addEventListener('click', () => showScreen('screen-login'))
+$('logout-btn').addEventListener('click', async () => { await cleanupChannel(); await sb.auth.signOut() })
 
-$('logout-btn').addEventListener('click', async () => {
-  await cleanupChannel()
-  await sb.auth.signOut()
-})
-
-// ── Sessions passées ─────────────────────────────────────────
+// ── Sessions ─────────────────────────────────────────────────
 async function loadOpenSessions() {
-  const { data } = await sb.from('sessions')
-    .select('id, code, status, created_at')
-    .eq('status', 'lobby')
-    .order('created_at', { ascending: false })
-    .limit(5)
-
+  const { data } = await sb.from('sessions').select('id,code,status,created_at').eq('status','lobby').order('created_at',{ascending:false}).limit(5)
   if (!data || data.length === 0) { $('sessions-section').style.display = 'none'; return }
-
   $('sessions-section').style.display = 'block'
   $('sessions-list').innerHTML = ''
   data.forEach(s => {
-    const chip = document.createElement('div')
-    chip.className = 'session-chip'
+    const chip = document.createElement('div'); chip.className = 'session-chip'
     chip.innerHTML = `<span class="status-dot"></span><span class="code">${s.code}</span><span>lobby ouvert</span>`
-    chip.addEventListener('click', () => reopenLobby(s))
+    chip.addEventListener('click', () => { activeSession = s; openLobby(s) })
     $('sessions-list').appendChild(chip)
   })
 }
 
-async function reopenLobby(session) {
-  activeSession = session
-  await openLobby(session)
-}
-
-// ── Création de session ──────────────────────────────────────
 $('create-btn').addEventListener('click', async () => {
-  const btn = $('create-btn')
-  btn.disabled = true
-  btn.textContent = '⏳ Création…'
-
+  const btn = $('create-btn'); btn.disabled = true; btn.textContent = '⏳ Création…'
   try {
     let session = null
     for (let i = 0; i < 5; i++) {
-      const { data, error } = await sb.from('sessions').insert({
-        code: generateCode(),
-        host_id: currentUser.id,
-        status: 'lobby'
-      }).select().single()
-
+      const { data, error } = await sb.from('sessions').insert({ code: generateCode(), host_id: currentUser.id, status: 'lobby' }).select().single()
       if (!error) { session = data; break }
-      if (error.code !== '23505') throw error  // pas une collision de code
+      if (error.code !== '23505') throw error
     }
     if (!session) throw new Error('Impossible de générer un code unique')
-
     activeSession = session
     await openLobby(session)
-  } catch (err) {
-    alert('Erreur : ' + err.message)
-  } finally {
-    btn.disabled = false
-    btn.textContent = '▶ Créer une session'
-  }
+  } catch (err) { alert('Erreur : ' + err.message) }
+  finally { btn.disabled = false; btn.textContent = '▶ Créer une session' }
 })
 
 // ── Lobby ────────────────────────────────────────────────────
 async function openLobby(session) {
   const joinUrl = window.location.origin + '/join/?code=' + session.code
-
   $('code-display').textContent = session.code
   $('join-url').textContent = joinUrl
-
-  const qrWrap = $('qr-wrap')
-  qrWrap.innerHTML = ''
+  const qrWrap = $('qr-wrap'); qrWrap.innerHTML = ''
   try {
-    const dataUrl = await QRCode.toDataURL(joinUrl, {
-      width: 192, margin: 2,
-      color: { dark: '#113124', light: '#f1e9d2' }
-    })
-    const img = document.createElement('img')
-    img.src = dataUrl
-    img.width = 192
-    img.height = 192
-    img.alt = 'QR code'
-    qrWrap.appendChild(img)
-  } catch (_) { /* QR non critique */ }
-
+    const dataUrl = await QRCode.toDataURL(joinUrl, { width: 256, margin: 2, color: { dark: '#113124', light: '#f1e9d2' } })
+    const img = document.createElement('img'); img.src = dataUrl; img.alt = 'QR code'; qrWrap.appendChild(img)
+  } catch (_) {}
   showScreen('screen-lobby')
   await startPresence(session.code)
 }
 
 async function cleanupChannel() {
-  if (activeChannel) {
-    await activeChannel.unsubscribe()
-    activeChannel = null
-  }
+  if (activeChannel) { await activeChannel.unsubscribe(); activeChannel = null }
 }
 
 async function startPresence(code) {
   await cleanupChannel()
-
   activeChannel = sb.channel(`session:${code}`)
-
   activeChannel
-    .on('presence', { event: 'sync' }, () => renderPlayers())
+    .on('presence',  { event: 'sync' }, () => renderPlayers())
+    .on('broadcast', { event: 'answer' }, ({ payload }) => receiveAnswer(payload))
     .subscribe(async status => {
-      if (status === 'SUBSCRIBED') {
-        await activeChannel.track({ role: 'host', userId: currentUser.id })
-      }
+      if (status === 'SUBSCRIBED') await activeChannel.track({ role: 'host', userId: currentUser.id })
     })
 }
 
 function renderPlayers() {
-  const state   = activeChannel.presenceState()
+  const state = activeChannel.presenceState()
   const players = Object.values(state).flat().filter(p => p.role === 'player')
-
   $('player-count').textContent = players.length
-
   const list = $('player-list')
-  if (players.length === 0) {
-    list.innerHTML = '<p class="empty-msg">En attente des participants…</p>'
-    return
-  }
+  if (players.length === 0) { list.innerHTML = '<p class="empty-msg">En attente des participants…</p>'; updateStartBtn(0); return }
   list.innerHTML = ''
   players.forEach(p => {
     const color = colorFor(p.name)
-    const chip = document.createElement('div')
-    chip.className = 'p-chip'
-    chip.innerHTML = `
-      <div class="av" style="background:${color}">${initial(p.name)}</div>
-      <span class="nm">${p.name}</span>
-    `
+    const chip = document.createElement('div'); chip.className = 'p-chip'
+    chip.innerHTML = `<div class="av" style="background:${color}">${initial(p.name)}</div><span class="nm">${p.name}</span>`
     list.appendChild(chip)
   })
+  updateStartBtn(players.length)
+}
+
+function updateStartBtn(count) {
+  const btn = $('start-btn'); const hint = $('start-hint')
+  btn.disabled = count === 0
+  hint.textContent = count === 0 ? 'En attente de joueurs…' : `${count} joueur(s) — prêt à démarrer !`
 }
 
 $('back-home-btn').addEventListener('click', async () => {
   await cleanupChannel()
-  // Marque la session comme terminée si elle est encore en lobby
   if (activeSession) {
-    await sb.from('sessions')
-      .update({ status: 'ended', ended_at: new Date().toISOString() })
-      .eq('id', activeSession.id)
+    await sb.from('sessions').update({ status: 'ended', ended_at: new Date().toISOString() }).eq('id', activeSession.id)
     activeSession = null
   }
-  await loadOpenSessions()
-  showScreen('screen-home')
+  await loadOpenSessions(); showScreen('screen-home')
+})
+
+// ── Démarrer la partie ────────────────────────────────────────
+$('start-btn').addEventListener('click', async () => {
+  try {
+    if (!QUIZ) {
+      const resp = await fetch('/data/quiz-mgen.json')
+      const data = await resp.json()
+      QUIZ = data.questions.filter(q => q.type === 'choice' || q.type === 'truefalse')
+    }
+    await sb.from('sessions').update({ status: 'playing', started_at: new Date().toISOString() }).eq('id', activeSession.id)
+    initGame()
+    showScreen('screen-game')
+    showQuestion()
+  } catch (err) { alert('Erreur : ' + err.message) }
+})
+
+// ── Game state ────────────────────────────────────────────────
+function initGame() {
+  const state = activeChannel.presenceState()
+  const players = new Map()
+  Object.values(state).flat().forEach(p => {
+    if (p.role === 'player' && p.tempId) players.set(p.tempId, { name: p.name, score: 0 })
+  })
+  GS = { questions: QUIZ, qIdx: 0, endsAt: 0, timerDuration: 0, timerInterval: null, players, currentAnswers: new Map(), revealed: false, log: [] }
+}
+
+// ── Question ──────────────────────────────────────────────────
+function showQuestion() {
+  const q = GS.questions[GS.qIdx]
+  const timer = q.timer ?? 20
+  GS.endsAt = Date.now() + timer * 1000
+  GS.timerDuration = timer
+  GS.currentAnswers = new Map()
+  GS.revealed = false
+
+  $('q-num').textContent = GS.qIdx + 1
+  $('q-total').textContent = GS.questions.length
+  $('q-text-host').textContent = q.text
+  $('ans-count').textContent = '0'
+  $('ans-total').textContent = GS.players.size
+  $('reveal-btn').disabled = false; $('reveal-btn').style.display = 'inline-flex'
+  $('scores-btn').style.display = 'none'
+  $('explain-box').style.display = 'none'
+  $('timer-fill').style.width = '100%'
+  $('timer-secs').textContent = timer
+
+  renderOptionsHost(q)
+
+  activeChannel.send({ type: 'broadcast', event: 'question:show', payload: {
+    idx: GS.qIdx, total: GS.questions.length, questionId: q.id,
+    text: q.text, options: q.options, timer, endsAt: GS.endsAt, points: q.points ?? 1000
+  }})
+
+  if (GS.timerInterval) clearInterval(GS.timerInterval)
+  GS.timerInterval = setInterval(() => {
+    const rem = GS.endsAt - Date.now()
+    const ratio = Math.max(0, rem / (timer * 1000))
+    $('timer-secs').textContent = Math.max(0, Math.ceil(rem / 1000))
+    $('timer-fill').style.width = (ratio * 100) + '%'
+    $('timer-fill').style.background = ratio > 0.33
+      ? 'linear-gradient(90deg,var(--green),var(--green-b))'
+      : ratio > 0.15 ? 'linear-gradient(90deg,#e8a020,#f4c84a)'
+      : 'linear-gradient(90deg,#c0392b,#e74c3c)'
+    if (rem <= 0 && !GS.revealed) { clearInterval(GS.timerInterval); doReveal() }
+  }, 100)
+}
+
+function renderOptionsHost(q) {
+  const grid = $('opts-host'); grid.innerHTML = ''
+  q.options.forEach((opt, i) => {
+    const text = typeof opt === 'string' ? opt : opt.text
+    const div = document.createElement('div'); div.className = 'opt-host'; div.dataset.idx = i
+    div.innerHTML = `
+      <div class="opt-key-host" style="background:${OPT_COLORS[i]}">${OPT_KEYS[i]}</div>
+      <div class="opt-text-host">${text}</div>
+      <div class="opt-bar-wrap"><div class="opt-bar" id="opt-bar-${i}" style="width:0%"></div></div>
+      <div class="opt-cnt" id="opt-cnt-${i}">0</div>`
+    grid.appendChild(div)
+  })
+  grid.className = 'opts-host ' + (q.options.length === 2 ? 'two' : 'four')
+}
+
+function updateAnswerBars() {
+  const q = GS.questions[GS.qIdx]
+  const total = Math.max(1, GS.players.size)
+  const counts = new Array(q.options.length).fill(0)
+  GS.currentAnswers.forEach(a => { const i = parseInt(a.value, 10); if (i >= 0 && i < counts.length) counts[i]++ })
+  counts.forEach((cnt, i) => {
+    const el = $(`opt-cnt-${i}`); const bar = $(`opt-bar-${i}`)
+    if (el) el.textContent = cnt
+    if (bar) bar.style.width = (cnt / total * 100) + '%'
+  })
+  $('ans-count').textContent = GS.currentAnswers.size
+}
+
+// ── Réception des réponses ────────────────────────────────────
+function receiveAnswer(payload) {
+  if (!GS || GS.revealed) return
+  const q = GS.questions[GS.qIdx]
+  if (payload.questionId !== q.id) return
+  if (payload.clientTs > GS.endsAt + 500) return
+  if (GS.currentAnswers.has(payload.tempId)) return
+
+  const isCorrect  = String(payload.value) === String(q.correct)
+  const startTs    = GS.endsAt - GS.timerDuration * 1000
+  const timeMs     = Math.max(0, payload.clientTs - startTs)
+  const basePoints = q.points ?? 1000
+  const points     = isCorrect ? Math.round(basePoints * (1 - 0.5 * (timeMs / (GS.timerDuration * 1000)))) : 0
+
+  GS.currentAnswers.set(payload.tempId, { value: payload.value, isCorrect, points, timeMs, name: payload.name })
+  updateAnswerBars()
+
+  if (GS.currentAnswers.size >= GS.players.size && GS.players.size > 0) {
+    clearInterval(GS.timerInterval); setTimeout(doReveal, 700)
+  }
+}
+
+// ── Révélation ────────────────────────────────────────────────
+$('reveal-btn').addEventListener('click', doReveal)
+
+function doReveal() {
+  if (!GS || GS.revealed) return
+  GS.revealed = true
+  clearInterval(GS.timerInterval)
+  $('timer-fill').style.width = '0%'; $('timer-secs').textContent = '0'
+
+  const q = GS.questions[GS.qIdx]
+
+  // Calcul des scores
+  const scores = []
+  GS.players.forEach((player, tempId) => {
+    const ans  = GS.currentAnswers.get(tempId)
+    const delta = ans?.points ?? 0
+    player.score += delta
+    scores.push({ tempId, name: player.name, delta, total: player.score })
+  })
+  scores.sort((a, b) => b.total - a.total).forEach((s, i) => { s.rank = i + 1 })
+
+  // Log
+  const logAnswers = []
+  GS.players.forEach((player, tempId) => {
+    const ans = GS.currentAnswers.get(tempId)
+    logAnswers.push({ tempId, name: player.name, value: ans?.value ?? null, isCorrect: ans?.isCorrect ?? false, points: ans?.points ?? 0, timeMs: ans?.timeMs ?? 0 })
+  })
+  GS.log.push({ questionId: q.id, type: q.type, answers: logAnswers })
+
+  // Broadcast
+  activeChannel.send({ type: 'broadcast', event: 'question:reveal', payload: { questionId: q.id, correct: q.correct, explain: q.explain ?? '', scores } })
+
+  // UI
+  document.querySelectorAll('.opt-host').forEach((el, i) => {
+    el.classList.remove('correct','dim')
+    el.classList.add(i === q.correct ? 'correct' : 'dim')
+  })
+  if (q.explain) { $('explain-box').textContent = q.explain; $('explain-box').style.display = 'block' }
+  $('reveal-btn').style.display = 'none'
+  $('scores-btn').style.display = 'inline-flex'
+}
+
+$('scores-btn').addEventListener('click', () => { renderScoreboard(); showScreen('screen-scoreboard-host') })
+
+// ── Scoreboard ────────────────────────────────────────────────
+function renderScoreboard() {
+  const sorted = Array.from(GS.players.values()).sort((a, b) => b.score - a.score)
+  const maxScore = sorted[0]?.score || 1
+  const lines = $('sb-lines'); lines.innerHTML = ''
+  sorted.forEach((p, i) => {
+    const line = document.createElement('div'); line.className = 'sb-line'; line.style.animationDelay = (i * 0.06) + 's'
+    const medal = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : i + 1
+    line.innerHTML = `<div class="sb-rank">${medal}</div><div class="sb-nm">${p.name}</div><div class="sb-bar"><i style="width:${Math.round(p.score/maxScore*100)}%"></i></div><div class="sb-sc">${p.score}</div>`
+    lines.appendChild(line)
+  })
+  const hasMore = GS.qIdx + 1 < GS.questions.length
+  $('next-q-btn').style.display  = hasMore ? 'inline-flex' : 'none'
+  $('end-game-btn').textContent  = hasMore ? '🏁 Terminer' : '🏁 Voir le classement final'
+}
+
+$('next-q-btn').addEventListener('click', () => { GS.qIdx++; showScreen('screen-game'); showQuestion() })
+$('end-game-btn').addEventListener('click', endGame)
+
+// ── Fin de partie ─────────────────────────────────────────────
+async function endGame() {
+  const scoreboard = Array.from(GS.players.entries())
+    .map(([tid, p]) => ({ tempId: tid, name: p.name, score: p.score }))
+    .sort((a, b) => b.score - a.score)
+    .map((s, i) => ({ ...s, rank: i + 1 }))
+
+  activeChannel.send({ type: 'broadcast', event: 'game:ended', payload: { scoreboard } })
+
+  await sb.from('sessions').update({ status: 'ended', ended_at: new Date().toISOString() }).eq('id', activeSession.id)
+
+  // Logs DB
+  try {
+    if (scoreboard.length > 0) {
+      await sb.from('results').insert(scoreboard.map(p => ({ session_id: activeSession.id, player_name: p.name, final_score: p.score, rank: p.rank })))
+    }
+  } catch(e) { console.warn('DB log:', e) }
+
+  // UI
+  const winner = scoreboard[0]
+  $('winner-name').textContent = winner?.name ?? '—'
+  const ranks = $('go-ranks'); ranks.innerHTML = ''
+  scoreboard.slice(0, 5).forEach((p, i) => {
+    const row = document.createElement('div'); row.className = 'go-rank-row'; row.style.animationDelay = (i * 0.1) + 's'
+    const medal = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : p.rank
+    row.innerHTML = `<span class="go-rank-num">${medal}</span><span class="go-rank-name">${p.name}</span><span class="go-rank-score">${p.score} pts</span>`
+    ranks.appendChild(row)
+  })
+  showScreen('screen-gameover-host')
+}
+
+$('new-session-btn').addEventListener('click', async () => {
+  await cleanupChannel(); activeSession = null; GS = null
+  await loadOpenSessions(); showScreen('screen-home')
 })
 
 // ── Init ─────────────────────────────────────────────────────
-document.getElementById('logo-a').innerHTML = LOGO_SVG
-document.getElementById('logo-b').innerHTML = LOGO_SVG
-spawnStars()
+$('logo-a').innerHTML = LOGO_SVG; $('logo-b').innerHTML = LOGO_SVG; spawnStars()
 </script>
 </body>
 </html>

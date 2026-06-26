@@ -1,0 +1,116 @@
+{
+  "title": "Engagements 2030 — le Quizz (contenu MGEN)",
+  "_note": "Extrait fidèlement du jeu mono-écran existant. Manches 'quizz' uniquement. 'L'idée en Or' et 'Mes engagements' = manches participatives, à porter en Phase 4 (saisie+vote mobile). type: choice|truefalse auto-scorées ; type: text = validation manuelle (Phase 2). 'explain' = texte de révélation (le 'fun' du jeu).",
+  "questions": [
+    {
+      "id": "vision-1", "section": "🔭 La vision MGEN 2030", "type": "choice",
+      "text": "La vision politique MGEN 2030, c'est « un mutualisme… »",
+      "options": ["en mouvement", "en pause", "en sommeil", "en solde"],
+      "correct": 0, "points": 1000,
+      "explain": "🟢 Un mutualisme en mouvement : on avance avec son temps."
+    },
+    {
+      "id": "vision-2", "section": "🔭 La vision MGEN 2030", "type": "choice",
+      "text": "Lequel n'est PAS un pilier de la vision 2030 ?",
+      "options": [
+        "Préparer dès aujourd'hui les victoires de demain",
+        "Pérenniser notre modèle et créer de la valeur",
+        "Faire du progrès social la mesure de notre réussite",
+        "Maximiser les dividendes des actionnaires"
+      ],
+      "correct": 3, "points": 1000,
+      "explain": "💚 MGEN est une mutuelle : pas d'actionnaires, mais des adhérents à protéger."
+    },
+    {
+      "id": "vision-3", "section": "🔭 La vision MGEN 2030", "type": "truefalse",
+      "text": "« Faire du progrès social la mesure de notre réussite » est un pilier de la vision 2030.",
+      "options": ["Vrai", "Faux"], "correct": 0, "points": 800,
+      "explain": "C'est bien l'un des trois piliers."
+    },
+    {
+      "id": "vision-4", "section": "🔭 La vision MGEN 2030", "type": "text",
+      "text": "Combien d'axes stratégiques structurent le plan (hors fondations) ?",
+      "answer": "2 axes", "correct": null, "points": 1000,
+      "explain": "Axe 1 : ceux que nous protégeons · Axe 2 : un avenir socialement responsable."
+    },
+    {
+      "id": "vision-5", "section": "🔭 La vision MGEN 2030", "type": "text",
+      "text": "À quel horizon se projette le plan ?",
+      "answer": "2030", "correct": null, "points": 1000,
+      "explain": "D'où le nom : ENGAGEMENTS 2030. 🗓️"
+    },
+
+    {
+      "id": "axe1-1", "section": "🫶 Axe 1 — Celles et ceux que nous protégeons", "type": "choice",
+      "text": "Quel engagement illustre l'idée de PROTECTION ?",
+      "options": ["Relationnel", "Protection", "Engagement", "Proactivité"],
+      "correct": 1, "points": 1000,
+      "explain": "🛡️ Le bouclier symbolise la protection à chaque moment de vie.",
+      "_orig": "Question à pictogrammes dans le jeu (icônes person/shield/heart/plus). Réintégrables : le schéma peut accepter des options avec image."
+    },
+    {
+      "id": "axe1-2", "section": "🫶 Axe 1 — Celles et ceux que nous protégeons", "type": "choice",
+      "text": "L'excellence relationnelle, c'est faire de chaque contact…",
+      "options": ["un moment privilégié et personnalisé", "une simple formalité", "un appel à la hotline", "un mail automatique"],
+      "correct": 0, "points": 1000, "explain": "✨ Un moment privilégié et personnalisé."
+    },
+    {
+      "id": "axe1-3", "section": "🫶 Axe 1 — Celles et ceux que nous protégeons", "type": "choice",
+      "text": "L'attractivité veut rendre MGEN et son modèle mutualiste…",
+      "options": ["incontournables", "invisibles", "obsolètes", "payants"],
+      "correct": 0, "points": 1000, "explain": "⭐ Incontournables."
+    },
+    {
+      "id": "axe1-4", "section": "🫶 Axe 1 — Celles et ceux que nous protégeons", "type": "truefalse",
+      "text": "La prévention = accompagner nos publics de façon proactive et volontariste pour une meilleure santé.",
+      "options": ["Vrai", "Faux"], "correct": 0, "points": 800, "explain": "🩺 Exactement."
+    },
+
+    {
+      "id": "axe2-1", "section": "🌍 Axe 2 — Un avenir socialement responsable", "type": "choice",
+      "text": "La conquête vise à diversifier nos activités pour…",
+      "options": ["protéger le plus grand nombre", "réduire le nombre d'adhérents", "fermer des agences", "augmenter les cotisations"],
+      "correct": 0, "points": 1000, "explain": "🚀 Protéger le plus grand nombre."
+    },
+    {
+      "id": "axe2-2", "section": "🌍 Axe 2 — Un avenir socialement responsable", "type": "choice",
+      "text": "La performance veut renforcer la solidité économique de MGEN et…",
+      "options": ["créer de la valeur", "distribuer des bonus", "spéculer en bourse", "délocaliser"],
+      "correct": 0, "points": 1000, "explain": "📈 Créer de la valeur."
+    },
+    {
+      "id": "axe2-3", "section": "🌍 Axe 2 — Un avenir socialement responsable", "type": "choice",
+      "text": "La transformation sociale, c'est inventer des solutions pour…",
+      "options": ["maximiser notre impact social et sociétal", "copier la concurrence", "réduire les services", "gagner du temps"],
+      "correct": 0, "points": 1000, "explain": "💚 Maximiser l'impact social et sociétal."
+    },
+    {
+      "id": "axe2-4", "section": "🌍 Axe 2 — Un avenir socialement responsable", "type": "truefalse",
+      "text": "La durabilité = maîtriser notre impact environnemental à long terme et engager notre écosystème.",
+      "options": ["Vrai", "Faux"], "correct": 0, "points": 800, "explain": "♻️ Tout à fait."
+    },
+
+    {
+      "id": "fond-1", "section": "🏛️ Les fondations", "type": "choice",
+      "text": "Laquelle n'est PAS une fondation du plan ?",
+      "options": ["La force des collectifs", "Les stratégies partenariales", "La gestion des risques", "Augmenter le temps de travail"],
+      "correct": 3, "points": 1000,
+      "explain": "🧱 Collectifs, partenariats, innovation responsable, gestion des risques."
+    },
+    {
+      "id": "fond-2", "section": "🏛️ Les fondations", "type": "choice",
+      "text": "Les fondations doivent nous permettre d'être…",
+      "options": ["leader autrement", "leader à tout prix", "suiveur", "invisible"],
+      "correct": 0, "points": 1000, "explain": "👑 Leader autrement."
+    },
+    {
+      "id": "fond-3", "section": "🏛️ Les fondations", "type": "truefalse",
+      "text": "« Innovation technologique responsable, levier de performance » est une fondation.",
+      "options": ["Vrai", "Faux"], "correct": 0, "points": 800, "explain": "💡 Oui."
+    }
+  ],
+  "participatory_rounds_phase4": [
+    { "type": "idea", "name": "💡 L'idée en Or", "desc": "Chacun propose une idée sur un défi ; anonymisation + vote ; la meilleure = l'idée en or." },
+    { "type": "engage", "name": "🤝 Mes engagements", "desc": "Chacun choisit une catégorie d'engagement du plan et détaille le sien ; le groupe évalue (concret/aligné/inspirant/impact)." }
+  ]
+}
