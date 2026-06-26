@@ -286,6 +286,7 @@ async function joinLobby(code, name) {
         clearTimeout(hostCheckTimer); hostCheckTimer = null; $('no-host-banner').classList.remove('show')
       }
     })
+    .on('broadcast', { event: 'round:intro' },     ({ payload }) => showRoundIntroPlayer(payload))
     .on('broadcast', { event: 'question:show' },  ({ payload }) => handleQuestionShow(payload))
     .on('broadcast', { event: 'question:reveal' }, ({ payload }) => handleReveal(payload))
     .on('broadcast', { event: 'game:ended' },      ({ payload }) => handleGameEnded(payload))
@@ -310,6 +311,17 @@ $('leave-btn').addEventListener('click', async () => {
 })
 
 $('play-again-btn').addEventListener('click', () => showScreen('screen-join'))
+
+// ── Round intro ───────────────────────────────────────────────
+function showRoundIntroPlayer(payload) {
+  const el = document.createElement('div')
+  el.style.cssText = 'position:fixed;inset:0;z-index:100;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;background:rgba(17,49,36,.96);backdrop-filter:blur(12px);animation:screenIn .3s ease-out;'
+  el.innerHTML = `
+    <div style="font-size:.78rem;font-weight:900;text-transform:uppercase;letter-spacing:3px;color:#6aa517;margin-bottom:10px">Manche ${payload.manche} / ${payload.total}</div>
+    <div style="font-size:clamp(1.6rem,6vw,2.6rem);font-weight:900;color:#f3eeda;line-height:1.1;max-width:320px;padding:0 16px">${payload.name}</div>`
+  document.body.appendChild(el)
+  setTimeout(() => { el.style.transition = 'opacity .4s'; el.style.opacity = '0'; setTimeout(() => el.remove(), 400) }, 2800)
+}
 
 // ── Question reçue ────────────────────────────────────────────
 function handleQuestionShow(payload) {

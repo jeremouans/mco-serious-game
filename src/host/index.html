@@ -211,6 +211,88 @@
     .rep-foot { font-size: .78rem; color: #7a8b80; border-top: 1px solid #e6ecdf; padding-top: 10px; }
     .rep-empty { color: #5a6b60; font-style: italic; font-size: .95rem; }
 
+    /* ── Settings ── */
+    #screen-settings { overflow-y: auto; padding: clamp(20px,3vw,44px); justify-content: center; align-items: center; }
+    .settings-wrap { width: min(540px,100%); margin: auto; display: flex; flex-direction: column; gap: 22px; }
+    .settings-wrap > h2 { font-size: clamp(1.4rem,3.5vw,2rem); font-weight: 900; color: var(--cream); }
+    .setting-card {
+      background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.12);
+      border-radius: 20px; padding: clamp(16px,2.5vw,28px); display: flex; flex-direction: column; gap: 14px;
+    }
+    .setting-card > label { font-weight: 800; font-size: 1rem; color: var(--cream); }
+    .timer-row { display: flex; align-items: center; gap: 14px; }
+    .timer-row input[type=range] { flex: 1; accent-color: var(--green); height: 8px; cursor: pointer; }
+    .timer-val { font-size: 1.6rem; font-weight: 900; color: var(--green); min-width: 3.2em; text-align: right; }
+    .toggle-row { display: flex; align-items: center; gap: 12px; cursor: pointer; font-weight: 700; color: var(--cream); }
+    .toggle-row input[type=checkbox] { width: 20px; height: 20px; accent-color: var(--green); cursor: pointer; flex: none; }
+    .toggle-row small { color: rgba(243,238,218,.55); font-weight: 500; }
+    .settings-actions { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
+
+    /* ── Quiz Editor ── */
+    #screen-quiz-editor { overflow-y: auto; padding: clamp(14px,2.5vw,36px); }
+    .editor-wrap { width: min(780px,100%); margin: auto; display: flex; flex-direction: column; gap: 18px; }
+    .editor-head { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+    .editor-head h2 { flex: 1; font-size: clamp(1.1rem,2.5vw,1.6rem); font-weight: 900; color: var(--cream); }
+    .section-card {
+      background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.1);
+      border-radius: 18px; padding: 16px; display: flex; flex-direction: column; gap: 10px;
+    }
+    .section-head { display: flex; align-items: center; gap: 10px; }
+    .section-name-inp {
+      flex: 1; font-family: inherit; font-weight: 800; font-size: 1rem; color: var(--cream);
+      background: rgba(255,255,255,.08); border: 2px solid rgba(255,255,255,.12);
+      border-radius: 12px; padding: .5em .85em; outline: none; transition: border-color .2s;
+    }
+    .section-name-inp:focus { border-color: var(--green); }
+    .section-move { display: flex; flex-direction: column; gap: 2px; }
+    .iconbtn {
+      font-family: inherit; background: rgba(255,255,255,.1); border: none; border-radius: 8px;
+      color: var(--cream); padding: .28em .55em; font-size: .85rem; cursor: pointer; transition: background .15s; line-height: 1;
+    }
+    .iconbtn:hover { background: rgba(255,255,255,.2); }
+    .iconbtn.danger { color: #ff8080; }
+    .iconbtn.danger:hover { background: rgba(231,76,60,.2); }
+    .q-row-wrap { background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.07); border-radius: 12px; overflow: hidden; }
+    .q-row {
+      display: flex; align-items: center; gap: 8px; padding: .55em .75em;
+      cursor: pointer; transition: background .15s; user-select: none;
+    }
+    .q-row:hover { background: rgba(255,255,255,.06); }
+    .q-row-moves { display: flex; gap: 2px; flex: none; }
+    .q-type-badge { font-size: .72rem; font-weight: 800; text-transform: uppercase; letter-spacing: .5px; color: var(--green); background: rgba(106,165,23,.18); border-radius: 6px; padding: .2em .5em; white-space: nowrap; flex: none; }
+    .q-preview { flex: 1; font-size: .9rem; color: rgba(243,238,218,.7); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+    .q-editor { border-top: 1px solid rgba(255,255,255,.08); }
+    .q-editor-inner { padding: 14px; display: flex; flex-direction: column; gap: 12px; }
+    .q-field { display: flex; flex-direction: column; gap: 6px; }
+    .q-field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .q-lbl { font-size: .75rem; font-weight: 800; text-transform: uppercase; letter-spacing: .6px; color: rgba(243,238,218,.6); }
+    .q-inp {
+      font-family: inherit; font-size: .95rem; font-weight: 600; color: var(--cream);
+      background: rgba(255,255,255,.08); border: 2px solid rgba(255,255,255,.12);
+      border-radius: 10px; padding: .5em .75em; outline: none; transition: border-color .2s; width: 100%;
+    }
+    .q-inp:focus { border-color: var(--green); }
+    .q-inp.num { max-width: 120px; }
+    .q-textarea { resize: vertical; min-height: 56px; }
+    .opt-edit-row { display: flex; align-items: center; gap: 8px; }
+    .opt-correct-btn {
+      font-family: inherit; font-size: .8rem; font-weight: 700; padding: .35em .7em;
+      border: 2px solid rgba(255,255,255,.2); border-radius: 8px; cursor: pointer;
+      background: transparent; color: rgba(243,238,218,.55); transition: all .15s; white-space: nowrap;
+    }
+    .opt-correct-btn.is-correct { background: var(--green); border-color: var(--green); color: #fff; }
+    .opt-correct-btn:hover:not(.is-correct) { border-color: var(--green); color: var(--green); }
+    .opt-key-badge { width: 1.8em; height: 1.8em; border-radius: 8px; display: grid; place-items: center; font-weight: 900; color: #fff; font-size: .85rem; flex: none; }
+    .add-q-btn { align-self: flex-start; margin-top: 4px; }
+    #add-section-btn { align-self: flex-start; }
+
+    /* ── Round Intro ── */
+    #screen-round-intro { justify-content: center; align-items: center; gap: clamp(14px,3vh,28px); padding: 28px; text-align: center; }
+    .round-intro-wrap { display: flex; flex-direction: column; align-items: center; gap: clamp(14px,3vh,28px); }
+    .ri-badge { display: inline-block; font-size: .82rem; font-weight: 900; text-transform: uppercase; letter-spacing: 3px; color: var(--green); background: rgba(106,165,23,.18); border-radius: 999px; padding: .35em 1.2em; animation: pop .3s ease-out; }
+    .ri-title { font-size: clamp(2rem,6vw,4rem); font-weight: 900; color: var(--cream); text-shadow: 0 6px 30px rgba(0,0,0,.35); animation: nameIn .4s ease-out; line-height: 1.05; }
+    .ri-count { font-size: clamp(1rem,2.5vw,1.4rem); color: rgba(243,238,218,.65); font-weight: 600; }
+
     @media print {
       @page { margin: 12mm; }
       body { background: #fff !important; overflow: visible !important; }
@@ -278,8 +360,9 @@
         <div class="quiz-icon">🎯</div>
         <div class="quiz-info">
           <h3>Engagements 2030 — le Quizz</h3>
-          <p>14 questions auto-scorées · Serious game MGEN · Temps réel</p>
+          <p id="quiz-info-sub">14 questions auto-scorées · Serious game MGEN · Temps réel</p>
         </div>
+        <button class="btn sm ghost" id="edit-quiz-btn">⚙️ Éditer</button>
         <button class="btn big" id="create-btn">▶ Créer une session</button>
       </div>
       <div class="sessions-section" id="sessions-section" style="display:none;">
@@ -290,6 +373,53 @@
         <h3>Mes parties</h3>
         <div id="history-list"></div>
       </div>
+    </div>
+  </section>
+
+  <!-- ══ SETTINGS ════════════════════════════════════════════ -->
+  <section class="screen" id="screen-settings">
+    <div class="settings-wrap">
+      <h2>⚙️ Paramètres de session</h2>
+      <div class="setting-card">
+        <label>⏱ Durée du timer par défaut</label>
+        <div class="timer-row">
+          <input type="range" id="timer-range" min="10" max="60" step="5" value="20">
+          <span class="timer-val" id="timer-display">20 s</span>
+        </div>
+      </div>
+      <div class="setting-card">
+        <label class="toggle-row">
+          <input type="checkbox" id="speed-bonus" checked>
+          <span>⚡ Bonus de vitesse <small>(réponse rapide = +points)</small></span>
+        </label>
+      </div>
+      <div class="settings-actions">
+        <button class="btn ghost" id="settings-back-btn">← Retour</button>
+        <button class="btn big" id="settings-create-btn">▶ Créer la session</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ QUIZ EDITOR ══════════════════════════════════════════ -->
+  <section class="screen" id="screen-quiz-editor">
+    <div class="editor-wrap">
+      <div class="editor-head">
+        <button class="btn ghost sm" id="editor-back-btn">← Retour</button>
+        <h2>📝 Quiz — Engagements 2030</h2>
+        <button class="btn sm gold" id="editor-save-btn">💾 Sauvegarder</button>
+      </div>
+      <div id="sections-wrap"></div>
+      <button class="btn dark" id="add-section-btn">➕ Ajouter une manche</button>
+    </div>
+  </section>
+
+  <!-- ══ ROUND INTRO ══════════════════════════════════════════ -->
+  <section class="screen" id="screen-round-intro">
+    <div class="round-intro-wrap">
+      <div class="ri-badge" id="round-badge">Manche 1 / 4</div>
+      <h2 class="ri-title" id="round-title"></h2>
+      <p class="ri-count" id="round-count"></p>
+      <button class="btn big" id="round-next-btn">C'est parti ! →</button>
     </div>
   </section>
 
@@ -399,8 +529,11 @@ const LOGO_SVG = `<svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg" 
 let currentUser   = null
 let activeChannel = null
 let activeSession = null
-let QUIZ          = null   // questions auto-scorées
+let QUIZ          = null   // questions auto-scorées (flat array)
 let GS            = null   // game state
+let QUIZ_CONFIG   = null   // { manches: [{id,name,questions:[...]}] }
+let QUIZ_DB_ID    = null   // ID de la row quizzes en DB
+const EDITOR_OPEN = new Set() // _id des questions ouvertes dans l'éditeur
 
 // ── Utils ───────────────────────────────────────────────────
 const $ = id => document.getElementById(id)
@@ -442,6 +575,7 @@ sb.auth.onAuthStateChange((event, session) => {
     $('user-email').textContent = currentUser.email
     loadOpenSessions()
     loadHistory()
+    loadQuizConfig()
     showScreen('screen-home')
   } else {
     showScreen('screen-login')
@@ -463,7 +597,7 @@ $('logout-btn').addEventListener('click', async () => { await cleanupChannel(); 
 
 // ── Sessions ─────────────────────────────────────────────────
 async function loadOpenSessions() {
-  const { data } = await sb.from('sessions').select('id,code,status,created_at').eq('status','lobby').order('created_at',{ascending:false}).limit(5)
+  const { data } = await sb.from('sessions').select('id,code,status,settings,created_at').eq('status','lobby').order('created_at',{ascending:false}).limit(5)
   if (!data || data.length === 0) { $('sessions-section').style.display = 'none'; return }
   $('sessions-section').style.display = 'block'
   $('sessions-list').innerHTML = ''
@@ -475,21 +609,7 @@ async function loadOpenSessions() {
   })
 }
 
-$('create-btn').addEventListener('click', async () => {
-  const btn = $('create-btn'); btn.disabled = true; btn.textContent = '⏳ Création…'
-  try {
-    let session = null
-    for (let i = 0; i < 5; i++) {
-      const { data, error } = await sb.from('sessions').insert({ code: generateCode(), host_id: currentUser.id, status: 'lobby' }).select().single()
-      if (!error) { session = data; break }
-      if (error.code !== '23505') throw error
-    }
-    if (!session) throw new Error('Impossible de générer un code unique')
-    activeSession = session
-    await openLobby(session)
-  } catch (err) { alert('Erreur : ' + err.message) }
-  finally { btn.disabled = false; btn.textContent = '▶ Créer une session' }
-})
+$('create-btn').addEventListener('click', () => showScreen('screen-settings'))
 
 // ── Lobby ────────────────────────────────────────────────────
 async function openLobby(session) {
@@ -554,20 +674,20 @@ $('back-home-btn').addEventListener('click', async () => {
 // ── Démarrer la partie ────────────────────────────────────────
 $('start-btn').addEventListener('click', async () => {
   try {
-    if (!QUIZ) {
+    if (!QUIZ && !QUIZ_CONFIG) {
       const resp = await fetch('/data/quiz-mgen.json')
       const data = await resp.json()
       QUIZ = data.questions.filter(q => q.type === 'choice' || q.type === 'truefalse')
     }
     await sb.from('sessions').update({ status: 'playing', started_at: new Date().toISOString() }).eq('id', activeSession.id)
     initGame()
-    showScreen('screen-game')
     showQuestion()
   } catch (err) { alert('Erreur : ' + err.message) }
 })
 
 // ── Game state ────────────────────────────────────────────────
 function initGame() {
+  if (QUIZ_CONFIG) QUIZ = buildQuizFromConfig()
   const state = activeChannel.presenceState()
   const players = new Map()
   Object.values(state).flat().forEach(p => {
@@ -577,9 +697,17 @@ function initGame() {
 }
 
 // ── Question ──────────────────────────────────────────────────
-function showQuestion() {
+function showQuestion(skipIntro = false) {
   const q = GS.questions[GS.qIdx]
-  const timer = q.timer ?? 20
+
+  // Intro de manche si section change
+  if (!skipIntro && q.section) {
+    const prev = GS.qIdx > 0 ? GS.questions[GS.qIdx - 1] : null
+    if (!prev || prev.section !== q.section) { showRoundIntro(q.section); return }
+  }
+
+  showScreen('screen-game')
+  const timer = q.timer ?? (activeSession?.settings?.timer ?? 20)
   GS.endsAt = Date.now() + timer * 1000
   GS.timerDuration = timer
   GS.currentAnswers = new Map()
@@ -727,7 +855,7 @@ function renderScoreboard() {
   $('end-game-btn').textContent  = hasMore ? '🏁 Terminer' : '🏁 Voir le classement final'
 }
 
-$('next-q-btn').addEventListener('click', () => { GS.qIdx++; showScreen('screen-game'); showQuestion() })
+$('next-q-btn').addEventListener('click', () => { GS.qIdx++; showQuestion() })
 $('end-game-btn').addEventListener('click', endGame)
 
 // ── Fin de partie ─────────────────────────────────────────────
@@ -901,6 +1029,278 @@ function renderReport({ code, date, results, answers }) {
     <div class="rep-foot">Engagements 2030, le Quizz · MGEN · Session ${code} · ${date}</div>
   `
   document.getElementById('logo-rep').innerHTML = LOGO_SVG
+}
+
+// ── Settings screen ───────────────────────────────────────────
+$('timer-range').addEventListener('input', () => {
+  $('timer-display').textContent = $('timer-range').value + ' s'
+})
+$('settings-back-btn').addEventListener('click', () => showScreen('screen-home'))
+$('settings-create-btn').addEventListener('click', async () => {
+  const timer = parseInt($('timer-range').value, 10)
+  const speedBonus = $('speed-bonus').checked
+  const btn = $('settings-create-btn'); btn.disabled = true; btn.textContent = '⏳ Création…'
+  try {
+    let session = null
+    for (let i = 0; i < 5; i++) {
+      const { data, error } = await sb.from('sessions').insert({
+        code: generateCode(), host_id: currentUser.id, status: 'lobby',
+        settings: { timer, speedBonus },
+        quiz_id: QUIZ_DB_ID ?? null
+      }).select().single()
+      if (!error) { session = data; break }
+      if (error.code !== '23505') throw error
+    }
+    if (!session) throw new Error('Impossible de générer un code unique')
+    activeSession = session
+    await openLobby(session)
+  } catch (err) { alert('Erreur : ' + err.message) }
+  finally { btn.disabled = false; btn.textContent = '▶ Créer la session' }
+})
+
+// ── Quiz Config ───────────────────────────────────────────────
+function uid() { return Math.random().toString(36).slice(2, 9) }
+
+async function loadQuizConfig() {
+  try {
+    const { data } = await sb.from('quizzes').select('id,config').eq('owner_id', currentUser.id).maybeSingle()
+    if (data?.config?.manches) {
+      QUIZ_CONFIG = data.config
+      QUIZ_DB_ID  = data.id
+    } else {
+      const json = await fetch('/data/quiz-mgen.json').then(r => r.json())
+      const mancheMap = new Map()
+      json.questions.forEach(q => {
+        const key = q.section || 'Questions'
+        if (!mancheMap.has(key)) mancheMap.set(key, [])
+        mancheMap.get(key).push({
+          _id: q.id, type: q.type, text: q.text || '',
+          options: q.options || [], correct: q.correct ?? 0,
+          points: q.points ?? 1000, timer: q.timer ?? null, explain: q.explain ?? ''
+        })
+      })
+      const manches = [...mancheMap.entries()].map(([name, questions]) => ({ id: uid(), name, questions }))
+      QUIZ_CONFIG = { manches }
+      const { data: row } = await sb.from('quizzes').insert({
+        owner_id: currentUser.id, title: 'Engagements 2030 — le Quizz', config: { manches }
+      }).select('id').single()
+      QUIZ_DB_ID = row?.id ?? null
+    }
+    QUIZ = buildQuizFromConfig()
+    updateQuizCardInfo()
+  } catch(e) { console.warn('loadQuizConfig:', e) }
+}
+
+async function saveQuizConfig() {
+  const btn = $('editor-save-btn'); btn.disabled = true; btn.textContent = '⏳ Sauvegarde…'
+  try {
+    await sb.from('quizzes').update({ config: { manches: QUIZ_CONFIG.manches } }).eq('id', QUIZ_DB_ID)
+    QUIZ = buildQuizFromConfig()
+    updateQuizCardInfo()
+    btn.textContent = '✓ Sauvegardé !'
+    setTimeout(() => { btn.disabled = false; btn.textContent = '💾 Sauvegarder' }, 2000)
+  } catch(e) {
+    alert('Erreur : ' + e.message)
+    btn.disabled = false; btn.textContent = '💾 Sauvegarder'
+  }
+}
+
+function buildQuizFromConfig() {
+  if (!QUIZ_CONFIG) return null
+  return QUIZ_CONFIG.manches
+    .flatMap(m => m.questions.map(q => ({ ...q, id: q._id, section: m.name })))
+    .filter(q => q.type === 'choice' || q.type === 'truefalse')
+}
+
+function updateQuizCardInfo() {
+  if (!QUIZ_CONFIG) return
+  const total = QUIZ_CONFIG.manches.reduce((n, m) => n + m.questions.length, 0)
+  const auto  = buildQuizFromConfig()?.length ?? 0
+  $('quiz-info-sub').textContent = `${auto} questions auto-scorées · ${QUIZ_CONFIG.manches.length} manche${QUIZ_CONFIG.manches.length > 1 ? 's' : ''} · Serious game MGEN`
+}
+
+// ── Quiz Editor ───────────────────────────────────────────────
+function escHtml(s) {
+  return String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')
+}
+
+function openQuizEditor() {
+  if (!QUIZ_CONFIG) { alert('Quiz non chargé, attendez un instant.'); return }
+  EDITOR_OPEN.clear()
+  renderSections()
+  showScreen('screen-quiz-editor')
+}
+
+function renderSections() {
+  const wrap = $('sections-wrap'); wrap.innerHTML = ''
+  QUIZ_CONFIG.manches.forEach((m, mi) => {
+    const card = document.createElement('div'); card.className = 'section-card'
+    card.innerHTML = `
+      <div class="section-head">
+        <div class="section-move">
+          <button class="iconbtn" onclick="editorMoveSection(${mi},-1)">▲</button>
+          <button class="iconbtn" onclick="editorMoveSection(${mi},1)">▼</button>
+        </div>
+        <input class="section-name-inp" value="${escHtml(m.name)}" placeholder="Nom de la manche"
+               onchange="editorUpdateSectionName(${mi},this.value)">
+        <button class="iconbtn danger" onclick="editorDeleteSection(${mi})">×</button>
+      </div>
+      <div id="sq-${mi}"></div>
+      <button class="btn sm dark add-q-btn" onclick="editorAddQuestion(${mi})">➕ Question</button>`
+    wrap.appendChild(card)
+    const qWrap = document.getElementById(`sq-${mi}`)
+    m.questions.forEach((q, qi) => qWrap.appendChild(renderQRow(q, mi, qi)))
+  })
+}
+
+function renderQRow(q, mi, qi) {
+  const isOpen = EDITOR_OPEN.has(q._id)
+  const div = document.createElement('div'); div.className = 'q-row-wrap'
+  const preview = escHtml((q.text || '(question vide)').slice(0, 60))
+  const typeBadge = q.type === 'choice' ? '4 choix' : q.type === 'truefalse' ? 'Vrai/Faux' : 'Texte'
+  div.innerHTML = `
+    <div class="q-row" onclick="editorToggleQ('${q._id}')">
+      <div class="q-row-moves">
+        <button class="iconbtn" onclick="event.stopPropagation();editorMoveQuestion(${mi},${qi},-1)">▲</button>
+        <button class="iconbtn" onclick="event.stopPropagation();editorMoveQuestion(${mi},${qi},1)">▼</button>
+      </div>
+      <span class="q-type-badge">${typeBadge}</span>
+      <span class="q-preview">${preview}</span>
+      <button class="iconbtn">${isOpen ? '▾' : '✎'}</button>
+      <button class="iconbtn danger" onclick="event.stopPropagation();editorDeleteQuestion(${mi},${qi})">×</button>
+    </div>`
+  if (isOpen) div.appendChild(renderQEditor(q, mi, qi))
+  return div
+}
+
+function renderQEditor(q, mi, qi) {
+  const div = document.createElement('div'); div.className = 'q-editor'
+  const inner = document.createElement('div'); inner.className = 'q-editor-inner'
+
+  // Type selector
+  const typeField = document.createElement('div'); typeField.className = 'q-field'
+  typeField.innerHTML = `<label class="q-lbl">Type</label>
+    <select class="q-inp" onchange="editorUpdateQField(${mi},${qi},'type',this.value);renderSections()">
+      <option value="choice" ${q.type==='choice'?'selected':''}>4 choix (auto-scoré)</option>
+      <option value="truefalse" ${q.type==='truefalse'?'selected':''}>Vrai/Faux (auto-scoré)</option>
+      <option value="text" ${q.type==='text'?'selected':''}>Texte libre (non scoré)</option>
+    </select>`
+  inner.appendChild(typeField)
+
+  // Question text
+  const textField = document.createElement('div'); textField.className = 'q-field'
+  textField.innerHTML = `<label class="q-lbl">Question</label>
+    <input class="q-inp" value="${escHtml(q.text)}" placeholder="Texte de la question"
+           onchange="editorUpdateQField(${mi},${qi},'text',this.value)">`
+  inner.appendChild(textField)
+
+  // Options
+  if (q.type === 'choice') {
+    const optsField = document.createElement('div'); optsField.className = 'q-field'
+    optsField.innerHTML = `<label class="q-lbl">Options (cliquer ✓ = bonne réponse)</label>`
+    ;(q.options || []).slice(0, 4).forEach((opt, i) => {
+      const txt = typeof opt === 'string' ? opt : (opt?.text ?? '')
+      const row = document.createElement('div'); row.className = 'opt-edit-row'
+      row.innerHTML = `
+        <button class="opt-correct-btn ${i === q.correct ? 'is-correct' : ''}" onclick="editorSetCorrect(${mi},${qi},${i})">✓</button>
+        <span class="opt-key-badge" style="background:${OPT_COLORS[i]}">${OPT_KEYS[i]}</span>
+        <input class="q-inp" value="${escHtml(txt)}" placeholder="Option ${OPT_KEYS[i]}"
+               onchange="editorUpdateOption(${mi},${qi},${i},this.value)">`
+      optsField.appendChild(row)
+    })
+    inner.appendChild(optsField)
+  } else if (q.type === 'truefalse') {
+    const tfField = document.createElement('div'); tfField.className = 'q-field'
+    tfField.innerHTML = `<label class="q-lbl">Bonne réponse</label>
+      <div class="opt-edit-row">
+        <button class="opt-correct-btn ${q.correct===0?'is-correct':''}" onclick="editorSetCorrect(${mi},${qi},0)">✓ Vrai</button>
+        <button class="opt-correct-btn ${q.correct===1?'is-correct':''}" onclick="editorSetCorrect(${mi},${qi},1)">✓ Faux</button>
+      </div>`
+    inner.appendChild(tfField)
+  }
+
+  // Points + timer
+  const numRow = document.createElement('div'); numRow.className = 'q-field-row'
+  numRow.innerHTML = `
+    <div class="q-field"><label class="q-lbl">Points</label>
+      <input class="q-inp num" type="number" min="100" max="5000" step="100" value="${q.points ?? 1000}"
+             onchange="editorUpdateQField(${mi},${qi},'points',+this.value)"></div>
+    <div class="q-field"><label class="q-lbl">Timer (s) — vide = session</label>
+      <input class="q-inp num" type="number" min="5" max="120" step="5" value="${q.timer ?? ''}" placeholder="—"
+             onchange="editorUpdateQField(${mi},${qi},'timer',this.value ? +this.value : null)"></div>`
+  inner.appendChild(numRow)
+
+  // Explain
+  const expField = document.createElement('div'); expField.className = 'q-field'
+  expField.innerHTML = `<label class="q-lbl">Explication affichée après la révélation</label>
+    <textarea class="q-inp q-textarea" rows="2" placeholder="Fun fact ou explication…"
+              onchange="editorUpdateQField(${mi},${qi},'explain',this.value)">${escHtml(q.explain)}</textarea>`
+  inner.appendChild(expField)
+
+  div.appendChild(inner)
+  return div
+}
+
+// Global editor helpers (needed for inline onclick in module context)
+window.renderSections   = () => renderSections()
+window.editorToggleQ    = (_id) => { EDITOR_OPEN.has(_id) ? EDITOR_OPEN.delete(_id) : EDITOR_OPEN.add(_id); renderSections() }
+window.editorMoveSection = (mi, dir) => {
+  const ti = mi + dir; const m = QUIZ_CONFIG.manches
+  if (ti < 0 || ti >= m.length) return
+  ;[m[mi], m[ti]] = [m[ti], m[mi]]; renderSections()
+}
+window.editorUpdateSectionName = (mi, val) => { QUIZ_CONFIG.manches[mi].name = val }
+window.editorDeleteSection = (mi) => {
+  const m = QUIZ_CONFIG.manches[mi]
+  if (!confirm(`Supprimer la manche "${m.name}" et ses ${m.questions.length} question(s) ?`)) return
+  QUIZ_CONFIG.manches.splice(mi, 1); renderSections()
+}
+window.editorAddQuestion = (mi) => {
+  const nq = { _id: uid(), type: 'choice', text: '', options: ['','','',''], correct: 0, points: 1000, timer: null, explain: '' }
+  QUIZ_CONFIG.manches[mi].questions.push(nq); EDITOR_OPEN.add(nq._id); renderSections()
+}
+window.editorDeleteQuestion = (mi, qi) => { QUIZ_CONFIG.manches[mi].questions.splice(qi, 1); renderSections() }
+window.editorMoveQuestion = (mi, qi, dir) => {
+  const qs = QUIZ_CONFIG.manches[mi].questions; const ti = qi + dir
+  if (ti < 0 || ti >= qs.length) return
+  ;[qs[qi], qs[ti]] = [qs[ti], qs[qi]]; renderSections()
+}
+window.editorUpdateQField  = (mi, qi, field, val) => { QUIZ_CONFIG.manches[mi].questions[qi][field] = val }
+window.editorUpdateOption  = (mi, qi, i, val) => {
+  const opts = QUIZ_CONFIG.manches[mi].questions[qi].options
+  if (typeof opts[i] === 'string') opts[i] = val; else opts[i] = { ...(opts[i] || {}), text: val }
+}
+window.editorSetCorrect    = (mi, qi, i) => { QUIZ_CONFIG.manches[mi].questions[qi].correct = i; renderSections() }
+
+$('editor-back-btn').addEventListener('click', () => showScreen('screen-home'))
+$('editor-save-btn').addEventListener('click', saveQuizConfig)
+$('edit-quiz-btn').addEventListener('click', openQuizEditor)
+$('add-section-btn').addEventListener('click', () => {
+  QUIZ_CONFIG.manches.push({ id: uid(), name: 'Nouvelle manche', questions: [] })
+  renderSections()
+  $('sections-wrap').lastElementChild?.scrollIntoView({ behavior: 'smooth' })
+})
+
+// ── Round intro ───────────────────────────────────────────────
+function showRoundIntro(sectionName) {
+  let mancheNum = 1, totalManches = 1
+  if (QUIZ_CONFIG) {
+    mancheNum   = QUIZ_CONFIG.manches.findIndex(m => m.name === sectionName) + 1
+    totalManches = QUIZ_CONFIG.manches.length
+  } else {
+    const sections = [...new Set(GS.questions.map(q => q.section).filter(Boolean))]
+    mancheNum   = sections.indexOf(sectionName) + 1
+    totalManches = sections.length
+  }
+  const mancheQ = GS.questions.filter(q => q.section === sectionName).length
+  $('round-badge').textContent = `Manche ${mancheNum} / ${totalManches}`
+  $('round-title').textContent = sectionName || 'Questions'
+  $('round-count').textContent = `${mancheQ} question${mancheQ > 1 ? 's' : ''}`
+  activeChannel.send({ type: 'broadcast', event: 'round:intro', payload: {
+    name: sectionName, manche: mancheNum, total: totalManches
+  }})
+  $('round-next-btn').onclick = () => showQuestion(true)
+  showScreen('screen-round-intro')
 }
 
 // ── Init ─────────────────────────────────────────────────────
