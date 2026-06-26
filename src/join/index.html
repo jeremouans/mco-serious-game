@@ -36,6 +36,19 @@
     .err { color: #ff8080; font-size: .88rem; font-weight: 600; display: none; animation: risein .2s; }
     .err.show { display: block; }
 
+    /* ── Emoji picker ── */
+    .emoji-section { display: flex; flex-direction: column; gap: 8px; }
+    .emoji-section label { font-weight: 700; font-size: .8rem; color: rgba(243,238,218,.7); letter-spacing: .5px; text-transform: uppercase; }
+    .emoji-grid { display: grid; grid-template-columns: repeat(8, 1fr); gap: 6px; }
+    .emoji-btn {
+      font-size: 1.5rem; line-height: 1; padding: .3em; border: 2px solid transparent;
+      border-radius: 10px; background: rgba(255,255,255,.06); cursor: pointer;
+      transition: background .15s, border-color .15s, transform .1s;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .emoji-btn:hover { background: rgba(255,255,255,.14); }
+    .emoji-btn.selected { border-color: var(--green); background: rgba(106,165,23,.22); transform: scale(1.15); }
+
     /* ── Waiting ── */
     #screen-waiting { justify-content: center; align-items: center; gap: clamp(14px,3vh,28px); padding: 24px; text-align: center; }
     .wait-logo { animation: floatLogo 5s ease-in-out infinite; filter: drop-shadow(0 8px 20px rgba(0,0,0,.4)); }
@@ -135,6 +148,10 @@
           <div class="inp-label">Ton prénom / pseudo</div>
           <input id="name-inp" class="inp" type="text" maxlength="24" placeholder="Ex : Camille" autocomplete="nickname">
         </div>
+        <div class="emoji-section">
+          <label>Ton avatar</label>
+          <div class="emoji-grid" id="emoji-grid"></div>
+        </div>
         <div id="join-err" class="err"></div>
         <button type="submit" class="btn big" id="join-btn" style="justify-content:center;">🚀 Rejoindre</button>
       </form>
@@ -200,6 +217,7 @@ import { sb } from '../lib/supabase.js'
 // ── Constantes ──────────────────────────────────────────────
 const OPT_COLORS = ['#e74c3c','#2980b9','#f0b429','#27ae60']
 const OPT_KEYS   = ['A','B','C','D']
+const EMOJIS     = ['🦁','🐼','🦊','🐸','🐨','🐯','🦋','🦄','🐙','🐬','🦉','🐺','🐧','🦎','🦅','🐳']
 
 const LOGO_SVG = `<svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
   <path d="M24 12h72a18 18 0 0 1 18 18v44a18 18 0 0 1-18 18H58l-22 22 4-22h-16a18 18 0 0 1-18-18V30A18 18 0 0 1 24 12Z" fill="#f1e9d2"/>
@@ -210,6 +228,7 @@ const PS = {
   tempId:            crypto.randomUUID(),
   name:              null,
   code:              null,
+  emoji:             EMOJIS[0],
   score:             0,
   currentQuestionId: null,
   hasAnswered:       false,
@@ -217,6 +236,37 @@ const PS = {
   timerInterval:     null,
   endsAt:            0,
   timerDuration:     0
+}
+
+// ── Emoji picker ─────────────────────────────────────────────
+function initEmojiGrid(preselect = null) {
+  const grid = document.getElementById('emoji-grid'); grid.innerHTML = ''
+  const pick = preselect || PS.emoji || EMOJIS[0]
+  EMOJIS.forEach(em => {
+    const btn = document.createElement('button')
+    btn.type = 'button'; btn.className = 'emoji-btn'; btn.textContent = em
+    if (em === pick) { btn.classList.add('selected'); PS.emoji = em }
+    btn.addEventListener('click', () => {
+      grid.querySelectorAll('.emoji-btn').forEach(b => b.classList.remove('selected'))
+      btn.classList.add('selected'); PS.emoji = em
+    })
+    grid.appendChild(btn)
+  })
+}
+
+// ── localStorage reconnect ────────────────────────────────────
+function lsKey(code, name) { return `mco_${code}_${name.toLowerCase().trim()}` }
+
+function restorePlayer(code, name) {
+  try {
+    const stored = JSON.parse(localStorage.getItem(lsKey(code, name)) || 'null')
+    if (stored?.tempId) { PS.tempId = stored.tempId; return stored.emoji || null }
+  } catch (_) {}
+  return null
+}
+
+function savePlayer(code, name) {
+  try { localStorage.setItem(lsKey(code, name), JSON.stringify({ tempId: PS.tempId, name, emoji: PS.emoji, ts: Date.now() })) } catch (_) {}
 }
 
 // ── Utils ───────────────────────────────────────────────────
@@ -248,6 +298,8 @@ const params = new URLSearchParams(window.location.search)
 const codeFromUrl = (params.get('code') || '').toUpperCase().replace(/[^A-Z0-9]/g, '')
 if (codeFromUrl) $('code-inp').value = codeFromUrl
 
+initEmojiGrid()
+
 // ── Formulaire join ───────────────────────────────────────────
 $('join-form').addEventListener('submit', async e => {
   e.preventDefault()
@@ -266,10 +318,13 @@ $('join-form').addEventListener('submit', async e => {
 // ── Rejoindre le lobby ───────────────────────────────────────
 async function joinLobby(code, name) {
   PS.name = name; PS.code = code; PS.score = 0
+  const storedEmoji = restorePlayer(code, name)
+  if (storedEmoji) { PS.emoji = storedEmoji; initEmojiGrid(storedEmoji) }
+  savePlayer(code, name)
 
   if (activeChannel) { clearTimeout(hostCheckTimer); await activeChannel.unsubscribe(); activeChannel = null }
 
-  $('wait-name').textContent = name
+  $('wait-name').textContent = (PS.emoji ? PS.emoji + ' ' : '') + name
   $('wait-code').textContent = code
   $('wait-count').textContent = '1'
   $('no-host-banner').classList.remove('show')
@@ -292,7 +347,7 @@ async function joinLobby(code, name) {
     .on('broadcast', { event: 'game:ended' },      ({ payload }) => handleGameEnded(payload))
     .subscribe(async status => {
       if (status === 'SUBSCRIBED') {
-        await activeChannel.track({ role: 'player', name, tempId: PS.tempId })
+        await activeChannel.track({ role: 'player', name, tempId: PS.tempId, emoji: PS.emoji })
         hostCheckTimer = setTimeout(() => {
           const state = activeChannel.presenceState()
           if (!Object.values(state).flat().some(p => p.role === 'host'))

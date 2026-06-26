@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+  <meta name="theme-color" content="#113124">
+  <title>Engagements 2030 — le Quizz</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/lib/theme.css">
+  <style>
+    html, body { overflow: hidden; }
+    .landing {
+      height: 100dvh; display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      gap: clamp(28px,5vh,52px); padding: 24px;
+      position: relative; z-index: 1; text-align: center;
+    }
+    .landing-logo { animation: floatLogo 5s ease-in-out infinite; filter: drop-shadow(0 8px 24px rgba(0,0,0,.4)); }
+    .landing-title { font-size: clamp(2rem,6vw,3.4rem); font-weight: 900; color: var(--cream); line-height: 1.05; }
+    .landing-sub { font-size: clamp(.9rem,2.5vw,1.15rem); color: rgba(243,238,218,.55); margin-top: -16px; }
+    .landing-btns { display: flex; flex-direction: column; gap: 14px; width: min(360px,100%); }
+    .landing-btn {
+      display: flex; align-items: center; gap: 18px;
+      background: rgba(255,255,255,.06); border: 1.5px solid rgba(255,255,255,.13);
+      border-radius: 22px; padding: clamp(18px,3vw,26px) clamp(20px,4vw,32px);
+      cursor: pointer; text-decoration: none;
+      transition: background .2s, transform .15s, box-shadow .2s;
+      backdrop-filter: blur(12px); box-shadow: 0 10px 32px rgba(0,0,0,.3);
+      animation: risein .4s ease-out backwards;
+    }
+    .landing-btn:nth-child(1) { animation-delay: .08s; border-color: rgba(106,165,23,.45); }
+    .landing-btn:nth-child(2) { animation-delay: .16s; border-color: rgba(134,191,235,.35); }
+    .landing-btn:hover { background: rgba(255,255,255,.12); transform: translateY(-3px); box-shadow: 0 18px 48px rgba(0,0,0,.4); }
+    .landing-btn:active { transform: translateY(0) scale(.98); }
+    .lb-icon  { font-size: clamp(2rem,5vw,2.8rem); flex: none; }
+    .lb-label { font-size: clamp(1.2rem,3.5vw,1.7rem); font-weight: 900; color: var(--cream); display: block; }
+    .lb-desc  { font-size: clamp(.8rem,2vw,.95rem); color: rgba(243,238,218,.5); font-weight: 500; display: block; margin-top: 2px; }
+    .lb-arr   { margin-left: auto; font-size: 1.4rem; color: rgba(243,238,218,.35); flex: none; }
+  </style>
+</head>
+<body>
+<div id="stars" aria-hidden="true"></div>
+<div class="landing">
+  <div>
+    <div id="logo-main" class="landing-logo" style="width:80px;height:80px;margin:0 auto 18px;"></div>
+    <div class="landing-title">Engagements 2030<br>le Quizz</div>
+    <div class="landing-sub">Serious game MGEN · Temps réel</div>
+  </div>
+  <div class="landing-btns">
+    <a href="/host/" class="landing-btn">
+      <span class="lb-icon">🎯</span>
+      <span>
+        <span class="lb-label">Animer</span>
+        <span class="lb-desc">Créer et piloter une session</span>
+      </span>
+      <span class="lb-arr">›</span>
+    </a>
+    <a href="/join/" class="landing-btn">
+      <span class="lb-icon">🙋</span>
+      <span>
+        <span class="lb-label">Rejoindre</span>
+        <span class="lb-desc">Participer à une partie en cours</span>
+      </span>
+      <span class="lb-arr">›</span>
+    </a>
+  </div>
+</div>
+
+<script type="module">
+const LOGO_SVG = `<svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+  <path d="M24 12h72a18 18 0 0 1 18 18v44a18 18 0 0 1-18 18H58l-22 22 4-22h-16a18 18 0 0 1-18-18V30A18 18 0 0 1 24 12Z" fill="#f1e9d2"/>
+  <path d="M60 30 69 49l21 3-15 15 4 21-19-10-19 10 4-21-15-15 21-3z" fill="#6aa517"/></svg>`
+
+function spawnStars() {
+  const box = document.getElementById('stars'); if (!box) return; box.innerHTML = ''
+  for (let i = 0; i < 12; i++) {
+    const s = document.createElement('span'); s.className = 'star'; s.textContent = '✦'
+    s.style.left = Math.random() * 100 + '%'; s.style.top = Math.random() * 100 + '%'
+    s.style.fontSize = (8 + Math.random() * 22) + 'px'
+    s.style.setProperty('--d', (3 + Math.random() * 4).toFixed(2) + 's')
+    s.style.setProperty('--f', (7 + Math.random() * 8).toFixed(2) + 's')
+    s.style.animationDelay = (Math.random()*-6).toFixed(2)+'s, '+(Math.random()*-8).toFixed(2)+'s'
+    box.appendChild(s)
+  }
+}
+document.getElementById('logo-main').innerHTML = LOGO_SVG
+spawnStars()
+</script>
+</body>
+</html>
