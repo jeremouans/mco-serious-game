@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#113124">
+  <title>Rejoindre — Engagements 2030</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../lib/theme.css">
+  <style>
+    html, body { overflow: hidden; }
+
+    /* ── Join ── */
+    #screen-join {
+      justify-content: center; align-items: center; padding: 20px;
+    }
+    .join-card {
+      background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.12);
+      backdrop-filter: blur(18px); border-radius: 28px;
+      padding: clamp(28px,6vw,48px); box-shadow: 0 24px 60px rgba(0,0,0,.45);
+      width: min(420px, 100%); display: flex; flex-direction: column;
+      gap: 20px; animation: pop .3s ease-out;
+    }
+    .join-top { display: flex; align-items: center; gap: 14px; }
+    .join-top h1 { font-size: clamp(1.3rem,5vw,1.8rem); font-weight: 900; color: var(--cream); line-height: 1.1; }
+    .join-kicker {
+      display: inline-block; font-weight: 800; font-size: .72rem;
+      letter-spacing: 2px; text-transform: uppercase;
+      background: var(--green); color: #fff;
+      padding: .22em .75em; border-radius: 999px; margin-bottom: 4px;
+    }
+
+    .inp-label { font-weight: 700; font-size: .8rem; color: rgba(243,238,218,.7);
+      letter-spacing: .5px; text-transform: uppercase; margin-bottom: 5px; }
+    .inp {
+      width: 100%; font-family: inherit; font-weight: 700;
+      font-size: clamp(1rem,4vw,1.2rem); color: var(--cream);
+      background: rgba(255,255,255,.09); border: 2px solid rgba(255,255,255,.16);
+      border-radius: 14px; padding: .65em 1em; outline: none;
+      transition: border-color .2s; -webkit-appearance: none;
+    }
+    .inp::placeholder { color: rgba(243,238,218,.28); }
+    .inp:focus { border-color: var(--green); }
+    .inp.code-inp { text-transform: uppercase; letter-spacing: 4px; font-size: clamp(1.4rem,6vw,1.8rem);
+      text-align: center; font-weight: 900; }
+    .err { color: #ff8080; font-size: .88rem; font-weight: 600; display: none; animation: risein .2s; }
+    .err.show { display: block; }
+
+    /* ── Waiting ── */
+    #screen-waiting {
+      justify-content: center; align-items: center; gap: clamp(18px,4vh,36px);
+      padding: 24px; text-align: center;
+    }
+    .wait-logo { animation: floatLogo 5s ease-in-out infinite;
+      filter: drop-shadow(0 8px 20px rgba(0,0,0,.4)); }
+    .wait-pseudo {
+      font-size: clamp(2rem,8vw,3.4rem); font-weight: 900; color: var(--gold);
+      text-shadow: 0 4px 24px rgba(244,200,74,.35); animation: nameIn .4s ease-out;
+    }
+    .wait-status {
+      font-size: clamp(1rem,3vw,1.3rem); font-weight: 600;
+      color: rgba(243,238,218,.75); max-width: 340px; line-height: 1.4;
+    }
+    .wait-code-pill {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.12);
+      border-radius: 999px; padding: .3em 1em;
+      font-weight: 800; font-size: .9rem; color: var(--cream);
+    }
+    .wait-code-pill span { font-size: 1.1rem; color: var(--green); letter-spacing: 3px; }
+    .player-count-area {
+      display: flex; align-items: center; gap: 10px;
+      background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.1);
+      border-radius: 999px; padding: .4em 1.2em;
+      font-weight: 700; color: var(--cream); font-size: clamp(.9rem,2.5vw,1.1rem);
+    }
+    .player-count-area strong { color: var(--green); font-size: 1.3em; }
+    .spinner {
+      width: 36px; height: 36px; border: 3.5px solid rgba(255,255,255,.15);
+      border-top-color: var(--green); border-radius: 50%;
+      animation: spin .9s linear infinite;
+    }
+    .no-host-banner {
+      background: rgba(244,200,74,.12); border: 1.5px dashed rgba(244,200,74,.55);
+      color: var(--gold); border-radius: 14px; padding: .6em 1.2em;
+      font-weight: 700; font-size: .9rem; display: none; animation: risein .3s;
+    }
+    .no-host-banner.show { display: block; }
+  </style>
+</head>
+<body>
+<div id="stars" aria-hidden="true"></div>
+<div class="app">
+
+  <!-- ══ JOIN ═══════════════════════════════════════════════ -->
+  <section class="screen active" id="screen-join">
+    <div class="join-card">
+      <div class="join-top">
+        <div id="logo-j" style="width:52px;height:52px;flex:none;animation:floatLogo 5s ease-in-out infinite;"></div>
+        <div>
+          <div class="join-kicker">🎮 Serious game MGEN</div>
+          <h1>Rejoindre<br>la partie</h1>
+        </div>
+      </div>
+
+      <form id="join-form" style="display:flex;flex-direction:column;gap:16px;" novalidate>
+        <div>
+          <div class="inp-label">Code de session</div>
+          <input id="code-inp" class="inp code-inp" type="text" maxlength="6"
+            placeholder="XXXXXX" autocomplete="off" autocorrect="off" autocapitalize="characters" spellcheck="false">
+        </div>
+        <div>
+          <div class="inp-label">Ton prénom / pseudo</div>
+          <input id="name-inp" class="inp" type="text" maxlength="24"
+            placeholder="Ex : Camille" autocomplete="nickname">
+        </div>
+        <div id="join-err" class="err"></div>
+        <button type="submit" class="btn big" id="join-btn" style="justify-content:center;">
+          🚀 Rejoindre
+        </button>
+      </form>
+    </div>
+  </section>
+
+  <!-- ══ WAITING ════════════════════════════════════════════ -->
+  <section class="screen" id="screen-waiting">
+    <div id="logo-w" class="wait-logo" style="width:72px;height:72px;"></div>
+    <div class="wait-pseudo" id="wait-name"></div>
+    <div class="wait-code-pill">Code&nbsp;<span id="wait-code"></span></div>
+    <div class="no-host-banner" id="no-host-banner">
+      ⚠️ Code invalide ou partie pas encore ouverte — vérifiez avec l'animateur.
+    </div>
+    <div class="wait-status">En attente de l'animateur…</div>
+    <div class="player-count-area">
+      <strong id="wait-count">1</strong> participant(s) connecté(s)
+    </div>
+    <div class="spinner"></div>
+    <button class="btn ghost sm" id="leave-btn">← Changer de code</button>
+  </section>
+
+</div>
+
+<script type="module">
+import { sb } from '../lib/supabase.js'
+
+// ── Constantes ──────────────────────────────────────────────
+const LOGO_SVG = `<svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+  <path d="M24 12h72a18 18 0 0 1 18 18v44a18 18 0 0 1-18 18H58l-22 22 4-22h-16a18 18 0 0 1-18-18V30A18 18 0 0 1 24 12Z" fill="#f1e9d2"/>
+  <path d="M60 30 69 49l21 3-15 15 4 21-19-10-19 10 4-21-15-15 21-3z" fill="#6aa517"/></svg>`
+
+// ── État ────────────────────────────────────────────────────
+let activeChannel = null
+let hostCheckTimer = null
+
+// ── Utils ───────────────────────────────────────────────────
+const $ = id => document.getElementById(id)
+
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'))
+  $(id).classList.add('active')
+}
+
+function spawnStars() {
+  const box = $('stars')
+  if (!box) return
+  box.innerHTML = ''
+  for (let i = 0; i < 12; i++) {
+    const s = document.createElement('span')
+    s.className = 'star'
+    s.textContent = '✦'
+    s.style.left = Math.random() * 100 + '%'
+    s.style.top  = Math.random() * 100 + '%'
+    s.style.fontSize = (8 + Math.random() * 22) + 'px'
+    s.style.setProperty('--d', (3 + Math.random() * 4).toFixed(2) + 's')
+    s.style.setProperty('--f', (7 + Math.random() * 8).toFixed(2) + 's')
+    s.style.animationDelay = (Math.random() * -6).toFixed(2) + 's, ' + (Math.random() * -8).toFixed(2) + 's'
+    box.appendChild(s)
+  }
+}
+
+// ── Pré-remplissage depuis URL ──────────────────────────────
+const params = new URLSearchParams(window.location.search)
+const codeFromUrl = (params.get('code') || '').toUpperCase().replace(/[^A-Z0-9]/g, '')
+if (codeFromUrl) $('code-inp').value = codeFromUrl
+
+// ── Formulaire de jonction ───────────────────────────────────
+$('join-form').addEventListener('submit', async e => {
+  e.preventDefault()
+
+  const code  = $('code-inp').value.trim().toUpperCase().replace(/[^A-Z0-9]/g, '')
+  const name  = $('name-inp').value.trim()
+  const errEl = $('join-err')
+  const btn   = $('join-btn')
+
+  errEl.classList.remove('show')
+
+  if (code.length !== 6) {
+    errEl.textContent = 'Le code doit comporter 6 caractères.'; errEl.classList.add('show'); return
+  }
+  if (!name) {
+    errEl.textContent = 'Saisis ton prénom ou un pseudo.'; errEl.classList.add('show'); return
+  }
+
+  btn.disabled = true
+  btn.textContent = '⏳ Connexion…'
+
+  try {
+    await joinLobby(code, name)
+  } catch (err) {
+    errEl.textContent = err.message
+    errEl.classList.add('show')
+    btn.disabled = false
+    btn.textContent = '🚀 Rejoindre'
+  }
+})
+
+// ── Connexion au lobby ───────────────────────────────────────
+async function joinLobby(code, name) {
+  if (activeChannel) {
+    clearTimeout(hostCheckTimer)
+    await activeChannel.unsubscribe()
+    activeChannel = null
+  }
+
+  // Afficher l'écran d'attente
+  $('wait-name').textContent = name
+  $('wait-code').textContent = code
+  $('wait-count').textContent = '1'
+  $('no-host-banner').classList.remove('show')
+  showScreen('screen-waiting')
+
+  activeChannel = sb.channel(`session:${code}`)
+
+  activeChannel
+    .on('presence', { event: 'sync' }, () => {
+      const state = activeChannel.presenceState()
+      const all     = Object.values(state).flat()
+      const players = all.filter(p => p.role === 'player')
+      $('wait-count').textContent = players.length
+
+      // Vérifier si un hôte est présent
+      const hasHost = all.some(p => p.role === 'host')
+      if (hostCheckTimer && hasHost) {
+        clearTimeout(hostCheckTimer)
+        hostCheckTimer = null
+        $('no-host-banner').classList.remove('show')
+      }
+    })
+    .subscribe(async status => {
+      if (status === 'SUBSCRIBED') {
+        await activeChannel.track({ role: 'player', name })
+
+        // Si pas d'hôte au bout de 5s → avertissement
+        hostCheckTimer = setTimeout(() => {
+          const state = activeChannel.presenceState()
+          const hasHost = Object.values(state).flat().some(p => p.role === 'host')
+          if (!hasHost) $('no-host-banner').classList.add('show')
+        }, 5000)
+      }
+    })
+}
+
+// ── Quitter le lobby ─────────────────────────────────────────
+$('leave-btn').addEventListener('click', async () => {
+  clearTimeout(hostCheckTimer)
+  hostCheckTimer = null
+  if (activeChannel) {
+    await activeChannel.unsubscribe()
+    activeChannel = null
+  }
+  $('join-btn').disabled = false
+  $('join-btn').textContent = '🚀 Rejoindre'
+  showScreen('screen-join')
+})
+
+// ── Init ─────────────────────────────────────────────────────
+$('logo-j').innerHTML = LOGO_SVG
+$('logo-w').innerHTML = LOGO_SVG
+spawnStars()
+</script>
+</body>
+</html>

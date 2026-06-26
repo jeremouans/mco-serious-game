@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+  <title>Animateur — Engagements 2030</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../lib/theme.css">
+  <style>
+    body { overflow: auto; }
+
+    /* ── Card (login / check-email) ── */
+    .card-center { flex: 1; display: flex; align-items: center; justify-content: center; padding: 24px; }
+    .card {
+      background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.12);
+      backdrop-filter: blur(18px); border-radius: 28px;
+      padding: clamp(28px,5vw,52px); box-shadow: 0 24px 60px rgba(0,0,0,.45);
+      width: min(460px, 92vw); display: flex; flex-direction: column; gap: 20px;
+      animation: pop .3s ease-out;
+    }
+    .card h2 { font-size: clamp(1.5rem, 4vw, 2.2rem); font-weight: 900; color: var(--cream); }
+    .card p  { color: rgba(243,238,218,.7); font-size: clamp(.95rem,1.8vw,1.1rem); line-height: 1.55; }
+    .inp-label { font-weight: 700; font-size: .82rem; color: rgba(243,238,218,.75);
+      letter-spacing: .6px; text-transform: uppercase; margin-bottom: 4px; }
+    .inp {
+      width: 100%; font-family: inherit; font-weight: 600;
+      font-size: clamp(1rem,2vw,1.15rem); color: var(--cream);
+      background: rgba(255,255,255,.08); border: 2px solid rgba(255,255,255,.15);
+      border-radius: 14px; padding: .65em 1em; outline: none;
+      transition: border-color .2s;
+    }
+    .inp::placeholder { color: rgba(243,238,218,.3); }
+    .inp:focus { border-color: var(--green); }
+    .err { color: #ff8080; font-size: .9rem; font-weight: 600; display: none; animation: risein .2s; }
+    .err.show { display: block; }
+    .logo-mark { animation: floatLogo 5s ease-in-out infinite; filter: drop-shadow(0 6px 16px rgba(0,0,0,.35)); }
+
+    /* ── Home ── */
+    #screen-home { overflow-y: auto; padding: clamp(20px,3vw,44px); }
+    .home-wrap { width: min(720px,100%); margin: auto; display: flex; flex-direction: column; gap: 24px; }
+    .home-header { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+    .home-header h1 { flex: 1; font-size: clamp(1.3rem,3vw,1.9rem); font-weight: 900; color: var(--cream); }
+    .home-sub { font-size: .85rem; color: rgba(243,238,218,.55); margin-top: 2px; }
+    .quiz-card {
+      background: var(--panel); color: var(--ever); border-radius: 22px;
+      padding: clamp(18px,2.8vw,30px); box-shadow: var(--shadow-sm);
+      display: flex; align-items: center; gap: 18px; flex-wrap: wrap;
+      animation: risein .4s ease-out;
+    }
+    .quiz-icon { font-size: 2.8rem; flex: none; }
+    .quiz-info { flex: 1; min-width: 200px; }
+    .quiz-info h3 { font-size: clamp(1.1rem,2.4vw,1.5rem); font-weight: 900; color: var(--ever); }
+    .quiz-info p  { font-size: .9rem; color: #4a5a4f; margin-top: 4px; }
+    .sessions-section h3 { font-weight: 800; color: var(--cream); margin-bottom: 12px; font-size: 1.1rem; }
+    .session-chip {
+      display: inline-flex; align-items: center; gap: 10px;
+      background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.12);
+      border-radius: 14px; padding: .5em 1em; margin: 0 8px 8px 0;
+      font-weight: 700; font-size: .95rem; color: var(--cream); cursor: pointer;
+      transition: background .15s;
+    }
+    .session-chip:hover { background: rgba(255,255,255,.14); }
+    .session-chip .code { font-weight: 900; color: var(--green); }
+    .session-chip .status-dot { width: .6em; height: .6em; border-radius: 50%; background: var(--green); animation: pulse-ring 1.5s infinite; }
+
+    /* ── Lobby ── */
+    #screen-lobby { overflow-y: auto; padding: clamp(16px,2.5vw,36px); }
+    .lobby-wrap { width: min(980px,100%); margin: auto; display: flex; flex-direction: column; gap: 20px; }
+    .lobby-topbar { display: flex; align-items: center; gap: 12px; }
+    .lobby-topbar h2 { font-size: clamp(1.1rem,2.5vw,1.7rem); font-weight: 900; color: var(--cream); flex: 1; }
+    .lobby-grid { display: grid; grid-template-columns: 240px 1fr; gap: 20px; align-items: start; }
+    @media (max-width: 620px) { .lobby-grid { grid-template-columns: 1fr; } }
+
+    .code-panel {
+      background: var(--panel); color: var(--ever); border-radius: 22px;
+      padding: 22px; display: flex; flex-direction: column; align-items: center; gap: 14px;
+      box-shadow: var(--shadow);
+    }
+    .code-lbl { font-size: .72rem; font-weight: 800; text-transform: uppercase;
+      letter-spacing: 2px; color: #4a5a4f; }
+    .big-code {
+      font-size: clamp(2.4rem,5vw,3.4rem); font-weight: 900; letter-spacing: 6px;
+      color: var(--ever); line-height: 1; text-align: center;
+    }
+    #qr-wrap { line-height: 0; border-radius: 12px; overflow: hidden; }
+    #qr-wrap img, #qr-wrap canvas { display: block; border-radius: 12px; }
+    .join-url { font-size: .72rem; color: #4a5a4f; text-align: center; word-break: break-all; }
+
+    .players-panel {
+      background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.09);
+      border-radius: 22px; padding: 20px; display: flex; flex-direction: column; gap: 14px;
+    }
+    .players-top { display: flex; align-items: center; justify-content: space-between; }
+    .players-top h3 { font-weight: 800; font-size: clamp(1rem,2vw,1.25rem); color: var(--cream); }
+    .count-pill {
+      background: var(--green); color: #fff; font-weight: 900;
+      font-size: .88rem; padding: .22em .75em; border-radius: 999px; min-width: 2em; text-align: center;
+    }
+    #player-list { display: flex; flex-wrap: wrap; gap: 10px; min-height: 56px; }
+    .p-chip {
+      display: flex; align-items: center; gap: 8px;
+      background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.1);
+      border-radius: 999px; padding: .3em .8em .3em .35em;
+      animation: badgeIn .3s ease-out;
+    }
+    .p-chip .av {
+      width: 1.8em; height: 1.8em; border-radius: 50%; display: grid; place-items: center;
+      font-weight: 900; font-size: .78em; color: #fff; flex: none;
+    }
+    .p-chip .nm { font-weight: 700; font-size: .95rem; color: var(--cream); }
+    .empty-msg { color: rgba(243,238,218,.35); font-size: .95rem; font-style: italic; }
+    .lobby-footer { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+    .lobby-footer .hint { color: rgba(243,238,218,.45); font-size: .88rem; }
+  </style>
+</head>
+<body>
+<div id="stars" aria-hidden="true"></div>
+<div class="app">
+
+  <!-- ══ LOGIN ══════════════════════════════════════════════ -->
+  <section class="screen active" id="screen-login">
+    <div class="card-center">
+      <div class="card">
+        <div style="display:flex;align-items:center;gap:14px;">
+          <div id="logo-a" class="logo-mark" style="width:52px;height:52px;flex:none;"></div>
+          <div>
+            <div style="font-size:.75rem;font-weight:800;text-transform:uppercase;letter-spacing:2.5px;color:var(--green);">Espace animateur</div>
+            <h2 style="margin-top:2px;">Connexion</h2>
+          </div>
+        </div>
+        <p>Saisissez votre adresse e-mail pour recevoir un lien de connexion magique.</p>
+        <form id="login-form" style="display:flex;flex-direction:column;gap:14px;" novalidate>
+          <div>
+            <div class="inp-label">Adresse e-mail</div>
+            <input id="email-inp" class="inp" type="email" placeholder="vous@mgen.fr" autocomplete="email" required>
+          </div>
+          <div id="login-err" class="err"></div>
+          <button type="submit" class="btn big" id="login-btn" style="justify-content:center;">
+            ✉️ Recevoir le lien magique
+          </button>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ CHECK EMAIL ════════════════════════════════════════ -->
+  <section class="screen" id="screen-check-email">
+    <div class="card-center">
+      <div class="card" style="text-align:center;align-items:center;">
+        <div style="font-size:4rem;animation:floatY 2.5s ease-in-out infinite;line-height:1;">📬</div>
+        <h2>Vérifiez vos e-mails !</h2>
+        <p>Un lien de connexion a été envoyé à<br><strong id="email-sent" style="color:var(--green);"></strong>.<br>Cliquez dessus pour ouvrir l'espace animateur.</p>
+        <button class="btn ghost sm" id="back-login-btn">← Autre adresse</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ HOME ═══════════════════════════════════════════════ -->
+  <section class="screen" id="screen-home">
+    <div class="home-wrap">
+      <div class="home-header">
+        <div id="logo-b" class="logo-mark" style="width:48px;height:48px;flex:none;"></div>
+        <div style="flex:1;">
+          <h1>Engagements 2030, le Quizz</h1>
+          <div class="home-sub" id="user-email"></div>
+        </div>
+        <button class="btn ghost sm" id="logout-btn">Déconnexion</button>
+      </div>
+
+      <div class="quiz-card">
+        <div class="quiz-icon">🎯</div>
+        <div class="quiz-info">
+          <h3>Engagements 2030 — le Quizz</h3>
+          <p>Serious game MGEN · Questions à choix multiples · Temps réel</p>
+        </div>
+        <button class="btn big" id="create-btn">▶ Créer une session</button>
+      </div>
+
+      <div class="sessions-section" id="sessions-section" style="display:none;">
+        <h3>Sessions ouvertes</h3>
+        <div id="sessions-list"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ LOBBY ══════════════════════════════════════════════ -->
+  <section class="screen" id="screen-lobby">
+    <div class="lobby-wrap">
+      <div class="lobby-topbar">
+        <button class="btn ghost sm" id="back-home-btn">← Accueil</button>
+        <h2>🏠 Salle d'attente</h2>
+      </div>
+
+      <div class="lobby-grid">
+        <!-- Code + QR -->
+        <div class="code-panel">
+          <div class="code-lbl">Code de session</div>
+          <div class="big-code" id="code-display">——</div>
+          <div id="qr-wrap"></div>
+          <div class="join-url" id="join-url"></div>
+        </div>
+
+        <!-- Joueurs -->
+        <div class="players-panel">
+          <div class="players-top">
+            <h3>👥 Participants</h3>
+            <span class="count-pill" id="player-count">0</span>
+          </div>
+          <div id="player-list">
+            <p class="empty-msg">En attente des participants…</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="lobby-footer">
+        <button class="btn big" id="start-btn" disabled>▶ Démarrer la partie</button>
+        <span class="hint" id="start-hint">Phase 2 — boucle de jeu à venir</span>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<script type="module">
+import { sb } from '../lib/supabase.js'
+import QRCode from 'https://esm.sh/qrcode@1.5.3'
+
+// ── Constantes ──────────────────────────────────────────────
+const PCOLORS = ['#6aa517','#86bfeb','#3f7e2e','#2b6a8c','#8cc63f','#1f6b3a','#5aa0d8','#9bd06a','#124c15','#6fb0d6']
+
+const LOGO_SVG = `<svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+  <path d="M24 12h72a18 18 0 0 1 18 18v44a18 18 0 0 1-18 18H58l-22 22 4-22h-16a18 18 0 0 1-18-18V30A18 18 0 0 1 24 12Z" fill="#f1e9d2"/>
+  <path d="M60 30 69 49l21 3-15 15 4 21-19-10-19 10 4-21-15-15 21-3z" fill="#6aa517"/></svg>`
+
+// ── État ────────────────────────────────────────────────────
+let currentUser = null
+let activeChannel = null
+let activeSession = null
+
+// ── Utils ───────────────────────────────────────────────────
+const $ = id => document.getElementById(id)
+
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'))
+  $(id).classList.add('active')
+}
+
+function spawnStars() {
+  const box = $('stars')
+  if (!box) return
+  box.innerHTML = ''
+  for (let i = 0; i < 12; i++) {
+    const s = document.createElement('span')
+    s.className = 'star'
+    s.textContent = '✦'
+    s.style.left = Math.random() * 100 + '%'
+    s.style.top  = Math.random() * 100 + '%'
+    s.style.fontSize = (8 + Math.random() * 22) + 'px'
+    s.style.setProperty('--d', (3 + Math.random() * 4).toFixed(2) + 's')
+    s.style.setProperty('--f', (7 + Math.random() * 8).toFixed(2) + 's')
+    s.style.animationDelay = (Math.random() * -6).toFixed(2) + 's, ' + (Math.random() * -8).toFixed(2) + 's'
+    box.appendChild(s)
+  }
+}
+
+function generateCode() {
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'
+  let c = ''
+  for (let i = 0; i < 6; i++) c += chars[Math.floor(Math.random() * chars.length)]
+  return c
+}
+
+function colorFor(name) {
+  let h = 0
+  for (let i = 0; i < (name || '').length; i++) h = (name.charCodeAt(i) + ((h << 5) - h)) | 0
+  return PCOLORS[Math.abs(h) % PCOLORS.length]
+}
+
+const initial = n => (n || '?').trim().charAt(0).toUpperCase()
+
+// ── Auth ────────────────────────────────────────────────────
+sb.auth.onAuthStateChange((event, session) => {
+  currentUser = session?.user ?? null
+  if (currentUser) {
+    $('user-email').textContent = currentUser.email
+    loadOpenSessions()
+    showScreen('screen-home')
+  } else {
+    showScreen('screen-login')
+  }
+})
+
+$('login-form').addEventListener('submit', async e => {
+  e.preventDefault()
+  const email = $('email-inp').value.trim()
+  const btn   = $('login-btn')
+  const errEl = $('login-err')
+
+  btn.disabled = true
+  btn.textContent = '⏳ Envoi…'
+  errEl.classList.remove('show')
+
+  const { error } = await sb.auth.signInWithOtp({
+    email,
+    options: { emailRedirectTo: window.location.origin + '/host/' }
+  })
+
+  if (error) {
+    errEl.textContent = error.message
+    errEl.classList.add('show')
+  } else {
+    $('email-sent').textContent = email
+    showScreen('screen-check-email')
+  }
+
+  btn.disabled = false
+  btn.textContent = '✉️ Recevoir le lien magique'
+})
+
+$('back-login-btn').addEventListener('click', () => showScreen('screen-login'))
+
+$('logout-btn').addEventListener('click', async () => {
+  await cleanupChannel()
+  await sb.auth.signOut()
+})
+
+// ── Sessions passées ─────────────────────────────────────────
+async function loadOpenSessions() {
+  const { data } = await sb.from('sessions')
+    .select('id, code, status, created_at')
+    .eq('status', 'lobby')
+    .order('created_at', { ascending: false })
+    .limit(5)
+
+  if (!data || data.length === 0) { $('sessions-section').style.display = 'none'; return }
+
+  $('sessions-section').style.display = 'block'
+  $('sessions-list').innerHTML = ''
+  data.forEach(s => {
+    const chip = document.createElement('div')
+    chip.className = 'session-chip'
+    chip.innerHTML = `<span class="status-dot"></span><span class="code">${s.code}</span><span>lobby ouvert</span>`
+    chip.addEventListener('click', () => reopenLobby(s))
+    $('sessions-list').appendChild(chip)
+  })
+}
+
+async function reopenLobby(session) {
+  activeSession = session
+  await openLobby(session)
+}
+
+// ── Création de session ──────────────────────────────────────
+$('create-btn').addEventListener('click', async () => {
+  const btn = $('create-btn')
+  btn.disabled = true
+  btn.textContent = '⏳ Création…'
+
+  try {
+    let session = null
+    for (let i = 0; i < 5; i++) {
+      const { data, error } = await sb.from('sessions').insert({
+        code: generateCode(),
+        host_id: currentUser.id,
+        status: 'lobby'
+      }).select().single()
+
+      if (!error) { session = data; break }
+      if (error.code !== '23505') throw error  // pas une collision de code
+    }
+    if (!session) throw new Error('Impossible de générer un code unique')
+
+    activeSession = session
+    await openLobby(session)
+  } catch (err) {
+    alert('Erreur : ' + err.message)
+  } finally {
+    btn.disabled = false
+    btn.textContent = '▶ Créer une session'
+  }
+})
+
+// ── Lobby ────────────────────────────────────────────────────
+async function openLobby(session) {
+  const joinUrl = window.location.origin + '/join/?code=' + session.code
+
+  $('code-display').textContent = session.code
+  $('join-url').textContent = joinUrl
+
+  const qrWrap = $('qr-wrap')
+  qrWrap.innerHTML = ''
+  try {
+    const dataUrl = await QRCode.toDataURL(joinUrl, {
+      width: 192, margin: 2,
+      color: { dark: '#113124', light: '#f1e9d2' }
+    })
+    const img = document.createElement('img')
+    img.src = dataUrl
+    img.width = 192
+    img.height = 192
+    img.alt = 'QR code'
+    qrWrap.appendChild(img)
+  } catch (_) { /* QR non critique */ }
+
+  showScreen('screen-lobby')
+  await startPresence(session.code)
+}
+
+async function cleanupChannel() {
+  if (activeChannel) {
+    await activeChannel.unsubscribe()
+    activeChannel = null
+  }
+}
+
+async function startPresence(code) {
+  await cleanupChannel()
+
+  activeChannel = sb.channel(`session:${code}`)
+
+  activeChannel
+    .on('presence', { event: 'sync' }, () => renderPlayers())
+    .subscribe(async status => {
+      if (status === 'SUBSCRIBED') {
+        await activeChannel.track({ role: 'host', userId: currentUser.id })
+      }
+    })
+}
+
+function renderPlayers() {
+  const state   = activeChannel.presenceState()
+  const players = Object.values(state).flat().filter(p => p.role === 'player')
+
+  $('player-count').textContent = players.length
+
+  const list = $('player-list')
+  if (players.length === 0) {
+    list.innerHTML = '<p class="empty-msg">En attente des participants…</p>'
+    return
+  }
+  list.innerHTML = ''
+  players.forEach(p => {
+    const color = colorFor(p.name)
+    const chip = document.createElement('div')
+    chip.className = 'p-chip'
+    chip.innerHTML = `
+      <div class="av" style="background:${color}">${initial(p.name)}</div>
+      <span class="nm">${p.name}</span>
+    `
+    list.appendChild(chip)
+  })
+}
+
+$('back-home-btn').addEventListener('click', async () => {
+  await cleanupChannel()
+  // Marque la session comme terminée si elle est encore en lobby
+  if (activeSession) {
+    await sb.from('sessions')
+      .update({ status: 'ended', ended_at: new Date().toISOString() })
+      .eq('id', activeSession.id)
+    activeSession = null
+  }
+  await loadOpenSessions()
+  showScreen('screen-home')
+})
+
+// ── Init ─────────────────────────────────────────────────────
+document.getElementById('logo-a').innerHTML = LOGO_SVG
+document.getElementById('logo-b').innerHTML = LOGO_SVG
+spawnStars()
+</script>
+</body>
+</html>
