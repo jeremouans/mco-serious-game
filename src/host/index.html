@@ -174,6 +174,53 @@
     .go-rank-num   { font-weight: 900; font-size: 1.2em; color: var(--green); width: 1.5em; text-align: center; }
     .go-rank-name  { font-weight: 700; flex: 1; }
     .go-rank-score { font-weight: 900; color: var(--green); }
+    /* ── Historique ── */
+    .history-row {
+      display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+      background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.09);
+      border-radius: 14px; padding: .55em 1em; margin-bottom: 8px;
+    }
+    .history-code { font-weight: 900; color: var(--green); font-size: 1.1rem; letter-spacing: 2px; min-width: 5em; }
+    .history-date { color: rgba(243,238,218,.6); font-size: .9rem; flex: 1; }
+    .history-meta { color: rgba(243,238,218,.5); font-size: .85rem; }
+
+    /* ── Bilan / Rapport ── */
+    #screen-report { overflow-y: auto; padding: clamp(14px,2.5vw,36px); }
+    .report-wrap { width: min(940px,100%); margin: auto; display: flex; flex-direction: column; gap: 20px; }
+    .rep-topbar { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+    .rep-topbar h2 { flex: 1; font-size: clamp(1.1rem,2.5vw,1.7rem); font-weight: 900; color: var(--cream); }
+    .report-body {
+      background: #fff; color: #1a2b22; border-radius: 20px;
+      box-shadow: var(--shadow); padding: clamp(20px,3vw,44px);
+      display: flex; flex-direction: column; gap: 24px;
+      -webkit-print-color-adjust: exact; print-color-adjust: exact;
+    }
+    .rep-head { display: flex; align-items: center; gap: 16px; border-bottom: 2px solid #e8f0e0; padding-bottom: 16px; }
+    .rep-head h2 { font-size: clamp(1.2rem,2.5vw,1.7rem); font-weight: 900; color: #113124; margin: 0; }
+    .rep-sub { color: #5a6b60; font-size: .9rem; font-weight: 600; margin-top: 3px; }
+    .rep-kpis { display: flex; gap: 12px; flex-wrap: wrap; }
+    .kpi { flex: 1; min-width: 110px; background: #f4f8ee; border-radius: 14px; padding: 14px; text-align: center; }
+    .kv { font-size: clamp(1.6rem,4vw,2.2rem); font-weight: 900; color: #6aa517; }
+    .kl { font-size: .8rem; color: #5a6b60; font-weight: 700; margin-top: 2px; }
+    .rep-section-title { font-size: clamp(1rem,2vw,1.3rem); font-weight: 900; color: #124c15; margin: 0 0 10px; border-left: 5px solid #6aa517; padding-left: .5em; }
+    .rep-table { width: 100%; border-collapse: collapse; font-size: clamp(.82rem,1.5vw,1rem); }
+    .rep-table th, .rep-table td { padding: .5em .7em; text-align: left; border-bottom: 1px solid #e6ecdf; }
+    .rep-table th { background: #113124; color: #fff; font-weight: 800; }
+    .rep-table tr:nth-child(even) td { background: #fafcf6; }
+    .rep-table td:nth-child(2) { max-width: 320px; }
+    .rep-foot { font-size: .78rem; color: #7a8b80; border-top: 1px solid #e6ecdf; padding-top: 10px; }
+    .rep-empty { color: #5a6b60; font-style: italic; font-size: .95rem; }
+
+    @media print {
+      @page { margin: 12mm; }
+      body { background: #fff !important; overflow: visible !important; }
+      body::before, body::after, #stars { display: none !important; }
+      .app { height: auto !important; overflow: visible !important; }
+      .screen { display: none !important; }
+      #screen-report { display: block !important; overflow: visible !important; height: auto !important; }
+      .rep-topbar { display: none !important; }
+      .report-wrap, .report-body { box-shadow: none !important; overflow: visible !important; }
+    }
   </style>
 </head>
 <body>
@@ -238,6 +285,10 @@
       <div class="sessions-section" id="sessions-section" style="display:none;">
         <h3>Sessions ouvertes</h3>
         <div id="sessions-list"></div>
+      </div>
+      <div class="sessions-section" id="history-section" style="display:none;">
+        <h3>Mes parties</h3>
+        <div id="history-list"></div>
       </div>
     </div>
   </section>
@@ -309,7 +360,24 @@
     <div class="crown">👑</div>
     <div class="win-name" id="winner-name"></div>
     <div class="go-ranks" id="go-ranks"></div>
-    <button class="btn big" id="new-session-btn">🔄 Nouvelle session</button>
+    <div style="display:flex;gap:12px;flex-wrap:wrap;justify-content:center;">
+      <button class="btn big" id="new-session-btn">🔄 Nouvelle session</button>
+      <button class="btn gold" id="view-report-btn">📊 Voir le bilan</button>
+    </div>
+  </section>
+
+  <!-- ══ BILAN ══════════════════════════════════════════════ -->
+  <section class="screen" id="screen-report">
+    <div class="report-wrap">
+      <div class="rep-topbar">
+        <button class="btn ghost sm" id="back-report-btn">← Retour</button>
+        <h2>📊 Bilan de session</h2>
+        <button class="btn gold sm" id="print-btn" onclick="window.print()">🖨️ Exporter PDF</button>
+      </div>
+      <div class="report-body" id="report-body">
+        <p class="rep-empty" style="text-align:center;padding:40px;">Chargement…</p>
+      </div>
+    </div>
   </section>
 
 </div>
@@ -373,6 +441,7 @@ sb.auth.onAuthStateChange((event, session) => {
   if (currentUser) {
     $('user-email').textContent = currentUser.email
     loadOpenSessions()
+    loadHistory()
     showScreen('screen-home')
   } else {
     showScreen('screen-login')
@@ -675,7 +744,27 @@ async function endGame() {
   // Logs DB
   try {
     if (scoreboard.length > 0) {
-      await sb.from('results').insert(scoreboard.map(p => ({ session_id: activeSession.id, player_name: p.name, final_score: p.score, rank: p.rank })))
+      await sb.from('results').insert(scoreboard.map(p => ({
+        session_id: activeSession.id, player_name: p.name, final_score: p.score, rank: p.rank
+      })))
+      // Players
+      const { data: dbPlayers } = await sb.from('players').insert(
+        scoreboard.map(p => ({ session_id: activeSession.id, name: p.name, score: p.score }))
+      ).select('id, name')
+      // Answers
+      if (dbPlayers?.length > 0 && GS.log.length > 0) {
+        const nameToId = new Map(dbPlayers.map(p => [p.name, p.id]))
+        const rows = []
+        GS.log.forEach(entry => {
+          entry.answers.forEach(a => {
+            const player = GS.players.get(a.tempId)
+            const pid = player ? nameToId.get(player.name) : null
+            if (!pid) return
+            rows.push({ session_id: activeSession.id, player_id: pid, question_id: entry.questionId, value: a.value !== null ? String(a.value) : null, is_correct: a.isCorrect, time_ms: a.timeMs, points: a.points })
+          })
+        })
+        if (rows.length > 0) await sb.from('answers').insert(rows)
+      }
     }
   } catch(e) { console.warn('DB log:', e) }
 
@@ -694,8 +783,125 @@ async function endGame() {
 
 $('new-session-btn').addEventListener('click', async () => {
   await cleanupChannel(); activeSession = null; GS = null
-  await loadOpenSessions(); showScreen('screen-home')
+  await loadOpenSessions(); await loadHistory(); showScreen('screen-home')
 })
+
+// ── "Voir le bilan" depuis fin de partie ──────────────────────
+$('view-report-btn').addEventListener('click', () => {
+  if (activeSession) openReport(activeSession.id, activeSession.code, new Date().toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric' }))
+})
+
+$('back-report-btn').addEventListener('click', () => {
+  // Retourner à l'écran précédent pertinent
+  const prev = activeSession ? 'screen-gameover-host' : 'screen-home'
+  showScreen(prev)
+})
+
+// ── Historique ────────────────────────────────────────────────
+async function loadHistory() {
+  const { data } = await sb.from('sessions')
+    .select('id, code, created_at, ended_at')
+    .eq('status', 'ended')
+    .order('created_at', { ascending: false })
+    .limit(10)
+
+  const section = $('history-section'); const list = $('history-list')
+  if (!data || data.length === 0) { section.style.display = 'none'; return }
+  section.style.display = 'block'
+  list.innerHTML = ''
+  data.forEach(s => {
+    const date = new Date(s.created_at).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric' })
+    const row = document.createElement('div'); row.className = 'history-row'
+    row.innerHTML = `<span class="history-code">${s.code}</span><span class="history-date">${date}</span>`
+    const btn = document.createElement('button'); btn.className = 'btn sm'; btn.textContent = '📊 Bilan'
+    btn.addEventListener('click', () => openReport(s.id, s.code, date))
+    row.appendChild(btn); list.appendChild(row)
+  })
+}
+
+// ── Rapport ───────────────────────────────────────────────────
+async function openReport(sessionId, code, date) {
+  showScreen('screen-report')
+  $('report-body').innerHTML = '<p class="rep-empty" style="text-align:center;padding:40px;">Chargement…</p>'
+  try {
+    const [{ data: results }, { data: answers }] = await Promise.all([
+      sb.from('results').select('*').eq('session_id', sessionId).order('rank'),
+      sb.from('answers').select('question_id, value, is_correct, time_ms, points, players(name)').eq('session_id', sessionId)
+    ])
+    if (!QUIZ) {
+      const d = await fetch('/data/quiz-mgen.json').then(r => r.json())
+      QUIZ = d.questions.filter(q => q.type === 'choice' || q.type === 'truefalse')
+    }
+    renderReport({ code, date, results: results ?? [], answers: answers ?? [] })
+  } catch(e) { $('report-body').innerHTML = `<p style="color:#e74c3c;padding:20px;">Erreur : ${e.message}</p>` }
+}
+
+function renderReport({ code, date, results, answers }) {
+  const playerCount  = results.length
+  const qIds         = [...new Set(answers.map(a => a.question_id))]
+  const totalAnswered = answers.filter(a => a.value !== null).length
+  const totalCorrect  = answers.filter(a => a.is_correct).length
+  const correctRate  = totalAnswered > 0 ? Math.round(totalCorrect / totalAnswered * 100) : 0
+  const avgScore     = playerCount > 0 ? Math.round(results.reduce((s, r) => s + r.final_score, 0) / playerCount) : 0
+
+  const qStats = {}
+  answers.forEach(a => {
+    if (!qStats[a.question_id]) qStats[a.question_id] = { correct: 0, answered: 0, optCounts: {}, totalTime: 0 }
+    const s = qStats[a.question_id]
+    if (a.value !== null) { s.answered++; s.optCounts[a.value] = (s.optCounts[a.value] || 0) + 1 }
+    if (a.is_correct) s.correct++
+    s.totalTime += a.time_ms || 0
+  })
+
+  const qRows = qIds.map(qId => {
+    const q = QUIZ?.find(q => q.id === qId); const s = qStats[qId]
+    if (!q || !s) return ''
+    const rate   = s.answered > 0 ? Math.round(s.correct / s.answered * 100) : 0
+    const top    = Object.entries(s.optCounts).sort((a,b) => b[1]-a[1])[0]
+    const topTxt = top ? (typeof q.options[+top[0]] === 'string' ? q.options[+top[0]] : q.options[+top[0]]?.text ?? '—') : '—'
+    const avgT   = s.answered > 0 ? (Math.round(s.totalTime / s.answered / 100) / 10).toFixed(1) : '—'
+    const color  = rate >= 60 ? '#27ae60' : rate >= 35 ? '#e8a020' : '#e74c3c'
+    return `<tr>
+      <td style="max-width:300px;font-size:.88em">${q.text}</td>
+      <td><strong style="color:${color}">${rate}%</strong></td>
+      <td style="font-size:.85em;color:#4a5a4f">${topTxt}</td>
+      <td>${avgT}s</td>
+    </tr>`
+  }).join('')
+
+  const rankRows = results.map(r => {
+    const medal = r.rank === 1 ? '🥇' : r.rank === 2 ? '🥈' : r.rank === 3 ? '🥉' : r.rank
+    return `<tr><td>${medal}</td><td>${r.player_name}</td><td style="font-weight:900;color:#6aa517">${r.final_score} pts</td></tr>`
+  }).join('')
+
+  $('report-body').innerHTML = `
+    <div class="rep-head">
+      <div id="logo-rep" style="width:52px;height:52px;flex:none;"></div>
+      <div><h2>Engagements 2030 — le Quizz</h2><p class="rep-sub">Session <strong>${code}</strong> · ${date}</p></div>
+    </div>
+    <div class="rep-kpis">
+      <div class="kpi"><div class="kv">${playerCount}</div><div class="kl">Participants</div></div>
+      <div class="kpi"><div class="kv">${qIds.length}</div><div class="kl">Questions jouées</div></div>
+      <div class="kpi"><div class="kv">${avgScore}</div><div class="kl">Score moyen</div></div>
+      <div class="kpi"><div class="kv">${correctRate}%</div><div class="kl">Taux de réussite</div></div>
+    </div>
+    ${playerCount > 0 ? `
+    <div>
+      <div class="rep-section-title">🏆 Classement final</div>
+      <table class="rep-table"><thead><tr><th>Rang</th><th>Joueur</th><th>Score</th></tr></thead><tbody>${rankRows}</tbody></table>
+    </div>` : '<p class="rep-empty">Aucun joueur enregistré.</p>'}
+    ${qRows ? `
+    <div>
+      <div class="rep-section-title">📊 Par question</div>
+      <table class="rep-table">
+        <thead><tr><th>Question</th><th>Réussite</th><th>Réponse majoritaire</th><th>Temps moy.</th></tr></thead>
+        <tbody>${qRows}</tbody>
+      </table>
+    </div>` : ''}
+    <div class="rep-foot">Engagements 2030, le Quizz · MGEN · Session ${code} · ${date}</div>
+  `
+  document.getElementById('logo-rep').innerHTML = LOGO_SVG
+}
 
 // ── Init ─────────────────────────────────────────────────────
 $('logo-a').innerHTML = LOGO_SVG; $('logo-b').innerHTML = LOGO_SVG; spawnStars()
