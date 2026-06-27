@@ -339,6 +339,59 @@
     .ri-title { font-size: clamp(2rem,6vw,4rem); font-weight: 900; color: var(--cream); text-shadow: 0 6px 30px rgba(0,0,0,.35); animation: nameIn .4s ease-out; line-height: 1.05; }
     .ri-count { font-size: clamp(1rem,2.5vw,1.4rem); color: rgba(243,238,218,.65); font-weight: 600; }
 
+    /* ── Confetti ── */
+    @keyframes confettiFall {
+      from { transform: translateY(0) rotate(0deg); opacity: 1; }
+      to   { transform: translateY(110vh) rotate(720deg) scale(.6); opacity: 0; }
+    }
+
+    /* ── Phase 4 shared ── */
+    #screen-idea-prompt, #screen-idea-vote, #screen-idea-reveal,
+    #screen-engage-prompt, #screen-engage-vote, #screen-engage-reveal {
+      overflow-y: auto; padding: clamp(14px,2.5vw,36px);
+    }
+    .p4-wrap { width: min(860px,100%); margin: auto; display: flex; flex-direction: column; gap: 20px; }
+    .p4-topbar { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+    .p4-topbar h2 { flex: 1; font-size: clamp(1.1rem,2.5vw,1.7rem); font-weight: 900; color: var(--cream); }
+    .p4-badge { background: rgba(244,200,74,.2); border: 1.5px solid rgba(244,200,74,.5); color: var(--gold); font-weight: 900; font-size: .82rem; padding: .3em .9em; border-radius: 999px; white-space: nowrap; }
+    .p4-challenge-box { font-size: clamp(1.1rem,2.5vw,1.6rem); font-weight: 700; color: var(--cream); line-height: 1.3; background: rgba(255,255,255,.06); border-radius: 16px; padding: clamp(14px,2vw,22px); border-left: 5px solid var(--gold); }
+    .p4-stats { display: flex; gap: 24px; align-items: center; flex-wrap: wrap; justify-content: center; }
+    .p4-stat { text-align: center; min-width: 100px; }
+    .p4-stat-num { font-size: clamp(2rem,5vw,3.2rem); font-weight: 900; color: var(--green); }
+    .p4-stat-num.timer { color: var(--cream); }
+    .p4-stat-num.urgent { color: #e74c3c; }
+    .p4-stat-lbl { font-size: .88rem; color: rgba(243,238,218,.55); font-weight: 600; margin-top: 2px; }
+    .idea-list { display: flex; flex-direction: column; gap: 10px; }
+    .idea-item { display: flex; align-items: flex-start; gap: 12px; background: var(--panel); color: var(--ever); border-radius: 14px; padding: .7em 1em; box-shadow: var(--shadow-sm); animation: risein .3s backwards; }
+    .idea-num { font-weight: 900; color: var(--green); min-width: 1.6em; text-align: center; font-size: 1.1em; flex: none; }
+    .idea-text { flex: 1; font-weight: 700; font-size: clamp(.9rem,1.8vw,1.1rem); line-height: 1.35; }
+    .idea-votes { font-weight: 900; font-size: .95rem; color: var(--green); min-width: 3em; text-align: right; flex: none; white-space: nowrap; }
+    .idea-item.gold-idea { background: linear-gradient(135deg,rgba(244,200,74,.22),rgba(244,200,74,.05)); border: 2px solid var(--gold); }
+    .gold-winner-box { background: linear-gradient(135deg,rgba(244,200,74,.2),rgba(244,200,74,.05)); border: 2px solid var(--gold); border-radius: 22px; padding: clamp(20px,3vw,36px); text-align: center; animation: pop .5s ease-out; }
+    .gold-crown { font-size: clamp(3rem,8vw,5rem); animation: floatY 2.2s ease-in-out infinite; line-height: 1; margin-bottom: 8px; }
+    .gold-kicker { font-size: .78rem; font-weight: 900; text-transform: uppercase; letter-spacing: 3px; color: var(--gold); margin-bottom: 8px; }
+    .gold-idea-text { font-size: clamp(1.2rem,3vw,2rem); font-weight: 900; color: var(--cream); line-height: 1.2; }
+    .gold-author { font-size: 1rem; color: rgba(243,238,218,.65); font-weight: 600; margin-top: 8px; }
+    .engage-card-host { background: var(--panel); color: var(--ever); border-radius: 18px; padding: clamp(16px,2.5vw,26px); box-shadow: var(--shadow); }
+    .engage-category-badge { display: inline-block; font-size: .78rem; font-weight: 800; text-transform: uppercase; letter-spacing: 1.5px; color: var(--green); background: rgba(106,165,23,.14); border-radius: 6px; padding: .25em .65em; margin-bottom: 8px; }
+    .engage-card-text { font-size: clamp(1.05rem,2.5vw,1.5rem); font-weight: 700; color: var(--ever); line-height: 1.3; }
+    .carousel-nav { display: flex; align-items: center; gap: 12px; }
+    .carousel-num { font-weight: 700; color: rgba(243,238,218,.6); font-size: .95rem; flex: 1; text-align: center; }
+    .engage-rev-wrap { overflow-x: auto; border-radius: 14px; }
+    .engage-rev-table { width: 100%; border-collapse: collapse; font-size: clamp(.78rem,1.5vw,.9rem); min-width: 580px; }
+    .engage-rev-table th { background: #113124; color: #fff; padding: .45em .65em; text-align: left; font-weight: 800; white-space: nowrap; }
+    .engage-rev-table td { padding: .45em .65em; border-bottom: 1px solid rgba(255,255,255,.07); color: var(--cream); vertical-align: middle; }
+    .engage-rev-table tr:nth-child(even) td { background: rgba(255,255,255,.03); }
+    .engage-bonus-inp { font-family: inherit; font-size: .85rem; font-weight: 700; color: var(--cream); background: rgba(255,255,255,.1); border: 1.5px solid rgba(255,255,255,.2); border-radius: 8px; padding: .3em .55em; width: 68px; outline: none; text-align: center; }
+    .engage-bonus-inp:focus { border-color: var(--gold); }
+    /* Editor manche type */
+    .manche-type-sel { font-family: inherit; font-weight: 700; font-size: .82rem; color: var(--cream); background: rgba(255,255,255,.1); border: 1.5px solid rgba(255,255,255,.2); border-radius: 10px; padding: .32em .65em; cursor: pointer; }
+    .p4-config-box { background: rgba(244,200,74,.07); border: 1.5px solid rgba(244,200,74,.22); border-radius: 14px; padding: 14px; display: flex; flex-direction: column; gap: 10px; }
+    .p4-config-lbl { font-size: .73rem; font-weight: 800; text-transform: uppercase; letter-spacing: .6px; color: rgba(244,200,74,.85); }
+    .cats-list { display: flex; flex-direction: column; gap: 5px; }
+    .cat-row { display: flex; align-items: center; gap: 6px; }
+    .cat-row input { flex: 1; }
+
     @media print {
       @page { margin: 12mm; }
       body { background: #fff !important; overflow: visible !important; }
@@ -583,6 +636,139 @@
     </div>
   </section>
 
+  <!-- ══ IDEA PROMPT ══════════════════════════════════════════ -->
+  <section class="screen" id="screen-idea-prompt">
+    <div class="p4-wrap">
+      <div class="p4-topbar">
+        <span class="p4-badge">💡 L'idée en Or</span>
+        <h2 id="idea-manche-name">L'idée en Or</h2>
+      </div>
+      <div class="p4-challenge-box" id="idea-challenge">–</div>
+      <div class="p4-stats">
+        <div class="p4-stat">
+          <div class="p4-stat-num" id="idea-submitted-count">0</div>
+          <div class="p4-stat-lbl">idées soumises sur <span id="idea-total-players">0</span></div>
+        </div>
+        <div class="p4-stat">
+          <div class="p4-stat-num timer" id="idea-prompt-timer">—</div>
+          <div class="p4-stat-lbl">secondes restantes</div>
+        </div>
+      </div>
+      <div class="game-actions">
+        <button class="btn gold" id="idea-start-vote-btn">▶ Passer au vote</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ IDEA VOTE ══════════════════════════════════════════ -->
+  <section class="screen" id="screen-idea-vote">
+    <div class="p4-wrap">
+      <div class="p4-topbar">
+        <span class="p4-badge">💡 Vote</span>
+        <h2>Choisissez l'idée la plus prometteuse</h2>
+      </div>
+      <div class="p4-stats">
+        <div class="p4-stat">
+          <div class="p4-stat-num" id="idea-vote-count">0</div>
+          <div class="p4-stat-lbl">votes reçus sur <span id="idea-vote-total">0</span></div>
+        </div>
+      </div>
+      <div class="idea-list" id="idea-items-host"></div>
+      <div class="game-actions">
+        <button class="btn gold" id="idea-reveal-btn">🏆 Révéler l'idée en Or</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ IDEA REVEAL ═════════════════════════════════════════ -->
+  <section class="screen" id="screen-idea-reveal">
+    <div class="p4-wrap">
+      <div class="p4-topbar">
+        <span class="p4-badge">💡 Révélation</span>
+        <h2>L'idée en Or !</h2>
+      </div>
+      <div class="gold-winner-box">
+        <div class="gold-crown">✨</div>
+        <div class="gold-kicker">💡 L'idée en Or</div>
+        <div class="gold-idea-text" id="idea-gold-text">–</div>
+        <div class="gold-author" id="idea-gold-author">–</div>
+      </div>
+      <div class="idea-list" id="idea-ranking-host"></div>
+      <div class="game-actions">
+        <button class="btn big" id="idea-continue-btn">→ Continuer</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ ENGAGE PROMPT ═══════════════════════════════════════ -->
+  <section class="screen" id="screen-engage-prompt">
+    <div class="p4-wrap">
+      <div class="p4-topbar">
+        <span class="p4-badge">🤝 Mes engagements</span>
+        <h2 id="engage-manche-name">Mes engagements</h2>
+      </div>
+      <div class="p4-challenge-box" id="engage-categories-display">–</div>
+      <div class="p4-stats">
+        <div class="p4-stat">
+          <div class="p4-stat-num" id="engage-submitted-count">0</div>
+          <div class="p4-stat-lbl">engagements saisis sur <span id="engage-total-players">0</span></div>
+        </div>
+        <div class="p4-stat">
+          <div class="p4-stat-num timer" id="engage-prompt-timer">—</div>
+          <div class="p4-stat-lbl">secondes restantes</div>
+        </div>
+      </div>
+      <div class="game-actions">
+        <button class="btn gold" id="engage-start-vote-btn">▶ Passer au vote</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ ENGAGE VOTE ═════════════════════════════════════════ -->
+  <section class="screen" id="screen-engage-vote">
+    <div class="p4-wrap">
+      <div class="p4-topbar">
+        <span class="p4-badge">🤝 Vote critères</span>
+        <h2>Évaluez les engagements</h2>
+      </div>
+      <div class="p4-stats">
+        <div class="p4-stat">
+          <div class="p4-stat-num" id="engage-vote-count">0</div>
+          <div class="p4-stat-lbl">votes reçus</div>
+        </div>
+      </div>
+      <div class="carousel-nav">
+        <button class="btn sm ghost" id="engage-prev-btn">← Préc.</button>
+        <span class="carousel-num" id="engage-carousel-num">1 / 1</span>
+        <button class="btn sm ghost" id="engage-next-btn">Suiv. →</button>
+      </div>
+      <div id="engage-current-card"></div>
+      <div class="game-actions">
+        <button class="btn gold" id="engage-reveal-btn">🏆 Révéler les engagements</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ ENGAGE REVEAL ═══════════════════════════════════════ -->
+  <section class="screen" id="screen-engage-reveal">
+    <div class="p4-wrap">
+      <div class="p4-topbar">
+        <span class="p4-badge">🤝 Révélation</span>
+        <h2>Les engagements pris</h2>
+      </div>
+      <div class="engage-rev-wrap">
+        <table class="engage-rev-table">
+          <thead><tr><th>Joueur</th><th>Catégorie</th><th>Engagement</th><th>🎯</th><th>✅</th><th>✨</th><th>🚀</th><th>Bonus</th><th>Pts</th></tr></thead>
+          <tbody id="engage-rev-body"></tbody>
+        </table>
+      </div>
+      <div class="game-actions">
+        <button class="btn sm gold" id="engage-apply-bonus-btn">✓ Appliquer les bonus</button>
+        <button class="btn big" id="engage-continue-btn">→ Continuer</button>
+      </div>
+    </div>
+  </section>
+
 </div>
 
 <script type="module">
@@ -734,7 +920,11 @@ async function startPresence(code) {
   activeChannel = sb.channel(`session:${code}`)
   activeChannel
     .on('presence',  { event: 'sync' }, () => renderPlayers())
-    .on('broadcast', { event: 'answer' }, ({ payload }) => receiveAnswer(payload))
+    .on('broadcast', { event: 'answer' },         ({ payload }) => receiveAnswer(payload))
+    .on('broadcast', { event: 'submit:idea' },    ({ payload }) => receiveIdeaSubmit(payload))
+    .on('broadcast', { event: 'vote:idea' },      ({ payload }) => receiveIdeaVote(payload))
+    .on('broadcast', { event: 'submit:engage' },  ({ payload }) => receiveEngageSubmit(payload))
+    .on('broadcast', { event: 'vote:engage' },    ({ payload }) => receiveEngageVote(payload))
     .subscribe(async status => {
       if (status === 'SUBSCRIBED') await activeChannel.track({ role: 'host', userId: currentUser.id })
     })
@@ -800,7 +990,11 @@ function initGame() {
 
 // ── Question ──────────────────────────────────────────────────
 function showQuestion(skipIntro = false) {
+  if (!GS || GS.qIdx >= GS.questions.length) { endGame(); return }
   const q = GS.questions[GS.qIdx]
+
+  if (q.type === 'idea')   { startIdeaManche(q.mancheConfig); return }
+  if (q.type === 'engage') { startEngageManche(q.mancheConfig); return }
 
   // Intro de manche si section change
   if (!skipIntro && q.section) {
@@ -956,8 +1150,10 @@ function renderScoreboard() {
     lines.appendChild(line)
   })
   const hasMore = GS.qIdx + 1 < GS.questions.length
-  $('next-q-btn').style.display  = hasMore ? 'inline-flex' : 'none'
-  $('end-game-btn').textContent  = hasMore ? '🏁 Terminer' : '🏁 Voir le classement final'
+  const nextQ   = GS.questions[GS.qIdx + 1]
+  $('next-q-btn').style.display = hasMore ? 'inline-flex' : 'none'
+  $('next-q-btn').textContent   = (nextQ?.type === 'idea' || nextQ?.type === 'engage') ? 'Manche suivante →' : 'Question suivante →'
+  $('end-game-btn').textContent = hasMore ? '🏁 Terminer' : '🏁 Voir le classement final'
 }
 
 $('next-q-btn').addEventListener('click', () => { GS.qIdx++; showQuestion() })
@@ -1227,30 +1423,39 @@ function buildQuizFromConfig(selectedManches = null) {
   const manches = selectedManches?.length
     ? QUIZ_CONFIG.manches.filter(m => selectedManches.includes(m.id))
     : QUIZ_CONFIG.manches
-  return manches
-    .flatMap(m => m.questions.map(q => ({ ...q, id: q._id, section: m.name })))
-    .filter(q => q.type === 'choice' || q.type === 'truefalse')
+  const result = []
+  manches.forEach(m => {
+    if (m.type === 'idea' || m.type === 'engage') {
+      result.push({ id: m.id, _id: m.id, type: m.type, section: m.name, mancheConfig: m })
+    } else {
+      ;(m.questions || [])
+        .filter(q => q.type === 'choice' || q.type === 'truefalse')
+        .forEach(q => result.push({ ...q, id: q._id, section: m.name }))
+    }
+  })
+  return result
 }
 
 function renderMancheCheckboxes() {
   const wrap = $('manche-checkboxes'); wrap.innerHTML = ''
   if (!QUIZ_CONFIG) { wrap.innerHTML = '<p style="color:rgba(243,238,218,.4);font-size:.9rem;">Aucun quiz chargé.</p>'; return }
   QUIZ_CONFIG.manches.forEach(m => {
-    const autoQ = m.questions.filter(q => q.type === 'choice' || q.type === 'truefalse').length
+    const badge = m.type === 'idea' ? '💡 Idée en Or' : m.type === 'engage' ? '🤝 Engagements' : ((m.questions||[]).filter(q => q.type==='choice'||q.type==='truefalse').length) + ' Q'
     const label = document.createElement('label'); label.className = 'manche-check-row'
     label.innerHTML = `
       <input type="checkbox" class="manche-cb" data-id="${m.id}" checked>
       <span class="manche-name">${m.name}</span>
-      <span class="manche-qcount">${autoQ} Q</span>`
+      <span class="manche-qcount">${badge}</span>`
     wrap.appendChild(label)
   })
 }
 
 function updateQuizCardInfo() {
   if (!QUIZ_CONFIG) return
-  const total = QUIZ_CONFIG.manches.reduce((n, m) => n + m.questions.length, 0)
-  const auto  = buildQuizFromConfig()?.length ?? 0
-  $('quiz-info-sub').textContent = `${auto} questions auto-scorées · ${QUIZ_CONFIG.manches.length} manche${QUIZ_CONFIG.manches.length > 1 ? 's' : ''} · Serious game MGEN`
+  const auto = buildQuizFromConfig()?.filter(q => q.type === 'choice' || q.type === 'truefalse').length ?? 0
+  const p4   = QUIZ_CONFIG.manches.filter(m => m.type === 'idea' || m.type === 'engage').length
+  const nb   = QUIZ_CONFIG.manches.length
+  $('quiz-info-sub').textContent = `${auto} questions auto-scorées${p4 ? ' · ' + p4 + ' manche' + (p4>1?'s':'') + ' participative' + (p4>1?'s':'') : ''} · ${nb} manche${nb>1?'s':''} · Serious game MGEN`
 }
 
 // ── Quiz Editor ───────────────────────────────────────────────
@@ -1268,7 +1473,32 @@ function openQuizEditor() {
 function renderSections() {
   const wrap = $('sections-wrap'); wrap.innerHTML = ''
   QUIZ_CONFIG.manches.forEach((m, mi) => {
+    const mtype = m.type || 'quiz'
     const card = document.createElement('div'); card.className = 'section-card'
+    let bodyHtml = ''
+    if (mtype === 'idea') {
+      const ch = escHtml(m.challenge || '')
+      const st = m.submitTimer ?? 90
+      bodyHtml = `<div class="p4-config-box">
+        <div class="p4-config-lbl">💡 Défi soumis aux joueurs</div>
+        <input class="q-inp" value="${ch}" placeholder="Ex : Quelle innovation proposez-vous ?" onchange="editorUpdateMancheField(${mi},'challenge',this.value)">
+        <div class="p4-config-lbl">⏱ Durée de saisie (s)</div>
+        <input class="q-inp num" type="number" min="30" max="300" step="15" value="${st}" onchange="editorUpdateMancheField(${mi},'submitTimer',+this.value)">
+      </div>`
+    } else if (mtype === 'engage') {
+      const cats = m.categories?.length ? m.categories : ['Je m\'alimente','Je me déplace','J\'achète','Je gère mes déchets','J\'économise l\'énergie','Je préserve la biodiversité','J\'agis en citoyen','Je sensibilise']
+      const st = m.submitTimer ?? 90
+      const catsHtml = cats.map((c,ci) => `<div class="cat-row"><input class="q-inp" value="${escHtml(c)}" placeholder="Catégorie ${ci+1}" onchange="editorUpdateCat(${mi},${ci},this.value)"><button class="iconbtn danger" onclick="editorRemoveCat(${mi},${ci})">×</button></div>`).join('')
+      bodyHtml = `<div class="p4-config-box">
+        <div class="p4-config-lbl">🗂 Catégories d'engagement</div>
+        <div class="cats-list" id="cats-${mi}">${catsHtml}</div>
+        <button class="btn sm dark" onclick="editorAddCat(${mi})">➕ Catégorie</button>
+        <div class="p4-config-lbl" style="margin-top:6px">⏱ Durée de saisie (s)</div>
+        <input class="q-inp num" type="number" min="30" max="300" step="15" value="${st}" onchange="editorUpdateMancheField(${mi},'submitTimer',+this.value)">
+      </div>`
+    } else {
+      bodyHtml = `<div id="sq-${mi}"></div><button class="btn sm dark add-q-btn" onclick="editorAddQuestion(${mi})">➕ Question</button>`
+    }
     card.innerHTML = `
       <div class="section-head">
         <div class="section-move">
@@ -1277,13 +1507,19 @@ function renderSections() {
         </div>
         <input class="section-name-inp" value="${escHtml(m.name)}" placeholder="Nom de la manche"
                onchange="editorUpdateSectionName(${mi},this.value)">
+        <select class="manche-type-sel" onchange="editorUpdateMancheType(${mi},this.value)">
+          <option value="quiz" ${mtype==='quiz'?'selected':''}>📝 Quiz</option>
+          <option value="idea" ${mtype==='idea'?'selected':''}>💡 Idée en Or</option>
+          <option value="engage" ${mtype==='engage'?'selected':''}>🤝 Engagements</option>
+        </select>
         <button class="iconbtn danger" onclick="editorDeleteSection(${mi})">×</button>
       </div>
-      <div id="sq-${mi}"></div>
-      <button class="btn sm dark add-q-btn" onclick="editorAddQuestion(${mi})">➕ Question</button>`
+      ${bodyHtml}`
     wrap.appendChild(card)
-    const qWrap = document.getElementById(`sq-${mi}`)
-    m.questions.forEach((q, qi) => qWrap.appendChild(renderQRow(q, mi, qi)))
+    if (mtype === 'quiz') {
+      const qWrap = document.getElementById(`sq-${mi}`)
+      ;(m.questions || []).forEach((q, qi) => qWrap.appendChild(renderQRow(q, mi, qi)))
+    }
   })
 }
 
@@ -1405,6 +1641,23 @@ window.editorUpdateOption  = (mi, qi, i, val) => {
   if (typeof opts[i] === 'string') opts[i] = val; else opts[i] = { ...(opts[i] || {}), text: val }
 }
 window.editorSetCorrect    = (mi, qi, i) => { QUIZ_CONFIG.manches[mi].questions[qi].correct = i; renderSections() }
+window.editorUpdateMancheType = (mi, type) => {
+  const m = QUIZ_CONFIG.manches[mi]; m.type = type
+  if (type === 'idea')   { if (!m.challenge)   m.challenge = ''; if (!m.submitTimer) m.submitTimer = 90 }
+  if (type === 'engage') { if (!m.categories)  m.categories = ['Je m\'alimente','Je me déplace','J\'achète','Je gère mes déchets','J\'économise l\'énergie','Je préserve la biodiversité','J\'agis en citoyen','Je sensibilise']; if (!m.submitTimer) m.submitTimer = 90 }
+  if (!m.questions) m.questions = []
+  renderSections()
+}
+window.editorUpdateMancheField = (mi, field, val) => { QUIZ_CONFIG.manches[mi][field] = val }
+window.editorUpdateCat = (mi, ci, val) => {
+  if (!QUIZ_CONFIG.manches[mi].categories) QUIZ_CONFIG.manches[mi].categories = []
+  QUIZ_CONFIG.manches[mi].categories[ci] = val
+}
+window.editorAddCat = (mi) => {
+  if (!QUIZ_CONFIG.manches[mi].categories) QUIZ_CONFIG.manches[mi].categories = []
+  QUIZ_CONFIG.manches[mi].categories.push(''); renderSections()
+}
+window.editorRemoveCat = (mi, ci) => { QUIZ_CONFIG.manches[mi].categories?.splice(ci, 1); renderSections() }
 
 $('editor-back-btn').addEventListener('click', () => showScreen('screen-home'))
 $('editor-save-btn').addEventListener('click', saveQuizConfig)
@@ -1435,6 +1688,267 @@ function showRoundIntro(sectionName) {
   }})
   $('round-next-btn').onclick = () => showQuestion(true)
   showScreen('screen-round-intro')
+}
+
+// ── Phase 4 ──────────────────────────────────────────────────────────────────
+let P4S = null
+const CRITERIA_KEYS = ['concret','aligne','inspirant','impact']
+const ENGAGE_CATS_DEFAULT = ['Je m\'alimente','Je me déplace','J\'achète','Je gère mes déchets','J\'économise l\'énergie','Je préserve la biodiversité','J\'agis en citoyen','Je sensibilise']
+
+function launchConfetti() {
+  const emojis = ['🌿','⭐','💛','🍃','✨','🟢','🌟','💚','🥳','🎉']
+  for (let i = 0; i < 40; i++) {
+    const el = document.createElement('div')
+    el.textContent = emojis[Math.floor(Math.random() * emojis.length)]
+    el.style.cssText = `position:fixed;font-size:${1+Math.random()*1.5}rem;left:${Math.random()*100}%;top:-2.5em;z-index:500;pointer-events:none;animation:confettiFall ${1.5+Math.random()*2}s ${Math.random()*0.8}s ease-in forwards;`
+    document.body.appendChild(el)
+    el.addEventListener('animationend', () => el.remove())
+  }
+}
+
+// ─ Idea manche ───────────────────────────────────────────────────────────────
+function startIdeaManche(m) {
+  if (P4S?.timerInterval) clearInterval(P4S.timerInterval)
+  P4S = { kind:'idea', mancheConfig:m, phase:'prompt', submissions:new Map(), votes:new Map(), anonymousMap:new Map(), endsAt:0, timerInterval:null }
+  P4S.endsAt = Date.now() + (m.submitTimer ?? 90) * 1000
+  $('idea-manche-name').textContent     = m.name || 'L\'idée en Or'
+  $('idea-challenge').textContent       = m.challenge || 'Quelle innovation proposez-vous ?'
+  $('idea-submitted-count').textContent = '0'
+  $('idea-total-players').textContent   = GS.players.size
+  const tick = () => {
+    const rem = Math.max(0, Math.ceil((P4S.endsAt - Date.now()) / 1000))
+    const el = $('idea-prompt-timer'); if (!el) return
+    el.textContent = rem; el.classList.toggle('urgent', rem <= 10)
+    if (rem <= 0 && P4S.timerInterval) { clearInterval(P4S.timerInterval); P4S.timerInterval = null }
+  }
+  tick(); P4S.timerInterval = setInterval(tick, 1000)
+  activeChannel.send({ type:'broadcast', event:'round:idea:prompt', payload:{ challenge: m.challenge || 'Quelle innovation proposez-vous ?', endsAt: P4S.endsAt }})
+  showScreen('screen-idea-prompt')
+}
+
+function receiveIdeaSubmit(payload) {
+  if (!P4S || P4S.kind !== 'idea' || P4S.phase !== 'prompt') return
+  if (P4S.submissions.has(payload.tempId)) return
+  const text = String(payload.text || '').slice(0, 280).trim(); if (!text) return
+  P4S.submissions.set(payload.tempId, { text, name: payload.name || '?' })
+  $('idea-submitted-count').textContent = P4S.submissions.size
+  activeChannel.send({ type:'broadcast', event:'host:submitted', payload:{ n: P4S.submissions.size, total: GS.players.size }})
+}
+
+$('idea-start-vote-btn').addEventListener('click', () => {
+  if (!P4S || P4S.kind !== 'idea') return
+  if (P4S.timerInterval) { clearInterval(P4S.timerInterval); P4S.timerInterval = null }
+  P4S.phase = 'vote'
+  if (P4S.submissions.size <= 1) { showIdeaReveal(); return }
+  const shuffled = [...P4S.submissions.entries()].sort(() => Math.random() - 0.5)
+  const items = shuffled.map(([authorId, sub]) => {
+    const anonId = uid(); P4S.anonymousMap.set(anonId, authorId); return { tempId: anonId, text: sub.text }
+  })
+  activeChannel.send({ type:'broadcast', event:'round:idea:vote', payload:{ items }})
+  $('idea-vote-count').textContent = '0'; $('idea-vote-total').textContent = GS.players.size
+  const list = $('idea-items-host'); list.innerHTML = ''
+  items.forEach((item, i) => {
+    const div = document.createElement('div'); div.className = 'idea-item'; div.style.animationDelay = (i*.05)+'s'
+    div.innerHTML = `<div class="idea-num">${i+1}</div><div class="idea-text">${escHtml(item.text)}</div><div class="idea-votes" id="ivotes-${item.tempId}">0</div>`
+    list.appendChild(div)
+  })
+  showScreen('screen-idea-vote')
+})
+
+function receiveIdeaVote(payload) {
+  if (!P4S || P4S.kind !== 'idea' || P4S.phase !== 'vote') return
+  if (P4S.votes.has(payload.tempId)) return
+  const authorId = P4S.anonymousMap.get(payload.targetTempId); if (!authorId) return
+  if (authorId === payload.tempId) return
+  P4S.votes.set(payload.tempId, payload.targetTempId)
+  const cnt = [...P4S.votes.values()].filter(t => t === payload.targetTempId).length
+  const el = $(`ivotes-${payload.targetTempId}`); if (el) el.textContent = cnt
+  $('idea-vote-count').textContent = P4S.votes.size
+  activeChannel.send({ type:'broadcast', event:'host:voted', payload:{ n: P4S.votes.size, total: GS.players.size }})
+}
+
+$('idea-reveal-btn').addEventListener('click', showIdeaReveal)
+
+function showIdeaReveal() {
+  if (!P4S || P4S.kind !== 'idea') return
+  P4S.phase = 'reveal'
+  const vPts = activeSession?.settings?.ideaVotePoints ?? 100
+  const gBonus = activeSession?.settings?.ideaGoldBonus ?? 300
+  const voteCounts = new Map()
+  P4S.votes.forEach(anonId => { const a = P4S.anonymousMap.get(anonId); if (a) voteCounts.set(a, (voteCounts.get(a)||0)+1) })
+  const maxVotes  = Math.max(0, ...[...voteCounts.values()])
+  const goldAuths = maxVotes > 0 ? [...voteCounts.entries()].filter(([,v]) => v === maxVotes).map(([k]) => k) : []
+  const ranking = []
+  P4S.submissions.forEach((sub, authorId) => {
+    const votes = voteCounts.get(authorId)||0; const isGold = goldAuths.includes(authorId)
+    const pts = votes * vPts + (isGold ? gBonus : 0)
+    const player = GS.players.get(authorId); if (player) player.score += pts
+    ranking.push({ authorId, name:sub.name, text:sub.text, votes, isGold, pts })
+  })
+  ranking.sort((a,b) => b.votes - a.votes || b.pts - a.pts)
+  activeChannel.send({ type:'broadcast', event:'round:idea:reveal', payload:{
+    ranking: ranking.map(r => ({ name:r.name, text:r.text, votes:r.votes, isGold:r.isGold, pts:r.pts })),
+    playerPoints: Object.fromEntries(ranking.map(r => [r.authorId, { delta:r.pts, isGold:r.isGold }]))
+  }})
+  const gold = ranking.find(r => r.isGold)
+  $('idea-gold-text').textContent   = gold?.text ?? ranking[0]?.text ?? '(aucune soumission)'
+  $('idea-gold-author').textContent = gold ? '— ' + gold.name : (P4S.submissions.size <= 1 ? 'Pas assez de participants pour voter' : 'Ex æquo')
+  const rankList = $('idea-ranking-host'); rankList.innerHTML = ''
+  ranking.forEach((r, i) => {
+    const div = document.createElement('div'); div.className = 'idea-item' + (r.isGold ? ' gold-idea' : ''); div.style.animationDelay = (i*.06)+'s'
+    div.innerHTML = `<div class="idea-num">${r.isGold ? '🥇' : i+1}</div><div class="idea-text"><strong>${escHtml(r.name)}</strong><br>${escHtml(r.text)}</div><div class="idea-votes">${r.votes}v<br><span style="color:var(--gold);font-size:.85em">+${r.pts}pts</span></div>`
+    rankList.appendChild(div)
+  })
+  showScreen('screen-idea-reveal')
+  if (maxVotes > 0) launchConfetti()
+  logIdeaManche(ranking)
+}
+
+async function logIdeaManche(ranking) {
+  if (!activeSession) return
+  try {
+    const { data:subs } = await sb.from('submissions').insert(ranking.map(r => ({ session_id:activeSession.id, round_key:P4S.mancheConfig.id, kind:'idea', author_tempid:r.authorId, author_name:r.name, text:r.text, points:r.pts, is_gold:r.isGold }))).select('id,author_tempid')
+    if (subs?.length && P4S.votes.size > 0) {
+      const voteRows = []
+      P4S.votes.forEach((anonId, voterTempId) => {
+        const authorId = P4S.anonymousMap.get(anonId); const sub = subs.find(s => s.author_tempid === authorId); const voter = GS.players.get(voterTempId)
+        if (sub && voter) voteRows.push({ session_id:activeSession.id, submission_id:sub.id, voter_tempid:voterTempId, voter_name:voter.name })
+      })
+      if (voteRows.length) await sb.from('votes').insert(voteRows)
+    }
+  } catch(e) { console.warn('logIdea:', e) }
+}
+
+$('idea-continue-btn').addEventListener('click', () => { GS.qIdx++; showQuestion() })
+
+// ─ Engage manche ─────────────────────────────────────────────────────────────
+function startEngageManche(m) {
+  if (P4S?.timerInterval) clearInterval(P4S.timerInterval)
+  P4S = { kind:'engage', mancheConfig:m, phase:'prompt', submissions:new Map(), votes:new Map(), anonymousMap:new Map(), revealResults:null, endsAt:0, timerInterval:null, carouselIdx:0, voteItems:[] }
+  P4S.endsAt = Date.now() + (m.submitTimer ?? 90) * 1000
+  const cats = m.categories?.length ? m.categories : ENGAGE_CATS_DEFAULT
+  $('engage-manche-name').textContent        = m.name || 'Mes engagements'
+  $('engage-categories-display').textContent = 'Catégories : ' + cats.join(' · ')
+  $('engage-submitted-count').textContent    = '0'
+  $('engage-total-players').textContent      = GS.players.size
+  const tick = () => {
+    const rem = Math.max(0, Math.ceil((P4S.endsAt - Date.now()) / 1000))
+    const el = $('engage-prompt-timer'); if (!el) return
+    el.textContent = rem; el.classList.toggle('urgent', rem <= 10)
+    if (rem <= 0 && P4S.timerInterval) { clearInterval(P4S.timerInterval); P4S.timerInterval = null }
+  }
+  tick(); P4S.timerInterval = setInterval(tick, 1000)
+  activeChannel.send({ type:'broadcast', event:'round:engage:prompt', payload:{ categories:cats, endsAt:P4S.endsAt }})
+  showScreen('screen-engage-prompt')
+}
+
+function receiveEngageSubmit(payload) {
+  if (!P4S || P4S.kind !== 'engage' || P4S.phase !== 'prompt') return
+  if (P4S.submissions.has(payload.tempId)) return
+  const text = String(payload.text || '').slice(0, 280).trim(); if (!text) return
+  P4S.submissions.set(payload.tempId, { text, category: payload.category||'', name: payload.name||'?' })
+  $('engage-submitted-count').textContent = P4S.submissions.size
+  activeChannel.send({ type:'broadcast', event:'host:submitted', payload:{ n:P4S.submissions.size, total:GS.players.size }})
+}
+
+$('engage-start-vote-btn').addEventListener('click', () => {
+  if (!P4S || P4S.kind !== 'engage') return
+  if (P4S.timerInterval) { clearInterval(P4S.timerInterval); P4S.timerInterval = null }
+  P4S.phase = 'vote'
+  if (P4S.submissions.size === 0) { showEngageReveal(); return }
+  P4S.voteItems = [...P4S.submissions.entries()].sort(() => Math.random()-.5).map(([authorId, sub]) => {
+    const anonId = uid(); P4S.anonymousMap.set(anonId, authorId); return { tempId:anonId, category:sub.category, text:sub.text }
+  })
+  activeChannel.send({ type:'broadcast', event:'round:engage:vote', payload:{ items:P4S.voteItems }})
+  $('engage-vote-count').textContent = '0'; P4S.carouselIdx = 0; renderEngageCarousel()
+  showScreen('screen-engage-vote')
+})
+
+function renderEngageCarousel() {
+  const items = P4S.voteItems; const idx = P4S.carouselIdx; const item = items[idx]
+  $('engage-carousel-num').textContent = `${idx+1} / ${items.length}`
+  const card = $('engage-current-card'); card.innerHTML = ''
+  if (item) {
+    const div = document.createElement('div'); div.className = 'engage-card-host'
+    div.innerHTML = `<div class="engage-category-badge">${escHtml(item.category||'Engagement')}</div><div class="engage-card-text">"${escHtml(item.text)}"</div>`
+    card.appendChild(div)
+  }
+  $('engage-prev-btn').disabled = idx === 0
+  $('engage-next-btn').disabled = idx >= items.length - 1
+}
+$('engage-prev-btn').addEventListener('click', () => { P4S.carouselIdx = Math.max(0, P4S.carouselIdx-1); renderEngageCarousel() })
+$('engage-next-btn').addEventListener('click', () => { P4S.carouselIdx = Math.min(P4S.voteItems.length-1, P4S.carouselIdx+1); renderEngageCarousel() })
+
+function receiveEngageVote(payload) {
+  if (!P4S || P4S.kind !== 'engage' || P4S.phase !== 'vote') return
+  const key = `${payload.tempId}__${payload.targetTempId}`; if (P4S.votes.has(key)) return
+  const authorId = P4S.anonymousMap.get(payload.targetTempId); if (!authorId || authorId === payload.tempId) return
+  const criteria = (Array.isArray(payload.criteria) ? payload.criteria : []).filter(c => CRITERIA_KEYS.includes(c))
+  P4S.votes.set(key, { voterTempId:payload.tempId, anonId:payload.targetTempId, criteria })
+  $('engage-vote-count').textContent = P4S.votes.size
+}
+
+$('engage-reveal-btn').addEventListener('click', showEngageReveal)
+
+function showEngageReveal() {
+  if (!P4S || P4S.kind !== 'engage') return
+  P4S.phase = 'reveal'
+  const cPts = activeSession?.settings?.engageCriterionPoints ?? 50
+  const bMax = activeSession?.settings?.engageBonusMax ?? 200
+  const criteriaByAnon = new Map()
+  P4S.votes.forEach(({ anonId, criteria }) => {
+    if (!criteriaByAnon.has(anonId)) criteriaByAnon.set(anonId, { concret:0, aligne:0, inspirant:0, impact:0 })
+    const c = criteriaByAnon.get(anonId); criteria.forEach(k => { if (k in c) c[k]++ })
+  })
+  const results = []
+  P4S.submissions.forEach((sub, authorId) => {
+    const anonId = [...P4S.anonymousMap.entries()].find(([,v]) => v === authorId)?.[0]
+    const crit = anonId ? (criteriaByAnon.get(anonId)||{ concret:0, aligne:0, inspirant:0, impact:0 }) : { concret:0, aligne:0, inspirant:0, impact:0 }
+    const pts = (crit.concret + crit.aligne + crit.inspirant + crit.impact) * cPts
+    const player = GS.players.get(authorId); if (player) player.score += pts
+    results.push({ authorId, name:sub.name, category:sub.category, text:sub.text, crit, pts, bonus:0 })
+  })
+  P4S.revealResults = results
+  const tbody = $('engage-rev-body'); tbody.innerHTML = ''
+  results.forEach((r, i) => {
+    const tr = document.createElement('tr')
+    tr.innerHTML = `<td style="font-weight:700;white-space:nowrap">${escHtml(r.name)}</td><td style="font-size:.82em;white-space:nowrap">${escHtml(r.category)}</td><td style="max-width:200px">${escHtml(r.text)}</td><td style="text-align:center">${r.crit.concret}</td><td style="text-align:center">${r.crit.aligne}</td><td style="text-align:center">${r.crit.inspirant}</td><td style="text-align:center">${r.crit.impact}</td><td><input class="engage-bonus-inp" type="number" min="0" max="${bMax}" step="50" value="0" data-idx="${i}"></td><td style="font-weight:900;color:var(--gold)" id="engage-pts-${i}">${r.pts}</td>`
+    tbody.appendChild(tr)
+  })
+  activeChannel.send({ type:'broadcast', event:'round:engage:reveal', payload:{ perSubmission: results.map(r => ({ name:r.name, category:r.category, text:r.text, criteriaCounts:r.crit, pts:r.pts, bonus:0 })) }})
+  showScreen('screen-engage-reveal')
+}
+
+$('engage-apply-bonus-btn').addEventListener('click', () => {
+  if (!P4S?.revealResults) return
+  const bMax = activeSession?.settings?.engageBonusMax ?? 200
+  P4S.revealResults.forEach((r, i) => {
+    const inp = document.querySelector(`.engage-bonus-inp[data-idx="${i}"]`)
+    const bonus = Math.min(bMax, Math.max(0, parseInt(inp?.value||'0',10)||0)); const old = r.bonus; r.bonus = bonus
+    const player = GS.players.get(r.authorId); if (player) player.score += bonus - old
+    const el = $(`engage-pts-${i}`); if (el) el.textContent = r.pts + bonus
+  })
+  activeChannel.send({ type:'broadcast', event:'round:engage:reveal', payload:{ perSubmission: P4S.revealResults.map(r => ({ name:r.name, category:r.category, text:r.text, criteriaCounts:r.crit, pts:r.pts+r.bonus, bonus:r.bonus })) }})
+  const btn = $('engage-apply-bonus-btn'); btn.textContent = '✓ Bonus appliqués !'
+  setTimeout(() => { btn.textContent = '✓ Appliquer les bonus' }, 2000)
+  logEngageManche()
+})
+
+$('engage-continue-btn').addEventListener('click', () => { GS.qIdx++; showQuestion() })
+
+async function logEngageManche() {
+  if (!activeSession || !P4S?.revealResults) return
+  try {
+    const { data:subs } = await sb.from('submissions').insert(P4S.revealResults.map(r => ({ session_id:activeSession.id, round_key:P4S.mancheConfig.id, kind:'engage', author_tempid:r.authorId, author_name:r.name, text:r.text, category:r.category, points:r.pts+(r.bonus||0) }))).select('id,author_tempid')
+    if (subs?.length && P4S.votes.size > 0) {
+      const voteRows = []
+      P4S.votes.forEach(({ voterTempId, anonId, criteria }) => {
+        const authorId = P4S.anonymousMap.get(anonId); const sub = subs.find(s => s.author_tempid === authorId); const voter = GS.players.get(voterTempId)
+        if (sub && voter) criteria.forEach(c => voteRows.push({ session_id:activeSession.id, submission_id:sub.id, voter_tempid:voterTempId, voter_name:voter.name, criterion:c }))
+      })
+      if (voteRows.length) await sb.from('votes').insert(voteRows)
+    }
+  } catch(e) { console.warn('logEngage:', e) }
 }
 
 // ── Init ─────────────────────────────────────────────────────

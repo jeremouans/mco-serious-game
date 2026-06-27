@@ -117,6 +117,58 @@
       color: rgba(243,238,218,.88); line-height: 1.5; max-width: 420px; text-align: left;
     }
 
+    /* ── Phase 4 joueur ── */
+    #screen-idea-input, #screen-p4-waiting, #screen-idea-vote-p,
+    #screen-engage-input, #screen-engage-vote-p, #screen-p4-result {
+      flex-direction: column; overflow-y: auto; gap: clamp(14px,3vh,24px); padding: 20px;
+      justify-content: flex-start; padding-top: clamp(24px,5vh,48px);
+    }
+    .p4j-head { font-size: clamp(1.3rem,5vw,1.9rem); font-weight: 900; color: var(--cream); text-align: center; }
+    .p4j-sub  { font-size: clamp(.9rem,3vw,1.1rem); color: rgba(243,238,218,.65); text-align: center; font-weight: 600; }
+    .p4j-badge { display: inline-block; font-size: .75rem; font-weight: 900; text-transform: uppercase; letter-spacing: 2px; color: var(--gold); background: rgba(244,200,74,.18); border-radius: 999px; padding: .3em 1em; margin-bottom: 4px; }
+    .p4j-challenge { background: rgba(255,255,255,.07); border-radius: 16px; padding: 16px; border-left: 4px solid var(--gold); font-size: clamp(1rem,3.5vw,1.3rem); font-weight: 700; color: var(--cream); line-height: 1.35; }
+    .p4j-textarea {
+      width: 100%; font-family: inherit; font-weight: 600; font-size: clamp(1rem,3.5vw,1.15rem); color: var(--cream);
+      background: rgba(255,255,255,.09); border: 2px solid rgba(255,255,255,.18); border-radius: 16px;
+      padding: .75em 1em; outline: none; resize: vertical; min-height: 110px; transition: border-color .2s; -webkit-appearance: none;
+    }
+    .p4j-textarea::placeholder { color: rgba(243,238,218,.3); }
+    .p4j-textarea:focus { border-color: var(--gold); }
+    .char-count { font-size: .78rem; color: rgba(243,238,218,.4); text-align: right; }
+    .cat-select {
+      width: 100%; font-family: inherit; font-weight: 700; font-size: clamp(1rem,3.5vw,1.1rem); color: var(--cream);
+      background: rgba(255,255,255,.09); border: 2px solid rgba(255,255,255,.18); border-radius: 14px;
+      padding: .65em 1em; outline: none; -webkit-appearance: none; appearance: none; cursor: pointer; transition: border-color .2s;
+    }
+    .cat-select:focus { border-color: var(--gold); }
+    .p4j-wait-icon { font-size: clamp(3rem,12vw,5rem); text-align: center; animation: floatY 2.5s ease-in-out infinite; }
+    .p4j-counter { background: rgba(255,255,255,.07); border-radius: 14px; padding: .6em 1.2em; text-align: center; font-weight: 700; color: rgba(243,238,218,.7); font-size: clamp(.9rem,3vw,1.05rem); }
+    /* Idea vote list (player) */
+    .idea-vote-list { display: flex; flex-direction: column; gap: 10px; width: 100%; }
+    .idea-vote-btn {
+      font-family: inherit; font-weight: 700; font-size: clamp(.95rem,3.5vw,1.1rem); color: var(--cream);
+      background: rgba(255,255,255,.08); border: 2px solid rgba(255,255,255,.16); border-radius: 14px;
+      padding: .75em 1em; cursor: pointer; text-align: left; line-height: 1.35; transition: all .15s;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .idea-vote-btn:hover { background: rgba(255,255,255,.14); }
+    .idea-vote-btn.selected { border-color: var(--gold); background: rgba(244,200,74,.18); }
+    /* Engage vote criteria */
+    .engage-item-card { background: rgba(255,255,255,.06); border-radius: 16px; padding: 14px; display: flex; flex-direction: column; gap: 10px; border: 1px solid rgba(255,255,255,.1); }
+    .engage-item-cat { font-size: .75rem; font-weight: 800; text-transform: uppercase; letter-spacing: 1.5px; color: var(--green); }
+    .engage-item-text { font-size: clamp(.95rem,3.5vw,1.15rem); font-weight: 700; color: var(--cream); line-height: 1.3; }
+    .criteria-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .crit-btn {
+      font-family: inherit; font-size: .9rem; font-weight: 700; color: rgba(243,238,218,.65);
+      background: rgba(255,255,255,.06); border: 2px solid rgba(255,255,255,.15); border-radius: 10px;
+      padding: .5em .7em; cursor: pointer; transition: all .15s; text-align: center; -webkit-tap-highlight-color: transparent;
+    }
+    .crit-btn.active { border-color: var(--green); background: rgba(106,165,23,.25); color: var(--cream); }
+    /* P4 result */
+    .p4j-result-icon { font-size: clamp(3.5rem,14vw,6rem); text-align: center; animation: pop .5s ease-out; }
+    .p4j-result-pts { font-size: clamp(2rem,8vw,3rem); font-weight: 900; color: var(--gold); text-align: center; text-shadow: 0 4px 20px rgba(244,200,74,.4); animation: pop .4s .1s ease-out both; }
+    .p4j-result-sub { font-size: clamp(.95rem,3vw,1.2rem); color: rgba(243,238,218,.7); text-align: center; font-weight: 600; }
+
     /* ── Fin de partie joueur ── */
     #screen-player-gameover { justify-content: center; align-items: center; gap: clamp(12px,3.5vh,26px); padding: 24px; text-align: center; }
     .go-player-rank  { font-size: clamp(3rem,14vw,6rem); animation: pop .5s ease-out; }
@@ -198,6 +250,69 @@
     <div class="result-pts"  id="result-pts"></div>
     <div class="result-total" id="result-total"></div>
     <div class="result-explain" id="result-explain" style="display:none;"></div>
+  </section>
+
+  <!-- ══ IDEA : SAISIE ════════════════════════════════════════════ -->
+  <section class="screen" id="screen-idea-input">
+    <div class="p4j-badge">💡 L'idée en Or</div>
+    <div class="p4j-head">Votre idée</div>
+    <div class="p4j-challenge" id="idea-challenge-p"></div>
+    <div>
+      <textarea class="p4j-textarea" id="idea-text-inp" maxlength="280" placeholder="Écrivez votre idée ici…"></textarea>
+      <div class="char-count"><span id="idea-char-count">0</span> / 280</div>
+    </div>
+    <div id="idea-input-err" class="err"></div>
+    <button class="btn big" id="idea-submit-btn" style="justify-content:center;">💡 Soumettre mon idée</button>
+  </section>
+
+  <!-- ══ P4 : EN ATTENTE ═══════════════════════════════════════════ -->
+  <section class="screen" id="screen-p4-waiting">
+    <div class="p4j-wait-icon" id="p4-wait-icon">⏳</div>
+    <div class="p4j-head" id="p4-wait-title">En attente…</div>
+    <div class="p4j-sub"  id="p4-wait-sub">Attendez le signal de l'animateur.</div>
+    <div class="p4j-counter" id="p4-wait-counter" style="display:none;"></div>
+  </section>
+
+  <!-- ══ IDEA : VOTE ═══════════════════════════════════════════════ -->
+  <section class="screen" id="screen-idea-vote-p">
+    <div class="p4j-badge">💡 Vote</div>
+    <div class="p4j-head">Choisissez votre idée préférée</div>
+    <div class="p4j-sub">Votez pour l'idée la plus prometteuse. Pas la vôtre !</div>
+    <div class="idea-vote-list" id="idea-vote-list-p"></div>
+    <div id="idea-vote-err" class="err"></div>
+    <button class="btn big" id="idea-vote-submit-btn" style="justify-content:center;display:none;">✅ Confirmer mon vote</button>
+  </section>
+
+  <!-- ══ ENGAGE : SAISIE ═══════════════════════════════════════════ -->
+  <section class="screen" id="screen-engage-input">
+    <div class="p4j-badge">🤝 Mes engagements</div>
+    <div class="p4j-head">Mon engagement</div>
+    <div class="p4j-sub">Je m'engage à…</div>
+    <select class="cat-select" id="engage-cat-sel"></select>
+    <div>
+      <textarea class="p4j-textarea" id="engage-text-inp" maxlength="280" placeholder="Décrivez votre engagement concret…"></textarea>
+      <div class="char-count"><span id="engage-char-count">0</span> / 280</div>
+    </div>
+    <div id="engage-input-err" class="err"></div>
+    <button class="btn big" id="engage-submit-btn" style="justify-content:center;">🤝 Soumettre mon engagement</button>
+  </section>
+
+  <!-- ══ ENGAGE : VOTE CRITÈRES ════════════════════════════════════ -->
+  <section class="screen" id="screen-engage-vote-p">
+    <div class="p4j-badge">🤝 Vote critères</div>
+    <div class="p4j-head">Évaluez les engagements</div>
+    <div class="p4j-sub">Cochez les critères remplis. Pas votre engagement !</div>
+    <div id="engage-vote-items-p" style="display:flex;flex-direction:column;gap:12px;width:100%;"></div>
+    <button class="btn big" id="engage-vote-submit-btn" style="justify-content:center;margin-top:8px;">✅ Valider mes votes</button>
+  </section>
+
+  <!-- ══ RÉSULTAT P4 ════════════════════════════════════════════════ -->
+  <section class="screen" id="screen-p4-result">
+    <div class="p4j-result-icon" id="p4-result-icon">🎯</div>
+    <div class="p4j-head" id="p4-result-title">Résultat</div>
+    <div class="p4j-result-pts" id="p4-result-pts">+0 pts</div>
+    <div class="p4j-result-sub" id="p4-result-sub"></div>
+    <div class="p4j-result-sub" id="p4-result-total" style="color:rgba(243,238,218,.5);"></div>
   </section>
 
   <!-- ══ FIN DE PARTIE ══════════════════════════════════════ -->
@@ -341,10 +456,18 @@ async function joinLobby(code, name) {
         clearTimeout(hostCheckTimer); hostCheckTimer = null; $('no-host-banner').classList.remove('show')
       }
     })
-    .on('broadcast', { event: 'round:intro' },     ({ payload }) => showRoundIntroPlayer(payload))
-    .on('broadcast', { event: 'question:show' },  ({ payload }) => handleQuestionShow(payload))
-    .on('broadcast', { event: 'question:reveal' }, ({ payload }) => handleReveal(payload))
-    .on('broadcast', { event: 'game:ended' },      ({ payload }) => handleGameEnded(payload))
+    .on('broadcast', { event: 'round:intro' },          ({ payload }) => showRoundIntroPlayer(payload))
+    .on('broadcast', { event: 'question:show' },        ({ payload }) => handleQuestionShow(payload))
+    .on('broadcast', { event: 'question:reveal' },      ({ payload }) => handleReveal(payload))
+    .on('broadcast', { event: 'game:ended' },           ({ payload }) => handleGameEnded(payload))
+    .on('broadcast', { event: 'round:idea:prompt' },    ({ payload }) => handleIdeaPrompt(payload))
+    .on('broadcast', { event: 'round:idea:vote' },      ({ payload }) => handleIdeaVotePhase(payload))
+    .on('broadcast', { event: 'round:idea:reveal' },    ({ payload }) => handleIdeaRevealPlayer(payload))
+    .on('broadcast', { event: 'round:engage:prompt' },  ({ payload }) => handleEngagePrompt(payload))
+    .on('broadcast', { event: 'round:engage:vote' },    ({ payload }) => handleEngageVotePhase(payload))
+    .on('broadcast', { event: 'round:engage:reveal' },  ({ payload }) => handleEngageRevealPlayer(payload))
+    .on('broadcast', { event: 'host:submitted' },       ({ payload }) => { const el = $('p4-wait-counter'); if (el) { el.style.display='block'; el.textContent = `${payload.n} / ${payload.total} soumissions reçues`; }})
+    .on('broadcast', { event: 'host:voted' },           ({ payload }) => { const el = $('p4-wait-counter'); if (el) { el.style.display='block'; el.textContent = `${payload.n} / ${payload.total} votes reçus`; }})
     .subscribe(async status => {
       if (status === 'SUBSCRIBED') {
         await activeChannel.track({ role: 'player', name, tempId: PS.tempId, emoji: PS.emoji })
@@ -504,6 +627,151 @@ function handleGameEnded(payload) {
   $('player-winner-info').textContent = rank === 1 ? '' : `👑 Vainqueur : ${winner?.name ?? '—'} (${winner?.score ?? 0} pts)`
 
   showScreen('screen-player-gameover')
+}
+
+// ── Phase 4 joueur ───────────────────────────────────────────
+const P4J = { kind:null, hasSubmitted:false, selectedVoteId:null, engageCriteria:new Map() }
+const CRITERIA_DEF = [
+  { key:'concret',   label:'🎯 Concret' },
+  { key:'aligne',    label:'✅ Aligné' },
+  { key:'inspirant', label:'✨ Inspirant' },
+  { key:'impact',    label:'🚀 Impact' }
+]
+
+function p4Wait(icon, title, sub) {
+  $('p4-wait-icon').textContent = icon; $('p4-wait-title').textContent = title; $('p4-wait-sub').textContent = sub
+  $('p4-wait-counter').style.display = 'none'; showScreen('screen-p4-waiting')
+}
+
+// ─ Idea ──────────────────────────────────────────────────────
+function handleIdeaPrompt(payload) {
+  clearInterval(PS.timerInterval)
+  P4J.kind = 'idea'; P4J.hasSubmitted = false; P4J.selectedVoteId = null
+  $('idea-challenge-p').textContent = payload.challenge || ''
+  $('idea-text-inp').value = ''; $('idea-char-count').textContent = '0'
+  $('idea-input-err').classList.remove('show')
+  $('idea-submit-btn').disabled = false; $('idea-submit-btn').textContent = '💡 Soumettre mon idée'
+  showScreen('screen-idea-input')
+}
+
+$('idea-text-inp').addEventListener('input', () => { $('idea-char-count').textContent = $('idea-text-inp').value.length })
+
+$('idea-submit-btn').addEventListener('click', () => {
+  if (P4J.hasSubmitted) return
+  const text = $('idea-text-inp').value.trim()
+  if (!text) { $('idea-input-err').textContent = 'Écrivez votre idée avant de soumettre.'; $('idea-input-err').classList.add('show'); return }
+  P4J.hasSubmitted = true; $('idea-submit-btn').disabled = true; $('idea-submit-btn').textContent = '⏳ Envoi…'
+  activeChannel.send({ type:'broadcast', event:'submit:idea', payload:{ tempId:PS.tempId, name:PS.name, text }})
+  p4Wait('✅', 'Idée envoyée !', 'En attente du vote…')
+})
+
+function handleIdeaVotePhase(payload) {
+  if (!payload.items?.length) { p4Wait('⏳', 'Vote en cours…', 'Pas assez d\'idées pour voter.'); return }
+  P4J.selectedVoteId = null
+  const list = $('idea-vote-list-p'); list.innerHTML = ''
+  const btn = $('idea-vote-submit-btn'); btn.style.display = 'none'; btn.disabled = false; btn.textContent = '✅ Confirmer mon vote'
+  $('idea-vote-err').classList.remove('show')
+  payload.items.forEach((item, i) => {
+    const el = document.createElement('button'); el.className = 'idea-vote-btn'; el.dataset.anonId = item.tempId
+    el.textContent = `${i+1}. ${item.text}`
+    el.addEventListener('click', () => {
+      if (btn.disabled) return
+      list.querySelectorAll('.idea-vote-btn').forEach(b => b.classList.remove('selected'))
+      el.classList.add('selected'); P4J.selectedVoteId = item.tempId; btn.style.display = 'block'
+    })
+    list.appendChild(el)
+  })
+  showScreen('screen-idea-vote-p')
+}
+
+$('idea-vote-submit-btn').addEventListener('click', () => {
+  if (!P4J.selectedVoteId) { $('idea-vote-err').textContent = 'Choisissez une idée.'; $('idea-vote-err').classList.add('show'); return }
+  $('idea-vote-submit-btn').disabled = true; $('idea-vote-submit-btn').textContent = '⏳ Envoi…'
+  activeChannel.send({ type:'broadcast', event:'vote:idea', payload:{ tempId:PS.tempId, name:PS.name, targetTempId:P4J.selectedVoteId }})
+  p4Wait('🗳️', 'Vote envoyé !', 'En attente de la révélation…')
+})
+
+function handleIdeaRevealPlayer(payload) {
+  const my = payload.playerPoints?.[PS.tempId]; const delta = my?.delta ?? 0; const isGold = my?.isGold ?? false
+  PS.score += delta
+  $('p4-result-icon').textContent  = isGold ? '🥇' : delta > 0 ? '✨' : '🎯'
+  $('p4-result-title').textContent = isGold ? '🏆 C\'est votre idée en Or !' : delta > 0 ? 'Vos idées inspirent !' : 'Résultat'
+  $('p4-result-pts').textContent   = delta > 0 ? `+${delta} pts` : '0 pt'
+  $('p4-result-pts').style.color   = delta > 0 ? 'var(--gold)' : 'rgba(243,238,218,.4)'
+  $('p4-result-sub').textContent   = isGold ? 'Votre idée a remporté le vote !' : delta > 0 ? 'Vous avez reçu des votes.' : 'Continuez à proposer !'
+  $('p4-result-total').textContent = `Total : ${PS.score} pts`
+  showScreen('screen-p4-result')
+}
+
+// ─ Engage ────────────────────────────────────────────────────
+function handleEngagePrompt(payload) {
+  clearInterval(PS.timerInterval)
+  P4J.kind = 'engage'; P4J.hasSubmitted = false; P4J.engageCriteria = new Map()
+  const cats = payload.categories?.length ? payload.categories : ['Mon engagement']
+  $('engage-cat-sel').innerHTML = cats.map(c => `<option value="${c}">${c}</option>`).join('')
+  $('engage-text-inp').value = ''; $('engage-char-count').textContent = '0'
+  $('engage-input-err').classList.remove('show')
+  $('engage-submit-btn').disabled = false; $('engage-submit-btn').textContent = '🤝 Soumettre mon engagement'
+  showScreen('screen-engage-input')
+}
+
+$('engage-text-inp').addEventListener('input', () => { $('engage-char-count').textContent = $('engage-text-inp').value.length })
+
+$('engage-submit-btn').addEventListener('click', () => {
+  if (P4J.hasSubmitted) return
+  const text = $('engage-text-inp').value.trim(); const cat = $('engage-cat-sel').value
+  if (!text) { $('engage-input-err').textContent = 'Décrivez votre engagement.'; $('engage-input-err').classList.add('show'); return }
+  P4J.hasSubmitted = true; $('engage-submit-btn').disabled = true; $('engage-submit-btn').textContent = '⏳ Envoi…'
+  activeChannel.send({ type:'broadcast', event:'submit:engage', payload:{ tempId:PS.tempId, name:PS.name, text, category:cat }})
+  p4Wait('✅', 'Engagement envoyé !', 'En attente du vote multi-critères…')
+})
+
+function handleEngageVotePhase(payload) {
+  if (!payload.items?.length) { p4Wait('⏳', 'Vote en cours…', 'En attente des engagements.'); return }
+  P4J.engageCriteria = new Map()
+  const wrap = $('engage-vote-items-p'); wrap.innerHTML = ''
+  payload.items.forEach(item => {
+    P4J.engageCriteria.set(item.tempId, new Set())
+    const card = document.createElement('div'); card.className = 'engage-item-card'
+    const critsId = 'crits-' + item.tempId.replace(/[^a-z0-9]/gi, '')
+    card.innerHTML = `<div class="engage-item-cat">${item.category || 'Engagement'}</div><div class="engage-item-text">"${item.text}"</div><div class="criteria-btns" id="${critsId}"></div>`
+    wrap.appendChild(card)
+    const critsDiv = document.getElementById(critsId)
+    CRITERIA_DEF.forEach(({ key, label }) => {
+      const btn = document.createElement('button'); btn.className = 'crit-btn'; btn.textContent = label
+      btn.addEventListener('click', () => {
+        btn.classList.toggle('active')
+        const s = P4J.engageCriteria.get(item.tempId)
+        btn.classList.contains('active') ? s.add(key) : s.delete(key)
+      })
+      critsDiv?.appendChild(btn)
+    })
+  })
+  const vBtn = $('engage-vote-submit-btn'); vBtn.disabled = false; vBtn.textContent = '✅ Valider mes votes'
+  showScreen('screen-engage-vote-p')
+}
+
+$('engage-vote-submit-btn').addEventListener('click', () => {
+  $('engage-vote-submit-btn').disabled = true; $('engage-vote-submit-btn').textContent = '⏳ Envoi…'
+  P4J.engageCriteria.forEach((criteriaSet, anonId) => {
+    if (criteriaSet.size > 0) activeChannel.send({ type:'broadcast', event:'vote:engage', payload:{ tempId:PS.tempId, name:PS.name, targetTempId:anonId, criteria:[...criteriaSet] }})
+  })
+  p4Wait('🗳️', 'Votes envoyés !', 'En attente de la révélation…')
+})
+
+function handleEngageRevealPlayer(payload) {
+  const my = payload.perSubmission?.find(e => e.name === PS.name); const pts = my?.pts ?? 0
+  PS.score += pts
+  $('p4-result-icon').textContent  = pts > 0 ? '🤝' : '🎯'
+  $('p4-result-title').textContent = 'Votre engagement'
+  $('p4-result-pts').textContent   = pts > 0 ? `+${pts} pts` : '0 pt'
+  $('p4-result-pts').style.color   = pts > 0 ? 'var(--gold)' : 'rgba(243,238,218,.4)'
+  if (my) {
+    const c = my.criteriaCounts
+    $('p4-result-sub').textContent = `🎯${c.concret} ✅${c.aligne} ✨${c.inspirant} 🚀${c.impact}` + (my.bonus > 0 ? ` + bonus +${my.bonus}pts` : '')
+  }
+  $('p4-result-total').textContent = `Total : ${PS.score} pts`
+  showScreen('screen-p4-result')
 }
 
 // ── Init ─────────────────────────────────────────────────────
