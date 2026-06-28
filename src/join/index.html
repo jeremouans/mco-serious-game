@@ -39,10 +39,10 @@
     /* ── Emoji picker ── */
     .emoji-section { display: flex; flex-direction: column; gap: 8px; }
     .emoji-section label { font-weight: 700; font-size: .8rem; color: rgba(243,238,218,.7); letter-spacing: .5px; text-transform: uppercase; }
-    .emoji-grid { display: grid; grid-template-columns: repeat(8, 1fr); gap: 6px; }
+    .emoji-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
     .emoji-btn {
-      font-size: 1.5rem; line-height: 1; padding: .3em; border: 2px solid transparent;
-      border-radius: 10px; background: rgba(255,255,255,.06); cursor: pointer;
+      font-size: 1.75rem; line-height: 1; padding: .35em; border: 2px solid transparent;
+      border-radius: 12px; background: rgba(255,255,255,.06); cursor: pointer;
       transition: background .15s, border-color .15s, transform .1s;
       -webkit-tap-highlight-color: transparent;
     }
@@ -169,6 +169,27 @@
     .p4j-result-pts { font-size: clamp(2rem,8vw,3rem); font-weight: 900; color: var(--gold); text-align: center; text-shadow: 0 4px 20px rgba(244,200,74,.4); animation: pop .4s .1s ease-out both; }
     .p4j-result-sub { font-size: clamp(.95rem,3vw,1.2rem); color: rgba(243,238,218,.7); text-align: center; font-weight: 600; }
 
+    /* ── Pick player (late join) ── */
+    #screen-pick-player { justify-content: center; align-items: center; padding: 20px; }
+    .pick-card {
+      background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.12);
+      backdrop-filter: blur(18px); border-radius: 28px;
+      padding: clamp(24px,5vw,40px); box-shadow: 0 24px 60px rgba(0,0,0,.45);
+      width: min(420px, 100%); display: flex; flex-direction: column; gap: 16px; animation: pop .3s ease-out;
+    }
+    .pick-intro { font-size: clamp(.88rem,2.5vw,1rem); color: rgba(243,238,218,.7); line-height: 1.5; }
+    .pick-player-list { display: flex; flex-direction: column; gap: 8px; }
+    .pick-player-btn {
+      font-family: inherit; display: flex; align-items: center; gap: 14px;
+      background: rgba(255,255,255,.08); border: 2px solid rgba(255,255,255,.16);
+      border-radius: 16px; padding: .75em 1em; cursor: pointer; text-align: left;
+      transition: all .15s; -webkit-tap-highlight-color: transparent; width: 100%;
+    }
+    .pick-player-btn:hover { background: rgba(255,255,255,.14); border-color: var(--green); }
+    .pick-emoji { font-size: 1.8rem; flex: none; }
+    .pick-name { font-weight: 800; font-size: clamp(1rem,3.5vw,1.2rem); color: var(--cream); flex: 1; }
+    .pick-divider { text-align: center; color: rgba(243,238,218,.3); font-size: .85rem; font-weight: 700; }
+
     /* ── Fin de partie joueur ── */
     #screen-player-gameover { justify-content: center; align-items: center; gap: clamp(12px,3.5vh,26px); padding: 24px; text-align: center; }
     .go-player-rank  { font-size: clamp(3rem,14vw,6rem); animation: pop .5s ease-out; }
@@ -185,7 +206,7 @@
   <section class="screen active" id="screen-join">
     <div class="join-card">
       <div class="join-top">
-        <img src="/assets/logo-mgen.png" alt="MGEN" style="width:52px;height:52px;border-radius:10px;flex:none;animation:floatLogo 5s ease-in-out infinite;">
+        <img src="/assets/logo-mgen.png" alt="MGEN" style="width:72px;height:72px;border-radius:14px;flex:none;animation:floatLogo 5s ease-in-out infinite;">
         <div>
           <div class="join-kicker">🎮 Serious game MGEN</div>
           <h1>Rejoindre<br>la partie</h1>
@@ -212,14 +233,32 @@
 
   <!-- ══ WAITING ════════════════════════════════════════════ -->
   <section class="screen" id="screen-waiting">
-    <img src="/assets/logo-mgen.png" alt="MGEN" class="wait-logo" style="width:72px;height:72px;border-radius:14px;">
+    <img src="/assets/logo-mgen.png" alt="MGEN" class="wait-logo" style="width:88px;height:88px;border-radius:16px;">
     <div class="wait-pseudo" id="wait-name"></div>
     <div class="wait-code-pill">Code&nbsp;<span id="wait-code"></span></div>
     <div class="no-host-banner" id="no-host-banner">⚠️ Code invalide ou partie pas encore ouverte.</div>
-    <div class="wait-status">En attente de l'animateur…</div>
+    <div class="wait-status" id="wait-status-msg">En attente de l'animateur…</div>
     <div class="player-count-area"><strong id="wait-count">1</strong>&nbsp;participant(s) connecté(s)</div>
     <div class="spinner"></div>
     <button class="btn ghost sm" id="leave-btn">← Changer de code</button>
+  </section>
+
+  <!-- ══ PICK PLAYER (late join) ══════════════════════════════ -->
+  <section class="screen" id="screen-pick-player">
+    <div class="pick-card">
+      <div class="join-top">
+        <img src="/assets/logo-mgen.png" alt="MGEN" style="width:64px;height:64px;border-radius:12px;flex:none;">
+        <div>
+          <div class="join-kicker">🎮 Partie en cours</div>
+          <h1>Qui êtes-vous ?</h1>
+        </div>
+      </div>
+      <p class="pick-intro">La partie a déjà démarré. Rejoignez un joueur existant pour continuer avec son score, ou entrez comme nouveau joueur.</p>
+      <div class="pick-player-list" id="pick-player-list"></div>
+      <div class="pick-divider">— ou —</div>
+      <button class="btn big" id="pick-new-btn" style="justify-content:center;">➕ Nouveau joueur</button>
+      <button class="btn ghost sm" id="pick-back-btn" style="justify-content:center;">← Changer de code</button>
+    </div>
   </section>
 
   <!-- ══ QUESTION ═══════════════════════════════════════════ -->
@@ -435,7 +474,6 @@ async function joinLobby(code, name) {
   PS.name = name; PS.code = code; PS.score = 0
   const storedEmoji = restorePlayer(code, name)
   if (storedEmoji) { PS.emoji = storedEmoji; initEmojiGrid(storedEmoji) }
-  savePlayer(code, name)
 
   if (activeChannel) { clearTimeout(hostCheckTimer); await activeChannel.unsubscribe(); activeChannel = null }
 
@@ -447,10 +485,29 @@ async function joinLobby(code, name) {
 
   activeChannel = sb.channel(`session:${code}`)
 
+  let initialCheckDone = false
+  let inPickScreen = false
+
   activeChannel
     .on('presence', { event: 'sync' }, () => {
       const state = activeChannel.presenceState()
       const all = Object.values(state).flat()
+
+      if (!initialCheckDone) {
+        initialCheckDone = true
+        const host = all.find(p => p.role === 'host')
+        if (host?.phase === 'playing') {
+          inPickScreen = true
+          const existingPlayers = all.filter(p => p.role === 'player')
+          showPickPlayerScreen(existingPlayers)
+          return
+        }
+        // Not playing yet → track immediately as normal player
+        doTrackAsPlayer()
+      }
+
+      if (inPickScreen) return
+
       $('wait-count').textContent = all.filter(p => p.role === 'player').length
       if (hostCheckTimer && all.some(p => p.role === 'host')) {
         clearTimeout(hostCheckTimer); hostCheckTimer = null; $('no-host-banner').classList.remove('show')
@@ -470,8 +527,8 @@ async function joinLobby(code, name) {
     .on('broadcast', { event: 'host:voted' },           ({ payload }) => { const el = $('p4-wait-counter'); if (el) { el.style.display='block'; el.textContent = `${payload.n} / ${payload.total} votes reçus`; }})
     .subscribe(async status => {
       if (status === 'SUBSCRIBED') {
-        await activeChannel.track({ role: 'player', name, tempId: PS.tempId, emoji: PS.emoji })
         hostCheckTimer = setTimeout(() => {
+          if (inPickScreen) return
           const state = activeChannel.presenceState()
           if (!Object.values(state).flat().some(p => p.role === 'host'))
             $('no-host-banner').classList.add('show')
@@ -480,11 +537,51 @@ async function joinLobby(code, name) {
     })
 }
 
+async function doTrackAsPlayer() {
+  savePlayer(PS.code, PS.name)
+  await activeChannel.track({ role: 'player', name: PS.name, tempId: PS.tempId, emoji: PS.emoji })
+}
+
+function showPickPlayerScreen(players) {
+  const list = $('pick-player-list'); list.innerHTML = ''
+  if (players.length === 0) {
+    list.innerHTML = '<p style="color:rgba(243,238,218,.5);text-align:center;font-size:.9rem;">Aucun joueur connecté.</p>'
+  } else {
+    players.forEach(p => {
+      const btn = document.createElement('button'); btn.className = 'pick-player-btn'
+      btn.innerHTML = `<span class="pick-emoji">${p.emoji || '🎮'}</span><span class="pick-name">${p.name}</span><span style="font-size:.8rem;color:rgba(243,238,218,.45);">→ reprendre</span>`
+      btn.addEventListener('click', () => {
+        PS.tempId = p.tempId; PS.name = p.name; PS.emoji = p.emoji || PS.emoji
+        $('wait-name').textContent = (PS.emoji ? PS.emoji + ' ' : '') + PS.name
+        $('wait-code').textContent = PS.code
+        $('wait-status-msg').textContent = 'Partie en cours — en attente de la prochaine question…'
+        showScreen('screen-waiting')
+        doTrackAsPlayer()
+      })
+      list.appendChild(btn)
+    })
+  }
+  showScreen('screen-pick-player')
+}
+
+$('pick-new-btn').addEventListener('click', () => {
+  $('wait-status-msg').textContent = 'Partie en cours — en attente de la prochaine question…'
+  showScreen('screen-waiting')
+  doTrackAsPlayer()
+})
+
+$('pick-back-btn').addEventListener('click', async () => {
+  clearTimeout(hostCheckTimer); hostCheckTimer = null
+  if (activeChannel) { await activeChannel.unsubscribe(); activeChannel = null }
+  showScreen('screen-join')
+})
+
 $('leave-btn').addEventListener('click', async () => {
   clearTimeout(hostCheckTimer); hostCheckTimer = null
   clearInterval(PS.timerInterval)
   if (activeChannel) { await activeChannel.unsubscribe(); activeChannel = null }
   $('join-btn').disabled = false; $('join-btn').textContent = '🚀 Rejoindre'
+  $('wait-status-msg').textContent = 'En attente de l\'animateur…'
   showScreen('screen-join')
 })
 

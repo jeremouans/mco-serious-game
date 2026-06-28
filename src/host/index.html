@@ -392,6 +392,53 @@
     .cat-row { display: flex; align-items: center; gap: 6px; }
     .cat-row input { flex: 1; }
 
+    /* ── Home redesign ── */
+    .home-block-primary { display: flex; flex-direction: column; gap: 14px; }
+    .home-block-primary .quiz-card { flex-wrap: nowrap; }
+    .btn.w-full { width: 100%; justify-content: center; }
+    .home-block-card {
+      background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.09);
+      border-radius: 22px; padding: clamp(16px,2.5vw,26px);
+      display: flex; flex-direction: column; gap: 14px;
+    }
+    .home-block-title {
+      font-size: clamp(.95rem,2vw,1.15rem); font-weight: 900; color: var(--cream);
+    }
+    .home-row { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; align-items: start; }
+    @media (max-width: 640px) { .home-row { grid-template-columns: 1fr; } }
+
+    /* Preconfig items */
+    .preconfig-row {
+      display: flex; align-items: center; gap: 10px;
+      background: rgba(255,255,255,.06); border-radius: 12px; padding: .5em .9em;
+    }
+    .preconfig-info { flex: 1; min-width: 0; }
+    .preconfig-name { font-weight: 700; color: var(--cream); font-size: .95rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .preconfig-meta { font-size: .75rem; color: rgba(243,238,218,.45); margin-top: 2px; }
+
+    /* Rules accordion */
+    .rules-block {
+      background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.08);
+      border-radius: 22px; overflow: hidden;
+    }
+    .rules-summary {
+      list-style: none; padding: clamp(14px,2.5vw,22px) clamp(16px,2.5vw,26px);
+      cursor: pointer; font-weight: 900; font-size: clamp(.95rem,2vw,1.15rem); color: var(--cream);
+      display: flex; align-items: center; gap: 10px; user-select: none; -webkit-user-select: none;
+    }
+    .rules-summary::-webkit-details-marker { display: none; }
+    .rules-summary::after { content: '▼'; margin-left: auto; font-size: .8rem; color: rgba(243,238,218,.4); }
+    .rules-block[open] .rules-summary::after { content: '▲'; }
+    .rules-content {
+      padding: 0 clamp(16px,2.5vw,26px) clamp(16px,2.5vw,24px);
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 18px;
+      border-top: 1px solid rgba(255,255,255,.07);
+      padding-top: clamp(14px,2vw,20px);
+    }
+    .rules-section h4 { font-size: .95rem; font-weight: 900; color: var(--green); margin: 0 0 8px; }
+    .rules-section p, .rules-section li { font-size: .88rem; color: rgba(243,238,218,.72); line-height: 1.55; }
+    .rules-section ol, .rules-section ul { padding-left: 1.3em; margin: 0; display: flex; flex-direction: column; gap: 4px; }
+
     @media print {
       @page { margin: 12mm; }
       body { background: #fff !important; overflow: visible !important; }
@@ -414,7 +461,7 @@
     <div class="card-center">
       <div class="card">
         <div style="display:flex;align-items:center;gap:14px;">
-          <img src="/assets/logo-mgen.png" alt="MGEN" style="width:52px;height:52px;border-radius:10px;flex:none;">
+          <img src="/assets/logo-mgen.png" alt="MGEN" style="width:72px;height:72px;border-radius:14px;flex:none;">
           <div>
             <div style="font-size:.75rem;font-weight:800;text-transform:uppercase;letter-spacing:2.5px;color:var(--green);">Espace animateur</div>
             <h2 style="margin-top:2px;">Connexion</h2>
@@ -470,31 +517,81 @@
   <!-- ══ HOME ═══════════════════════════════════════════════ -->
   <section class="screen" id="screen-home">
     <div class="home-wrap">
+      <!-- Header -->
       <div class="home-header">
-        <img src="/assets/logo-mgen.png" alt="MGEN" style="width:48px;height:48px;border-radius:10px;flex:none;">
+        <img src="/assets/logo-mgen.png" alt="MGEN" style="width:72px;height:72px;border-radius:14px;flex:none;">
         <div style="flex:1;">
           <h1>Engagements 2030, le Quizz</h1>
           <div class="home-sub" id="user-email"></div>
         </div>
         <button class="btn ghost sm" id="logout-btn">Déconnexion</button>
       </div>
-      <div class="quiz-card">
-        <div class="quiz-icon">🎯</div>
-        <div class="quiz-info">
-          <h3>Engagements 2030 — le Quizz</h3>
-          <p id="quiz-info-sub">14 questions auto-scorées · Serious game MGEN · Temps réel</p>
+
+      <!-- Row 1: Quiz + Preconfigs -->
+      <div class="home-row">
+        <!-- Block A: Démarrer une session -->
+        <div class="home-block-primary">
+          <div class="quiz-card">
+            <div class="quiz-icon">🎯</div>
+            <div class="quiz-info">
+              <h3>Engagements 2030 — le Quizz</h3>
+              <p id="quiz-info-sub">Chargement…</p>
+            </div>
+            <button class="btn sm dark" id="edit-quiz-btn">⚙️ Éditer</button>
+          </div>
+          <button class="btn big w-full" id="create-btn">▶ Démarrer une session</button>
         </div>
-        <button class="btn sm dark" id="edit-quiz-btn">⚙️ Éditer</button>
-        <button class="btn big" id="create-btn">▶ Créer une session</button>
+        <!-- Block B: Préconfigurations -->
+        <div class="home-block-card">
+          <div class="home-block-title">🗂 Préconfigurations</div>
+          <div id="preconfigs-list">
+            <p class="empty-msg" style="font-size:.88rem;">Aucune préconfiguration.</p>
+          </div>
+          <button class="btn sm ghost" id="save-preconfig-home-btn">💾 Sauvegarder la config actuelle</button>
+        </div>
       </div>
-      <div class="sessions-section" id="sessions-section" style="display:none;">
-        <h3>Sessions ouvertes</h3>
-        <div id="sessions-list"></div>
+
+      <!-- Row 2: Sessions ouvertes + Historique -->
+      <div class="home-row">
+        <div class="home-block-card" id="sessions-section">
+          <div class="home-block-title">🔴 Sessions ouvertes</div>
+          <div id="sessions-list"><p class="empty-msg" style="font-size:.88rem;">Aucune session ouverte.</p></div>
+        </div>
+        <div class="home-block-card" id="history-section">
+          <div class="home-block-title">📖 Mes parties</div>
+          <div id="history-list"><p class="empty-msg" style="font-size:.88rem;">Aucune partie jouée.</p></div>
+        </div>
       </div>
-      <div class="sessions-section" id="history-section" style="display:none;">
-        <h3>Mes parties</h3>
-        <div id="history-list"></div>
-      </div>
+
+      <!-- Block E: Règles & Guide -->
+      <details class="rules-block">
+        <summary class="rules-summary">📋 Règles du jeu &amp; Guide animateur</summary>
+        <div class="rules-content">
+          <div class="rules-section">
+            <h4>Comment ça marche ?</h4>
+            <p>Serious game MGEN en temps réel. L'animateur diffuse les questions sur un écran projeté ; les participants répondent depuis leur mobile via un code de session.</p>
+          </div>
+          <div class="rules-section">
+            <h4>Guide animateur</h4>
+            <ol>
+              <li>Créez une session → code + QR code s'affichent</li>
+              <li>Les joueurs scannent le QR ou saisissent le code</li>
+              <li>Démarrez quand tout le monde est connecté</li>
+              <li>Révélez les réponses et commentez les scores</li>
+              <li>Pour les manches participatives : attendez les soumissions, puis passez au vote</li>
+              <li>Consultez le bilan à la fin et exportez en PDF</li>
+            </ol>
+          </div>
+          <div class="rules-section">
+            <h4>Scoring</h4>
+            <ul>
+              <li>Questions : jusqu'à 1 000 pts, bonus vitesse</li>
+              <li>L'idée en Or : 100 pts/vote reçu + 300 pts bonus gagnant</li>
+              <li>Engagements : 50 pts/critère + bonus animateur</li>
+            </ul>
+          </div>
+        </div>
+      </details>
     </div>
   </section>
 
@@ -502,6 +599,12 @@
   <section class="screen" id="screen-settings">
     <div class="settings-wrap">
       <h2>⚙️ Paramètres de session</h2>
+      <div class="setting-card" id="preconfig-card" style="display:none;">
+        <label>📂 Préconfiguration</label>
+        <select id="preconfig-sel" class="q-inp" style="font-size:1rem;">
+          <option value="">— Config actuelle —</option>
+        </select>
+      </div>
       <div class="setting-card">
         <label>⏱ Durée du timer par défaut</label>
         <div class="timer-row">
@@ -532,6 +635,7 @@
       <div class="editor-head">
         <button class="btn ghost sm" id="editor-back-btn">← Retour</button>
         <h2>📝 Quiz — Engagements 2030</h2>
+        <button class="btn sm" id="editor-saveconfig-btn">📂 Préconfiguration</button>
         <button class="btn sm gold" id="editor-save-btn">💾 Sauvegarder</button>
       </div>
       <div id="sections-wrap"></div>
@@ -785,13 +889,14 @@ const LOGO_SVG = `<svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg" 
   <path d="M60 30 69 49l21 3-15 15 4 21-19-10-19 10 4-21-15-15 21-3z" fill="#6aa517"/></svg>`
 
 // ── État ────────────────────────────────────────────────────
-let currentUser   = null
-let activeChannel = null
-let activeSession = null
-let QUIZ          = null   // questions auto-scorées (flat array)
-let GS            = null   // game state
-let QUIZ_CONFIG   = null   // { manches: [{id,name,questions:[...]}] }
-let QUIZ_DB_ID    = null   // ID de la row quizzes en DB
+let currentUser       = null
+let activeChannel     = null
+let activeSession     = null
+let QUIZ              = null   // questions auto-scorées (flat array)
+let GS                = null   // game state
+let QUIZ_CONFIG       = null   // { manches: [...], preconfigs: [...] }
+let QUIZ_DB_ID        = null   // ID de la row quizzes en DB
+let sessionPreconfigId = null  // preconfig selected in settings
 const EDITOR_OPEN = new Set() // _id des questions ouvertes dans l'éditeur
 
 // ── Utils ───────────────────────────────────────────────────
@@ -884,18 +989,23 @@ $('logout-btn').addEventListener('click', async () => { await cleanupChannel(); 
 // ── Sessions ─────────────────────────────────────────────────
 async function loadOpenSessions() {
   const { data } = await sb.from('sessions').select('id,code,status,settings,created_at').eq('status','lobby').order('created_at',{ascending:false}).limit(5)
-  if (!data || data.length === 0) { $('sessions-section').style.display = 'none'; return }
-  $('sessions-section').style.display = 'block'
-  $('sessions-list').innerHTML = ''
+  const list = $('sessions-list')
+  if (!data || data.length === 0) { list.innerHTML = '<p class="empty-msg" style="font-size:.88rem;">Aucune session ouverte.</p>'; return }
+  list.innerHTML = ''
   data.forEach(s => {
     const chip = document.createElement('div'); chip.className = 'session-chip'
     chip.innerHTML = `<span class="status-dot"></span><span class="code">${s.code}</span><span>lobby ouvert</span>`
     chip.addEventListener('click', () => { activeSession = s; openLobby(s) })
-    $('sessions-list').appendChild(chip)
+    list.appendChild(chip)
   })
 }
 
-$('create-btn').addEventListener('click', () => { renderMancheCheckboxes(); showScreen('screen-settings') })
+$('create-btn').addEventListener('click', () => {
+  sessionPreconfigId = null
+  renderPreconfigSelector()
+  renderMancheCheckboxes()
+  showScreen('screen-settings')
+})
 
 // ── Lobby ────────────────────────────────────────────────────
 async function openLobby(session) {
@@ -926,7 +1036,7 @@ async function startPresence(code) {
     .on('broadcast', { event: 'submit:engage' },  ({ payload }) => receiveEngageSubmit(payload))
     .on('broadcast', { event: 'vote:engage' },    ({ payload }) => receiveEngageVote(payload))
     .subscribe(async status => {
-      if (status === 'SUBSCRIBED') await activeChannel.track({ role: 'host', userId: currentUser.id })
+      if (status === 'SUBSCRIBED') await activeChannel.track({ role: 'host', userId: currentUser.id, phase: 'lobby' })
     })
 }
 
@@ -971,6 +1081,7 @@ $('start-btn').addEventListener('click', async () => {
       QUIZ = data.questions.filter(q => q.type === 'choice' || q.type === 'truefalse')
     }
     await sb.from('sessions').update({ status: 'playing', started_at: new Date().toISOString() }).eq('id', activeSession.id)
+    await activeChannel.track({ role: 'host', userId: currentUser.id, phase: 'playing' })
     initGame()
     showQuestion()
   } catch (err) { alert('Erreur : ' + err.message) }
@@ -979,7 +1090,8 @@ $('start-btn').addEventListener('click', async () => {
 // ── Game state ────────────────────────────────────────────────
 function initGame() {
   const selectedManches = activeSession?.settings?.selectedManches ?? null
-  if (QUIZ_CONFIG) QUIZ = buildQuizFromConfig(selectedManches)
+  const preconfigId     = activeSession?.settings?.preconfigId ?? null
+  if (QUIZ_CONFIG) QUIZ = buildQuizFromConfig(selectedManches, preconfigId)
   const state = activeChannel.presenceState()
   const players = new Map()
   Object.values(state).flat().forEach(p => {
@@ -1234,9 +1346,8 @@ async function loadHistory() {
     .order('created_at', { ascending: false })
     .limit(10)
 
-  const section = $('history-section'); const list = $('history-list')
-  if (!data || data.length === 0) { section.style.display = 'none'; return }
-  section.style.display = 'block'
+  const list = $('history-list')
+  if (!data || data.length === 0) { list.innerHTML = '<p class="empty-msg" style="font-size:.88rem;">Aucune partie jouée.</p>'; return }
   list.innerHTML = ''
   data.forEach(s => {
     const date = new Date(s.created_at).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric' })
@@ -1253,19 +1364,20 @@ async function openReport(sessionId, code, date) {
   showScreen('screen-report')
   $('report-body').innerHTML = '<p class="rep-empty" style="text-align:center;padding:40px;">Chargement…</p>'
   try {
-    const [{ data: results }, { data: answers }] = await Promise.all([
+    const [{ data: results }, { data: answers }, { data: submissions }] = await Promise.all([
       sb.from('results').select('*').eq('session_id', sessionId).order('rank'),
-      sb.from('answers').select('question_id, value, is_correct, time_ms, points, players(name)').eq('session_id', sessionId)
+      sb.from('answers').select('question_id, value, is_correct, time_ms, points, players(name)').eq('session_id', sessionId),
+      sb.from('submissions').select('*').eq('session_id', sessionId).order('points', { ascending: false })
     ])
     if (!QUIZ) {
       const d = await fetch('/data/quiz-mgen.json').then(r => r.json())
       QUIZ = d.questions.filter(q => q.type === 'choice' || q.type === 'truefalse')
     }
-    renderReport({ code, date, results: results ?? [], answers: answers ?? [] })
+    renderReport({ code, date, results: results ?? [], answers: answers ?? [], submissions: submissions ?? [] })
   } catch(e) { $('report-body').innerHTML = `<p style="color:#e74c3c;padding:20px;">Erreur : ${e.message}</p>` }
 }
 
-function renderReport({ code, date, results, answers }) {
+function renderReport({ code, date, results, answers, submissions = [] }) {
   const playerCount  = results.length
   const qIds         = [...new Set(answers.map(a => a.question_id))]
   const totalAnswered = answers.filter(a => a.value !== null).length
@@ -1303,9 +1415,39 @@ function renderReport({ code, date, results, answers }) {
     return `<tr><td>${medal}</td><td>${r.player_name}</td><td style="font-weight:900;color:#6aa517">${r.final_score} pts</td></tr>`
   }).join('')
 
+  const ideas       = submissions.filter(s => s.kind === 'idea')
+  const engagements = submissions.filter(s => s.kind === 'engage')
+
+  const ideasHtml = ideas.length > 0 ? `
+    <div>
+      <div class="rep-section-title">💡 Idées produites</div>
+      <table class="rep-table">
+        <thead><tr><th>Auteur</th><th>Idée</th><th>Points</th></tr></thead>
+        <tbody>${ideas.map(s => `<tr>
+          <td style="font-weight:700;white-space:nowrap">${s.author_name}${s.is_gold ? ' 🥇' : ''}</td>
+          <td>${s.text}</td>
+          <td style="font-weight:900;color:#6aa517">${s.points} pts</td>
+        </tr>`).join('')}</tbody>
+      </table>
+    </div>` : ''
+
+  const engageHtml = engagements.length > 0 ? `
+    <div>
+      <div class="rep-section-title">🤝 Engagements pris</div>
+      <table class="rep-table">
+        <thead><tr><th>Auteur</th><th>Catégorie</th><th>Engagement</th><th>Points</th></tr></thead>
+        <tbody>${engagements.map(s => `<tr>
+          <td style="font-weight:700;white-space:nowrap">${s.author_name}</td>
+          <td style="font-size:.85em;white-space:nowrap">${s.category || '—'}</td>
+          <td>${s.text}</td>
+          <td style="font-weight:900;color:#6aa517">${s.points} pts</td>
+        </tr>`).join('')}</tbody>
+      </table>
+    </div>` : ''
+
   $('report-body').innerHTML = `
     <div class="rep-head">
-      <div id="logo-rep" style="width:52px;height:52px;flex:none;"></div>
+      <div id="logo-rep" style="width:64px;height:64px;flex:none;border-radius:12px;overflow:hidden;"></div>
       <div><h2>Engagements 2030 — le Quizz</h2><p class="rep-sub">Session <strong>${code}</strong> · ${date}</p></div>
     </div>
     <div class="rep-kpis">
@@ -1319,6 +1461,8 @@ function renderReport({ code, date, results, answers }) {
       <div class="rep-section-title">🏆 Classement final</div>
       <table class="rep-table"><thead><tr><th>Rang</th><th>Joueur</th><th>Score</th></tr></thead><tbody>${rankRows}</tbody></table>
     </div>` : '<p class="rep-empty">Aucun joueur enregistré.</p>'}
+    ${ideasHtml}
+    ${engageHtml}
     ${qRows ? `
     <div>
       <div class="rep-section-title">📊 Par question</div>
@@ -1329,7 +1473,8 @@ function renderReport({ code, date, results, answers }) {
     </div>` : ''}
     <div class="rep-foot">Engagements 2030, le Quizz · MGEN · Session ${code} · ${date}</div>
   `
-  document.getElementById('logo-rep').innerHTML = LOGO_SVG
+  const logoEl = document.getElementById('logo-rep')
+  if (logoEl) logoEl.innerHTML = LOGO_SVG
 }
 
 // ── Fullscreen ────────────────────────────────────────────────
@@ -1343,11 +1488,91 @@ $('fullscreen-btn').addEventListener('click', () => {
 })
 document.addEventListener('fullscreenchange', updateFullscreenBtn)
 
+// ── Préconfigurations ─────────────────────────────────────────
+function renderPreconfigsHome() {
+  const list = $('preconfigs-list'); if (!list) return
+  const preconfigs = QUIZ_CONFIG?.preconfigs || []
+  if (!preconfigs.length) {
+    list.innerHTML = '<p class="empty-msg" style="font-size:.88rem;">Aucune préconfiguration.</p>'
+    return
+  }
+  list.innerHTML = ''
+  preconfigs.forEach(pc => {
+    const qCount = (pc.manches || []).filter(m => !m.type || m.type === 'quiz')
+      .reduce((n, m) => n + (m.questions || []).filter(q => q.type === 'choice' || q.type === 'truefalse').length, 0)
+    const p4Count = (pc.manches || []).filter(m => m.type === 'idea' || m.type === 'engage').length
+    const row = document.createElement('div'); row.className = 'preconfig-row'
+    row.innerHTML = `
+      <div class="preconfig-info">
+        <div class="preconfig-name">${pc.name}</div>
+        <div class="preconfig-meta">${qCount} question${qCount>1?'s':''}${p4Count ? ' · ' + p4Count + ' manche' + (p4Count>1?'s participatives':'participative') : ''}</div>
+      </div>
+      <button class="btn sm" onclick="launchPreconfig('${pc.id}')">▶ Lancer</button>
+      <button class="iconbtn danger" onclick="deletePreconfig('${pc.id}')">×</button>`
+    list.appendChild(row)
+  })
+}
+
+window.launchPreconfig = (id) => {
+  sessionPreconfigId = id
+  renderPreconfigSelector()
+  renderMancheCheckboxes()
+  showScreen('screen-settings')
+}
+
+window.deletePreconfig = async (id) => {
+  if (!QUIZ_CONFIG?.preconfigs) return
+  if (!confirm('Supprimer cette préconfiguration ?')) return
+  QUIZ_CONFIG.preconfigs = QUIZ_CONFIG.preconfigs.filter(p => p.id !== id)
+  await sb.from('quizzes').update({ config: QUIZ_CONFIG }).eq('id', QUIZ_DB_ID)
+  renderPreconfigsHome()
+  renderPreconfigSelector()
+}
+
+async function savePreconfigAs(name) {
+  if (!QUIZ_CONFIG || !name?.trim()) return
+  if (!QUIZ_CONFIG.preconfigs) QUIZ_CONFIG.preconfigs = []
+  const existing = QUIZ_CONFIG.preconfigs.find(p => p.name === name)
+  if (existing) {
+    existing.manches = JSON.parse(JSON.stringify(QUIZ_CONFIG.manches))
+  } else {
+    QUIZ_CONFIG.preconfigs.push({ id: uid(), name, manches: JSON.parse(JSON.stringify(QUIZ_CONFIG.manches)) })
+  }
+  await sb.from('quizzes').update({ config: QUIZ_CONFIG }).eq('id', QUIZ_DB_ID)
+  renderPreconfigsHome()
+  renderPreconfigSelector()
+}
+
+function renderPreconfigSelector() {
+  const preconfigs = QUIZ_CONFIG?.preconfigs || []
+  const card = $('preconfig-card'); const sel = $('preconfig-sel'); if (!sel) return
+  if (!preconfigs.length) { card.style.display = 'none'; return }
+  card.style.display = 'block'
+  sel.innerHTML = '<option value="">— Config actuelle —</option>'
+  preconfigs.forEach(p => {
+    const opt = document.createElement('option'); opt.value = p.id; opt.textContent = p.name
+    sel.appendChild(opt)
+  })
+  if (sessionPreconfigId) sel.value = sessionPreconfigId
+}
+
+$('save-preconfig-home-btn').addEventListener('click', async () => {
+  const name = prompt('Nom de la préconfiguration :', 'Ma config')
+  if (!name?.trim()) return
+  await savePreconfigAs(name.trim())
+})
+
 // ── Settings screen ───────────────────────────────────────────
 $('timer-range').addEventListener('input', () => {
   $('timer-display').textContent = $('timer-range').value + ' s'
 })
-$('settings-back-btn').addEventListener('click', () => showScreen('screen-home'))
+
+$('preconfig-sel').addEventListener('change', () => {
+  sessionPreconfigId = $('preconfig-sel').value || null
+  renderMancheCheckboxes()
+})
+
+$('settings-back-btn').addEventListener('click', () => { sessionPreconfigId = null; showScreen('screen-home') })
 $('settings-create-btn').addEventListener('click', async () => {
   const timer = parseInt($('timer-range').value, 10)
   const speedBonus = $('speed-bonus').checked
@@ -1358,7 +1583,7 @@ $('settings-create-btn').addEventListener('click', async () => {
     for (let i = 0; i < 5; i++) {
       const { data, error } = await sb.from('sessions').insert({
         code: generateCode(), host_id: currentUser.id, status: 'lobby',
-        settings: { timer, speedBonus, selectedManches },
+        settings: { timer, speedBonus, selectedManches, preconfigId: sessionPreconfigId || null },
         quiz_id: QUIZ_DB_ID ?? null
       }).select().single()
       if (!error) { session = data; break }
@@ -1401,13 +1626,14 @@ async function loadQuizConfig() {
     }
     QUIZ = buildQuizFromConfig()
     updateQuizCardInfo()
+    renderPreconfigsHome()
   } catch(e) { console.warn('loadQuizConfig:', e) }
 }
 
 async function saveQuizConfig() {
   const btn = $('editor-save-btn'); btn.disabled = true; btn.textContent = '⏳ Sauvegarde…'
   try {
-    await sb.from('quizzes').update({ config: { manches: QUIZ_CONFIG.manches } }).eq('id', QUIZ_DB_ID)
+    await sb.from('quizzes').update({ config: QUIZ_CONFIG }).eq('id', QUIZ_DB_ID)
     QUIZ = buildQuizFromConfig()
     updateQuizCardInfo()
     btn.textContent = '✓ Sauvegardé !'
@@ -1418,11 +1644,18 @@ async function saveQuizConfig() {
   }
 }
 
-function buildQuizFromConfig(selectedManches = null) {
+function getPreconfigManches(preconfigId) {
+  if (!preconfigId) return QUIZ_CONFIG?.manches || []
+  const pc = (QUIZ_CONFIG?.preconfigs || []).find(p => p.id === preconfigId)
+  return pc?.manches || QUIZ_CONFIG?.manches || []
+}
+
+function buildQuizFromConfig(selectedManches = null, preconfigId = null) {
   if (!QUIZ_CONFIG) return null
+  const allManches = getPreconfigManches(preconfigId)
   const manches = selectedManches?.length
-    ? QUIZ_CONFIG.manches.filter(m => selectedManches.includes(m.id))
-    : QUIZ_CONFIG.manches
+    ? allManches.filter(m => selectedManches.includes(m.id))
+    : allManches
   const result = []
   manches.forEach(m => {
     if (m.type === 'idea' || m.type === 'engage') {
@@ -1439,7 +1672,8 @@ function buildQuizFromConfig(selectedManches = null) {
 function renderMancheCheckboxes() {
   const wrap = $('manche-checkboxes'); wrap.innerHTML = ''
   if (!QUIZ_CONFIG) { wrap.innerHTML = '<p style="color:rgba(243,238,218,.4);font-size:.9rem;">Aucun quiz chargé.</p>'; return }
-  QUIZ_CONFIG.manches.forEach(m => {
+  const manches = getPreconfigManches(sessionPreconfigId)
+  manches.forEach(m => {
     const badge = m.type === 'idea' ? '💡 Idée en Or' : m.type === 'engage' ? '🤝 Engagements' : ((m.questions||[]).filter(q => q.type==='choice'||q.type==='truefalse').length) + ' Q'
     const label = document.createElement('label'); label.className = 'manche-check-row'
     label.innerHTML = `
@@ -1622,7 +1856,8 @@ window.editorMoveSection = (mi, dir) => {
 window.editorUpdateSectionName = (mi, val) => { QUIZ_CONFIG.manches[mi].name = val }
 window.editorDeleteSection = (mi) => {
   const m = QUIZ_CONFIG.manches[mi]
-  if (!confirm(`Supprimer la manche "${m.name}" et ses ${m.questions.length} question(s) ?`)) return
+  const qCount = (m.questions || []).length
+  if (!confirm(`Supprimer la manche "${m.name}"${qCount ? ` et ses ${qCount} question(s)` : ''} ?`)) return
   QUIZ_CONFIG.manches.splice(mi, 1); renderSections()
 }
 window.editorAddQuestion = (mi) => {
@@ -1661,6 +1896,12 @@ window.editorRemoveCat = (mi, ci) => { QUIZ_CONFIG.manches[mi].categories?.splic
 
 $('editor-back-btn').addEventListener('click', () => showScreen('screen-home'))
 $('editor-save-btn').addEventListener('click', saveQuizConfig)
+$('editor-saveconfig-btn').addEventListener('click', async () => {
+  const name = prompt('Nom de la préconfiguration :', 'Ma config')
+  if (!name?.trim()) return
+  await savePreconfigAs(name.trim())
+  const btn = $('editor-saveconfig-btn'); btn.textContent = '✓ Sauvegardé !'; setTimeout(() => { btn.textContent = '📂 Préconfiguration' }, 2000)
+})
 $('edit-quiz-btn').addEventListener('click', openQuizEditor)
 $('add-section-btn').addEventListener('click', () => {
   QUIZ_CONFIG.manches.push({ id: uid(), name: 'Nouvelle manche', questions: [] })
