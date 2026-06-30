@@ -436,6 +436,7 @@
         <div class="login-tabs">
           <button class="login-tab" id="tab-magic">✉️ Lien magique</button>
           <button class="login-tab active" id="tab-code">🔑 Code d'accès</button>
+          <button class="login-tab" id="tab-direct" style="border-color:rgba(244,200,74,.4);color:rgba(244,200,74,.7);">⚡ Direct</button>
         </div>
 
         <!-- Onglet lien magique -->
@@ -449,6 +450,13 @@
             <div id="login-err" class="err"></div>
             <button type="submit" class="btn big" id="login-btn" style="justify-content:center;">✉️ Recevoir le lien magique</button>
           </form>
+        </div>
+
+        <!-- Onglet accès direct (temporaire) -->
+        <div class="login-pane" id="pane-direct">
+          <p style="margin:0;color:rgba(244,200,74,.7);font-size:.85rem;">⚠️ Accès temporaire — à supprimer avant prod.</p>
+          <button class="btn big" id="direct-btn" style="justify-content:center;background:rgba(244,200,74,.15);border-color:rgba(244,200,74,.4);color:rgba(244,200,74,.9);">⚡ Accéder directement</button>
+          <div id="direct-err" class="err"></div>
         </div>
 
         <!-- Onglet code d'accès -->
@@ -942,14 +950,23 @@ sb.auth.onAuthStateChange(async (event, session) => {
 
 const ANIMATEUR_EMAIL = 'animateur@mgen.fr'
 
-$('tab-magic').addEventListener('click', () => {
-  $('tab-magic').classList.add('active'); $('tab-code').classList.remove('active')
-  $('pane-magic').classList.add('active'); $('pane-code').classList.remove('active')
-})
-$('tab-code').addEventListener('click', () => {
-  $('tab-code').classList.add('active'); $('tab-magic').classList.remove('active')
-  $('pane-code').classList.add('active'); $('pane-magic').classList.remove('active')
-  $('code-inp').focus()
+function switchLoginTab(active) {
+  ['magic','code','direct'].forEach(t => {
+    $(`tab-${t}`)?.classList.toggle('active', t === active)
+    $(`pane-${t}`)?.classList.toggle('active', t === active)
+  })
+}
+$('tab-magic').addEventListener('click', () => switchLoginTab('magic'))
+$('tab-code').addEventListener('click', () => { switchLoginTab('code'); $('code-inp').focus() })
+$('tab-direct').addEventListener('click', () => switchLoginTab('direct'))
+
+$('direct-btn').addEventListener('click', async () => {
+  $('direct-btn').disabled = true; $('direct-btn').textContent = '⏳ Connexion…'
+  const { error } = await sb.auth.signInWithPassword({ email: 'animateur@mgen.fr', password: 'mcomgen' })
+  if (error) {
+    $('direct-err').textContent = error.message; $('direct-err').classList.add('show')
+    $('direct-btn').disabled = false; $('direct-btn').textContent = '⚡ Accéder directement'
+  }
 })
 
 $('login-form').addEventListener('submit', async e => {
