@@ -280,11 +280,11 @@
       <div class="login-sub">Accès réservé aux gestionnaires du quiz</div>
 
       <div class="tabs">
-        <div class="tab active" data-tab="magic">🔗 Lien magique</div>
-        <div class="tab" data-tab="code">🔑 Code d'accès</div>
+        <div class="tab" data-tab="magic">🔗 Lien magique</div>
+        <div class="tab active" data-tab="code">🔑 Code d'accès</div>
       </div>
 
-      <div class="tab-pane active" id="tab-magic">
+      <div class="tab-pane" id="tab-magic">
         <div class="input-group">
           <label>Adresse email admin</label>
           <input type="email" id="magic-email" placeholder="votre@email.fr" autocomplete="email">
@@ -293,7 +293,7 @@
         <button class="btn big" id="magic-btn" style="width:100%">📧 Envoyer le lien de connexion</button>
       </div>
 
-      <div class="tab-pane" id="tab-code">
+      <div class="tab-pane active" id="tab-code">
         <div class="input-group">
           <label>Code d'accès administrateur</label>
           <input type="password" id="code-input" placeholder="••••••••••••" autocomplete="off">
