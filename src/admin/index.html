@@ -609,13 +609,11 @@ $('magic-btn').addEventListener('click', async () => {
 
 $('code-btn').addEventListener('click', async () => {
   const code = $('code-input').value.trim()
-  if (code !== ADMIN_CODE) { showErr('code-err','Code incorrect.'); return }
-  $('code-btn').disabled = true; $('code-btn').textContent = 'Envoi du lien…'
-  const { error } = await sb.auth.signInWithOtp({ email: ADMIN_EMAIL, options: { emailRedirectTo: window.location.origin+'/admin/' } })
+  if (!code) { showErr('code-err', 'Saisissez le code.'); return }
+  $('code-btn').disabled = true; $('code-btn').textContent = '⏳ Connexion…'
+  const { error } = await sb.auth.signInWithPassword({ email: ADMIN_EMAIL, password: code })
   $('code-btn').disabled = false; $('code-btn').textContent = '🔓 Accéder'
-  if (error) { showErr('code-err', error.message); return }
-  $('sent-to-email').textContent = ADMIN_EMAIL
-  showScreen('screen-check-email')
+  if (error) { showErr('code-err', 'Code incorrect.'); return }
 })
 
 $('logout-btn').addEventListener('click', () => sb.auth.signOut())
