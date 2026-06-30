@@ -433,19 +433,52 @@
           </div>
         </div>
 
-        <p style="margin:0;color:rgba(243,238,218,.6);">Entrez le code animateur pour accéder.</p>
-        <form id="code-form" style="display:flex;flex-direction:column;gap:14px;" novalidate>
-          <div>
-            <div class="inp-label">Code d'accès</div>
-            <input id="code-inp" class="code-inp-big" type="password" placeholder="••••••••" autocomplete="off" required>
-          </div>
-          <div id="code-err" class="err"></div>
-          <button type="submit" class="btn big" id="code-btn" style="justify-content:center;">🔑 Accéder</button>
-        </form>
+        <div class="login-tabs">
+          <button class="login-tab" id="tab-magic">✉️ Lien magique</button>
+          <button class="login-tab active" id="tab-code">🔑 Code d'accès</button>
+        </div>
+
+        <!-- Onglet lien magique -->
+        <div class="login-pane" id="pane-magic">
+          <p style="margin:0;">Recevez un lien de connexion par e-mail.</p>
+          <form id="login-form" style="display:flex;flex-direction:column;gap:14px;" novalidate>
+            <div>
+              <div class="inp-label">Adresse e-mail</div>
+              <input id="email-inp" class="inp" type="email" placeholder="vous@mgen.fr" autocomplete="email" required>
+            </div>
+            <div id="login-err" class="err"></div>
+            <button type="submit" class="btn big" id="login-btn" style="justify-content:center;">✉️ Recevoir le lien magique</button>
+          </form>
+        </div>
+
+        <!-- Onglet code d'accès -->
+        <div class="login-pane active" id="pane-code">
+          <p style="margin:0;">Entrez le code animateur pour accéder directement.</p>
+          <form id="code-form" style="display:flex;flex-direction:column;gap:14px;" novalidate>
+            <div>
+              <div class="inp-label">Code d'accès</div>
+              <input id="code-inp" class="code-inp-big" type="password" placeholder="••••••••" autocomplete="off" required>
+            </div>
+            <div id="code-err" class="err"></div>
+            <button type="submit" class="btn big" id="code-btn" style="justify-content:center;">🔑 Accéder</button>
+          </form>
+        </div>
       </div>
     </div>
   </section>
 
+
+  <!-- ══ CHECK EMAIL ════════════════════════════════════════ -->
+  <section class="screen" id="screen-check-email">
+    <div class="card-center">
+      <div class="card" style="text-align:center;align-items:center;">
+        <div style="font-size:4rem;animation:floatY 2.5s ease-in-out infinite;line-height:1;">📬</div>
+        <h2>Vérifiez vos e-mails !</h2>
+        <p>Un lien de connexion a été envoyé à<br><strong id="email-sent" style="color:var(--green);"></strong>.</p>
+        <button class="btn ghost sm" id="back-login-btn">← Autre adresse</button>
+      </div>
+    </div>
+  </section>
 
   <!-- ══ HOME ═══════════════════════════════════════════════ -->
   <section class="screen" id="screen-home">
@@ -908,6 +941,28 @@ sb.auth.onAuthStateChange(async (event, session) => {
 })
 
 const ANIMATEUR_EMAIL = 'animateur@mgen.fr'
+
+$('tab-magic').addEventListener('click', () => {
+  $('tab-magic').classList.add('active'); $('tab-code').classList.remove('active')
+  $('pane-magic').classList.add('active'); $('pane-code').classList.remove('active')
+})
+$('tab-code').addEventListener('click', () => {
+  $('tab-code').classList.add('active'); $('tab-magic').classList.remove('active')
+  $('pane-code').classList.add('active'); $('pane-magic').classList.remove('active')
+  $('code-inp').focus()
+})
+
+$('login-form').addEventListener('submit', async e => {
+  e.preventDefault()
+  const email = $('email-inp').value.trim()
+  const btn = $('login-btn'); const errEl = $('login-err')
+  btn.disabled = true; btn.textContent = '⏳ Envoi…'; errEl.classList.remove('show')
+  const { error } = await sb.auth.signInWithOtp({ email, options: { emailRedirectTo: window.location.origin + '/host/' } })
+  if (error) { errEl.textContent = error.message; errEl.classList.add('show') }
+  else { $('email-sent').textContent = email; showScreen('screen-check-email') }
+  btn.disabled = false; btn.textContent = '✉️ Recevoir le lien magique'
+})
+$('back-login-btn').addEventListener('click', () => showScreen('screen-login'))
 
 $('code-form').addEventListener('submit', async e => {
   e.preventDefault()

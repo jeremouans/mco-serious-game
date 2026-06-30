@@ -279,18 +279,44 @@
       <div class="login-title">Administration</div>
       <div class="login-sub">Accès réservé aux gestionnaires du quiz</div>
 
-      <div class="input-group">
-        <label>Code d'accès administrateur</label>
-        <input type="password" id="code-input" placeholder="••••••••••••" autocomplete="off">
+      <div class="tabs">
+        <div class="tab" data-tab="magic">🔗 Lien magique</div>
+        <div class="tab active" data-tab="code">🔑 Code d'accès</div>
       </div>
-      <div class="err-msg" id="code-err"></div>
-      <button class="btn big" id="code-btn" style="width:100%">🔓 Accéder</button>
+
+      <div class="tab-pane" id="tab-magic">
+        <div class="input-group">
+          <label>Adresse email admin</label>
+          <input type="email" id="magic-email" placeholder="votre@email.fr" autocomplete="email">
+        </div>
+        <div class="err-msg" id="magic-err"></div>
+        <button class="btn big" id="magic-btn" style="width:100%">📧 Envoyer le lien de connexion</button>
+      </div>
+
+      <div class="tab-pane active" id="tab-code">
+        <div class="input-group">
+          <label>Code d'accès administrateur</label>
+          <input type="password" id="code-input" placeholder="••••••••••••" autocomplete="off">
+        </div>
+        <div class="err-msg" id="code-err"></div>
+        <button class="btn big" id="code-btn" style="width:100%">🔓 Accéder</button>
+      </div>
 
       <button class="link-btn" onclick="window.location='/'">← Retour à l'accueil</button>
     </div>
   </div>
 </section>
 
+
+<!-- ══════════════════════════════════════════ CHECK EMAIL ══ -->
+<section class="screen" id="screen-check-email">
+  <div class="check-email-box">
+    <div class="check-icon">📬</div>
+    <div class="check-title">Vérifiez votre boîte mail</div>
+    <div class="check-sub">Un lien de connexion a été envoyé à <strong id="sent-to-email"></strong>. Cliquez sur le lien pour accéder à l'administration.</div>
+    <button class="btn ghost" onclick="showScreen('screen-login')">← Retour</button>
+  </div>
+</section>
 
 <!-- ═══════════════════════════════════════════════ HOME ══ -->
 <section class="screen" id="screen-home">
@@ -302,7 +328,10 @@
       </div>
       <div class="admin-header-user" id="admin-user-info">
         <span id="admin-display-name">—</span>
-        <button class="btn ghost sm" id="logout-btn" style="margin-top:6px;font-size:.75rem;padding:5px 10px;">Déconnexion</button>
+        <div style="display:flex;gap:6px;margin-top:6px;">
+          <a href="/" class="btn ghost sm" style="font-size:.75rem;padding:5px 10px;text-decoration:none;">← Accueil</a>
+          <button class="btn ghost sm" id="logout-btn" style="font-size:.75rem;padding:5px 10px;">Déconnexion</button>
+        </div>
       </div>
     </div>
 
@@ -557,6 +586,28 @@ function showErr(id, msg) {
   setTimeout(() => { el.style.display = 'none' }, 4000)
 }
 
+
+// Tab switching
+document.querySelectorAll('.tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    const name = tab.dataset.tab
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'))
+    document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'))
+    tab.classList.add('active')
+    $(`tab-${name}`)?.classList.add('active')
+  })
+})
+
+$('magic-btn').addEventListener('click', async () => {
+  const email = $('magic-email').value.trim()
+  if (!email) { showErr('magic-err','Saisissez un email.'); return }
+  $('magic-btn').disabled = true; $('magic-btn').textContent = 'Envoi…'
+  const { error } = await sb.auth.signInWithOtp({ email, options: { emailRedirectTo: window.location.origin+'/admin/' } })
+  $('magic-btn').disabled = false; $('magic-btn').textContent = '📧 Envoyer le lien de connexion'
+  if (error) { showErr('magic-err', error.message); return }
+  $('sent-to-email').textContent = email
+  showScreen('screen-check-email')
+})
 
 $('code-btn').addEventListener('click', async () => {
   const code = $('code-input').value.trim()
@@ -1319,7 +1370,7 @@ async function saveCurrentQuiz() {
   currentQuiz.title = title
   let result
   if (currentQuiz.id) {
-    result = await sb.from('quizzes').update({ title, config: currentQuiz.config, updated_at: new Date() }).eq('id', currentQuiz.id).select().single()
+    result = await sb.from('quizzes').update({ title, config: currentQuiz.config }).eq('id', currentQuiz.id).select().single()
   } else {
     result = await sb.from('quizzes').insert({ title, config: currentQuiz.config, owner_id: currentAdmin.id }).select().single()
     if (result.data) { currentQuiz.id = result.data.id }
