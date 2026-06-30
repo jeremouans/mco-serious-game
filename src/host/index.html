@@ -256,64 +256,6 @@
     .toggle-row small { color: rgba(243,238,218,.55); font-weight: 500; }
     .settings-actions { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
 
-    /* ── Quiz Editor ── */
-    #screen-quiz-editor { overflow-y: auto; padding: clamp(14px,2.5vw,36px); }
-    .editor-wrap { width: min(780px,100%); margin: auto; display: flex; flex-direction: column; gap: 18px; }
-    .editor-head { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
-    .editor-head h2 { flex: 1; font-size: clamp(1.1rem,2.5vw,1.6rem); font-weight: 900; color: var(--cream); }
-    .section-card {
-      background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.1);
-      border-radius: 18px; padding: 16px; display: flex; flex-direction: column; gap: 10px;
-    }
-    .section-head { display: flex; align-items: center; gap: 10px; }
-    .section-name-inp {
-      flex: 1; font-family: inherit; font-weight: 800; font-size: 1rem; color: var(--cream);
-      background: rgba(255,255,255,.08); border: 2px solid rgba(255,255,255,.12);
-      border-radius: 12px; padding: .5em .85em; outline: none; transition: border-color .2s;
-    }
-    .section-name-inp:focus { border-color: var(--green); }
-    .section-move { display: flex; flex-direction: column; gap: 2px; }
-    .iconbtn {
-      font-family: inherit; background: rgba(255,255,255,.1); border: none; border-radius: 8px;
-      color: var(--cream); padding: .28em .55em; font-size: .85rem; cursor: pointer; transition: background .15s; line-height: 1;
-    }
-    .iconbtn:hover { background: rgba(255,255,255,.2); }
-    .iconbtn.danger { color: #ff8080; }
-    .iconbtn.danger:hover { background: rgba(231,76,60,.2); }
-    .q-row-wrap { background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.07); border-radius: 12px; overflow: hidden; }
-    .q-row {
-      display: flex; align-items: center; gap: 8px; padding: .55em .75em;
-      cursor: pointer; transition: background .15s; user-select: none;
-    }
-    .q-row:hover { background: rgba(255,255,255,.06); }
-    .q-row-moves { display: flex; gap: 2px; flex: none; }
-    .q-type-badge { font-size: .72rem; font-weight: 800; text-transform: uppercase; letter-spacing: .5px; color: var(--green); background: rgba(106,165,23,.18); border-radius: 6px; padding: .2em .5em; white-space: nowrap; flex: none; }
-    .q-preview { flex: 1; font-size: .9rem; color: rgba(243,238,218,.7); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
-    .q-editor { border-top: 1px solid rgba(255,255,255,.08); }
-    .q-editor-inner { padding: 14px; display: flex; flex-direction: column; gap: 12px; }
-    .q-field { display: flex; flex-direction: column; gap: 6px; }
-    .q-field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-    .q-lbl { font-size: .75rem; font-weight: 800; text-transform: uppercase; letter-spacing: .6px; color: rgba(243,238,218,.6); }
-    .q-inp {
-      font-family: inherit; font-size: .95rem; font-weight: 600; color: var(--cream);
-      background: rgba(255,255,255,.08); border: 2px solid rgba(255,255,255,.12);
-      border-radius: 10px; padding: .5em .75em; outline: none; transition: border-color .2s; width: 100%;
-    }
-    .q-inp:focus { border-color: var(--green); }
-    .q-inp.num { max-width: 120px; }
-    .q-textarea { resize: vertical; min-height: 56px; }
-    .opt-edit-row { display: flex; align-items: center; gap: 8px; }
-    .opt-correct-btn {
-      font-family: inherit; font-size: .8rem; font-weight: 700; padding: .35em .7em;
-      border: 2px solid rgba(255,255,255,.2); border-radius: 8px; cursor: pointer;
-      background: transparent; color: rgba(243,238,218,.55); transition: all .15s; white-space: nowrap;
-    }
-    .opt-correct-btn.is-correct { background: var(--green); border-color: var(--green); color: #fff; }
-    .opt-correct-btn:hover:not(.is-correct) { border-color: var(--green); color: var(--green); }
-    .opt-key-badge { width: 1.8em; height: 1.8em; border-radius: 8px; display: grid; place-items: center; font-weight: 900; color: #fff; font-size: .85rem; flex: none; }
-    .add-q-btn { align-self: flex-start; margin-top: 4px; }
-    #add-section-btn { align-self: flex-start; }
-
     /* ── Manche checkboxes (settings) ── */
     #manche-checkboxes { display: flex; flex-direction: column; gap: 6px; }
     .manche-check-row {
@@ -393,51 +335,54 @@
     .cat-row input { flex: 1; }
 
     /* ── Home redesign ── */
-    .home-block-primary { display: flex; flex-direction: column; gap: 14px; }
-    .home-block-primary .quiz-card { flex-wrap: nowrap; }
     .btn.w-full { width: 100%; justify-content: center; }
     .home-block-card {
       background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.09);
       border-radius: 22px; padding: clamp(16px,2.5vw,26px);
       display: flex; flex-direction: column; gap: 14px;
     }
-    .home-block-title {
-      font-size: clamp(.95rem,2vw,1.15rem); font-weight: 900; color: var(--cream);
-    }
+    .home-block-title { font-size: clamp(.95rem,2vw,1.15rem); font-weight: 900; color: var(--cream); }
     .home-row { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; align-items: start; }
     @media (max-width: 640px) { .home-row { grid-template-columns: 1fr; } }
 
-    /* Preconfig items */
-    .preconfig-row {
-      display: flex; align-items: center; gap: 10px;
-      background: rgba(255,255,255,.06); border-radius: 12px; padding: .5em .9em;
-    }
-    .preconfig-info { flex: 1; min-width: 0; }
-    .preconfig-name { font-weight: 700; color: var(--cream); font-size: .95rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .preconfig-meta { font-size: .75rem; color: rgba(243,238,218,.45); margin-top: 2px; }
+    /* Home tabs */
+    .home-tabs { display:flex; gap:8px; }
+    .home-tab { flex:1; font-family:inherit; font-weight:700; font-size:.95rem; padding:.55em 1em; border-radius:12px; border:2px solid transparent; cursor:pointer; background:rgba(255,255,255,.08); color:rgba(243,238,218,.55); transition:all .2s; }
+    .home-tab.active { background:var(--green); color:#fff; border-color:var(--green); }
+    .home-pane { display:none; flex-direction:column; gap:16px; }
+    .home-pane.active { display:flex; }
 
-    /* Rules accordion */
-    .rules-block {
-      background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.08);
-      border-radius: 22px; overflow: hidden;
-    }
-    .rules-summary {
-      list-style: none; padding: clamp(14px,2.5vw,22px) clamp(16px,2.5vw,26px);
-      cursor: pointer; font-weight: 900; font-size: clamp(.95rem,2vw,1.15rem); color: var(--cream);
-      display: flex; align-items: center; gap: 10px; user-select: none; -webkit-user-select: none;
-    }
-    .rules-summary::-webkit-details-marker { display: none; }
-    .rules-summary::after { content: '▼'; margin-left: auto; font-size: .8rem; color: rgba(243,238,218,.4); }
-    .rules-block[open] .rules-summary::after { content: '▲'; }
-    .rules-content {
-      padding: 0 clamp(16px,2.5vw,26px) clamp(16px,2.5vw,24px);
-      display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 18px;
-      border-top: 1px solid rgba(255,255,255,.07);
-      padding-top: clamp(14px,2vw,20px);
-    }
-    .rules-section h4 { font-size: .95rem; font-weight: 900; color: var(--green); margin: 0 0 8px; }
-    .rules-section p, .rules-section li { font-size: .88rem; color: rgba(243,238,218,.72); line-height: 1.55; }
-    .rules-section ol, .rules-section ul { padding-left: 1.3em; margin: 0; display: flex; flex-direction: column; gap: 4px; }
+    /* Quiz picker */
+    .quiz-pick-item { display:flex; align-items:center; gap:12px; background:rgba(255,255,255,.06); border:2px solid rgba(255,255,255,.1); border-radius:14px; padding:.65em 1em; cursor:pointer; transition:all .2s; }
+    .quiz-pick-item:hover { background:rgba(255,255,255,.1); }
+    .quiz-pick-item.selected { border-color:var(--green); background:rgba(106,165,23,.15); }
+
+    /* Guide animateur */
+    .guide-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(210px,1fr)); gap:14px; }
+    .guide-card { background:rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.09); border-radius:18px; padding:clamp(14px,2vw,22px); display:flex; flex-direction:column; gap:10px; }
+    .guide-icon { font-size:2rem; line-height:1; }
+    .guide-card h4 { font-size:.95rem; font-weight:900; color:var(--green); margin:0; }
+    .guide-card p, .guide-card li { font-size:.85rem; color:rgba(243,238,218,.72); line-height:1.55; margin:0; }
+    .guide-card ol, .guide-card ul { padding-left:1.3em; margin:0; display:flex; flex-direction:column; gap:4px; }
+    .guide-tip { font-size:.78rem; color:rgba(243,238,218,.45); font-style:italic; }
+
+    /* Slider screens */
+    #screen-slider, #screen-slider-reveal { overflow-y:auto; padding:clamp(14px,2.2vw,32px); }
+    .slider-wrap { width:min(1000px,100%); margin:auto; display:flex; flex-direction:column; gap:18px; }
+    .slider-line { position:relative; height:90px; border-radius:40px; margin:10px 0; }
+    .slider-track { position:absolute; top:50%; left:5%; right:5%; height:8px; background:rgba(255,255,255,.2); border-radius:4px; transform:translateY(-50%); }
+    .slider-correct-marker { position:absolute; top:50%; width:4px; background:var(--green); border-radius:2px; height:60px; transform:translate(-50%,-50%); box-shadow:0 0 12px rgba(106,165,23,.6); transition:left .8s cubic-bezier(.2,1,.3,1); }
+    .slider-avatar { position:absolute; top:50%; width:44px; height:44px; border-radius:50%; transform:translate(-50%,-50%); display:grid; place-items:center; font-size:1.4rem; transition:left 1.2s cubic-bezier(.2,1,.3,1); border:3px solid rgba(255,255,255,.3); box-shadow:0 4px 12px rgba(0,0,0,.3); }
+    .slider-label { position:absolute; top:calc(50% + 28px); transform:translateX(-50%); font-size:.7rem; font-weight:700; color:rgba(243,238,218,.7); white-space:nowrap; transition:left 1.2s cubic-bezier(.2,1,.3,1); }
+    .slider-min-max { display:flex; justify-content:space-between; font-size:.8rem; color:rgba(243,238,218,.5); padding:0 5%; }
+
+    /* Wordcloud */
+    #screen-wordcloud { overflow-y:auto; padding:clamp(14px,2.2vw,32px); }
+    .wc-wrap { width:min(1000px,100%); margin:auto; display:flex; flex-direction:column; gap:18px; }
+    #wc-canvas { border-radius:20px; background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.08); width:100%; max-height:380px; display:block; }
+
+    /* Profile modal */
+    .modal-overlay { position:fixed; inset:0; background:rgba(0,0,0,.75); z-index:300; display:flex; align-items:center; justify-content:center; backdrop-filter:blur(6px); padding:20px; }
 
     @media print {
       @page { margin: 12mm; }
@@ -454,6 +399,26 @@
 <body>
 <div id="stars" aria-hidden="true"></div>
 <button id="fullscreen-btn" title="Plein écran">⛶ Plein écran</button>
+
+<!-- Profile modal -->
+<div id="profile-modal" class="modal-overlay" style="display:none">
+  <div class="card" style="max-width:420px;gap:20px;">
+    <div style="text-align:center;font-size:3rem;line-height:1">👤</div>
+    <h2 style="text-align:center;margin:0;">Votre profil animateur</h2>
+    <p style="margin:0;text-align:center;color:rgba(243,238,218,.65)">Première connexion — saisissez votre prénom et nom.</p>
+    <div>
+      <div class="inp-label">Prénom *</div>
+      <input id="profile-firstname" class="inp" type="text" placeholder="Prénom" autocomplete="given-name">
+    </div>
+    <div>
+      <div class="inp-label">Nom</div>
+      <input id="profile-lastname" class="inp" type="text" placeholder="Nom de famille" autocomplete="family-name">
+    </div>
+    <div id="profile-err" class="err"></div>
+    <button class="btn big" id="profile-save-btn" style="justify-content:center;">✓ Enregistrer</button>
+  </div>
+</div>
+
 <div class="app">
 
   <!-- ══ LOGIN ══════════════════════════════════════════════ -->
@@ -517,7 +482,6 @@
   <!-- ══ HOME ═══════════════════════════════════════════════ -->
   <section class="screen" id="screen-home">
     <div class="home-wrap">
-      <!-- Header -->
       <div class="home-header">
         <img src="/assets/logo-mgen.png" alt="MGEN" style="width:72px;height:72px;border-radius:14px;flex:none;">
         <div style="flex:1;">
@@ -526,72 +490,42 @@
         </div>
         <button class="btn ghost sm" id="logout-btn">Déconnexion</button>
       </div>
+      <div class="home-tabs">
+        <button class="home-tab active" id="tab-sessions">🎮 Sessions</button>
+        <button class="home-tab" id="tab-guide">📖 Guide animateur</button>
+      </div>
 
-      <!-- Row 1: Quiz + Preconfigs -->
-      <div class="home-row">
-        <!-- Block A: Démarrer une session -->
-        <div class="home-block-primary">
-          <div class="quiz-card">
-            <div class="quiz-icon">🎯</div>
-            <div class="quiz-info">
-              <h3>Engagements 2030 — le Quizz</h3>
-              <p id="quiz-info-sub">Chargement…</p>
-            </div>
-            <button class="btn sm dark" id="edit-quiz-btn">⚙️ Éditer</button>
-          </div>
-          <button class="btn big w-full" id="create-btn">▶ Démarrer une session</button>
-        </div>
-        <!-- Block B: Préconfigurations -->
+      <!-- Onglet Sessions -->
+      <div class="home-pane active" id="pane-sessions">
         <div class="home-block-card">
-          <div class="home-block-title">🗂 Préconfigurations</div>
-          <div id="preconfigs-list">
-            <p class="empty-msg" style="font-size:.88rem;">Aucune préconfiguration.</p>
+          <div class="home-block-title">🗂 Quiz à utiliser</div>
+          <div id="quiz-picker-list"><p class="empty-msg" style="font-size:.88rem;">Chargement…</p></div>
+        </div>
+        <button class="btn big w-full" id="create-btn">▶ Démarrer une session</button>
+        <div class="home-row">
+          <div class="home-block-card">
+            <div class="home-block-title">🔴 Sessions ouvertes</div>
+            <div id="sessions-list"><p class="empty-msg" style="font-size:.88rem;">Aucune session ouverte.</p></div>
           </div>
-          <button class="btn sm ghost" id="save-preconfig-home-btn">💾 Sauvegarder la config actuelle</button>
+          <div class="home-block-card">
+            <div class="home-block-title">📖 Mes parties</div>
+            <div id="history-list"><p class="empty-msg" style="font-size:.88rem;">Aucune partie jouée.</p></div>
+          </div>
         </div>
       </div>
 
-      <!-- Row 2: Sessions ouvertes + Historique -->
-      <div class="home-row">
-        <div class="home-block-card" id="sessions-section">
-          <div class="home-block-title">🔴 Sessions ouvertes</div>
-          <div id="sessions-list"><p class="empty-msg" style="font-size:.88rem;">Aucune session ouverte.</p></div>
-        </div>
-        <div class="home-block-card" id="history-section">
-          <div class="home-block-title">📖 Mes parties</div>
-          <div id="history-list"><p class="empty-msg" style="font-size:.88rem;">Aucune partie jouée.</p></div>
+      <!-- Onglet Guide animateur -->
+      <div class="home-pane" id="pane-guide">
+        <div class="guide-grid">
+          <div class="guide-card"><div class="guide-icon">🚀</div><h4>Démarrer une session</h4><ol><li>Choisissez un quiz dans l'onglet Sessions</li><li>Cliquez "Démarrer une session"</li><li>Partagez le code ou le QR code</li><li>Attendez les joueurs → Démarrez</li></ol></div>
+          <div class="guide-card"><div class="guide-icon">❓</div><h4>Questions quiz</h4><p>Laissez les joueurs répondre. Cliquez "Révéler" quand vous êtes prêt — même avant le timer. Le classement s'affiche automatiquement.</p><p class="guide-tip">Commentez la bonne réponse avant de passer à la suite.</p></div>
+          <div class="guide-card"><div class="guide-icon">🎚️</div><h4>Slider (estimation)</h4><p>Les joueurs estiment une valeur numérique. Le plus proche gagne. Cliquez "Révéler" pour voir les estimations animées.</p><p class="guide-tip">Idéal pour des statistiques surprenantes !</p></div>
+          <div class="guide-card"><div class="guide-icon">☁️</div><h4>Nuage de mots</h4><p>Les joueurs choisissent des mots dans une liste. Le nuage se forme en direct. Cliquez "Afficher" pour le révéler.</p><p class="guide-tip">Bon brise-glace ou conclusion de manche.</p></div>
+          <div class="guide-card"><div class="guide-icon">💡</div><h4>L'idée en Or</h4><p>Les joueurs soumettent une idée, puis votent pour leur préférée (anonymement). L'idée gagnante est révélée avec confettis.</p><p class="guide-tip">Passez au vote quand assez d'idées sont soumises.</p></div>
+          <div class="guide-card"><div class="guide-icon">🤝</div><h4>Mes engagements</h4><p>Les joueurs rédigent un engagement. Les autres les notent de 1 à 5 étoiles sur 4 critères. Vous pouvez ajouter un bonus.</p><p class="guide-tip">Clôturez avec les engagements les mieux notés.</p></div>
+          <div class="guide-card"><div class="guide-icon">📊</div><h4>Scoring</h4><ul><li>Quiz / Vrai-Faux : jusqu'à 1 000 pts</li><li>Slider : rang 1 = 1 000 pts, rang 2 = 700…</li><li>Idée en Or : 100 pts/vote + 300 pts gagnant</li><li>Engagements : notation étoiles × 50 pts</li></ul></div>
         </div>
       </div>
-
-      <!-- Block E: Règles & Guide -->
-      <details class="rules-block">
-        <summary class="rules-summary">📋 Règles du jeu &amp; Guide animateur</summary>
-        <div class="rules-content">
-          <div class="rules-section">
-            <h4>Comment ça marche ?</h4>
-            <p>Serious game MGEN en temps réel. L'animateur diffuse les questions sur un écran projeté ; les participants répondent depuis leur mobile via un code de session.</p>
-          </div>
-          <div class="rules-section">
-            <h4>Guide animateur</h4>
-            <ol>
-              <li>Créez une session → code + QR code s'affichent</li>
-              <li>Les joueurs scannent le QR ou saisissent le code</li>
-              <li>Démarrez quand tout le monde est connecté</li>
-              <li>Révélez les réponses et commentez les scores</li>
-              <li>Pour les manches participatives : attendez les soumissions, puis passez au vote</li>
-              <li>Consultez le bilan à la fin et exportez en PDF</li>
-            </ol>
-          </div>
-          <div class="rules-section">
-            <h4>Scoring</h4>
-            <ul>
-              <li>Questions : jusqu'à 1 000 pts, bonus vitesse</li>
-              <li>L'idée en Or : 100 pts/vote reçu + 300 pts bonus gagnant</li>
-              <li>Engagements : 50 pts/critère + bonus animateur</li>
-            </ul>
-          </div>
-        </div>
-      </details>
     </div>
   </section>
 
@@ -599,12 +533,6 @@
   <section class="screen" id="screen-settings">
     <div class="settings-wrap">
       <h2>⚙️ Paramètres de session</h2>
-      <div class="setting-card" id="preconfig-card" style="display:none;">
-        <label>📂 Préconfiguration</label>
-        <select id="preconfig-sel" class="q-inp" style="font-size:1rem;">
-          <option value="">— Config actuelle —</option>
-        </select>
-      </div>
       <div class="setting-card">
         <label>⏱ Durée du timer par défaut</label>
         <div class="timer-row">
@@ -626,20 +554,6 @@
         <button class="btn ghost" id="settings-back-btn">← Retour</button>
         <button class="btn big" id="settings-create-btn">▶ Créer la session</button>
       </div>
-    </div>
-  </section>
-
-  <!-- ══ QUIZ EDITOR ══════════════════════════════════════════ -->
-  <section class="screen" id="screen-quiz-editor">
-    <div class="editor-wrap">
-      <div class="editor-head">
-        <button class="btn ghost sm" id="editor-back-btn">← Retour</button>
-        <h2>📝 Quiz — Engagements 2030</h2>
-        <button class="btn sm" id="editor-saveconfig-btn">📂 Préconfiguration</button>
-        <button class="btn sm gold" id="editor-save-btn">💾 Sauvegarder</button>
-      </div>
-      <div id="sections-wrap"></div>
-      <button class="btn dark" id="add-section-btn">➕ Ajouter une manche</button>
     </div>
   </section>
 
@@ -699,6 +613,49 @@
       <div class="game-actions">
         <button class="btn gold" id="reveal-btn">🔍 Révéler la réponse</button>
         <button class="btn" id="scores-btn" style="display:none;">📊 Scores →</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ SLIDER QUESTION ══════════════════════════════════════ -->
+  <section class="screen" id="screen-slider">
+    <div class="slider-wrap">
+      <div class="game-topbar">
+        <div class="q-badge">Q <span id="sq-num">1</span> / <span id="sq-total">1</span></div>
+        <div class="timer-wrap" id="sq-timer-wrap" style="display:none">
+          <div class="timer-track"><div class="timer-fill" id="sq-timer-fill" style="width:100%"></div></div>
+          <div class="timer-secs" id="sq-timer-secs">30</div>
+        </div>
+        <div class="ans-badge"><span id="sq-ans-count">0</span> / <span id="sq-ans-total">0</span> réponses</div>
+        <button class="btn sm ghost" onclick="goHome()">⌂</button>
+      </div>
+      <div class="q-text-host" id="sq-text" style="font-size:clamp(1.3rem,3vw,2.2rem)"></div>
+      <div style="color:rgba(243,238,218,.55);text-align:center;padding:20px 0;">En attente des estimations…</div>
+      <div class="game-actions">
+        <button class="btn gold" id="slider-reveal-btn">📊 Révéler les résultats</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ SLIDER REVEAL ════════════════════════════════════════ -->
+  <section class="screen" id="screen-slider-reveal">
+    <div class="slider-wrap">
+      <div class="game-topbar">
+        <div class="q-badge">Résultats</div>
+        <button class="btn sm ghost" onclick="goHome()">⌂</button>
+      </div>
+      <div class="q-text-host" id="sr-text" style="font-size:clamp(1.1rem,2.5vw,1.8rem)"></div>
+      <div style="text-align:center;font-size:1rem;color:rgba(243,238,218,.75)">Bonne réponse : <strong id="sr-correct" style="color:var(--green);font-size:1.3em"></strong></div>
+      <div class="slider-line" id="sr-slider-line">
+        <div class="slider-track"></div>
+        <div class="slider-correct-marker" id="sr-correct-marker"></div>
+        <div id="sr-avatars"></div>
+        <div id="sr-labels"></div>
+      </div>
+      <div class="slider-min-max"><span id="sr-min"></span><span id="sr-max"></span></div>
+      <div id="sr-ranking" style="display:flex;flex-direction:column;gap:8px;max-height:280px;overflow-y:auto"></div>
+      <div class="game-actions">
+        <button class="btn big" id="slider-continue-btn">→ Continuer</button>
       </div>
     </div>
   </section>
@@ -873,8 +830,32 @@
     </div>
   </section>
 
+  <!-- ══ WORDCLOUD ═══════════════════════════════════════════ -->
+  <section class="screen" id="screen-wordcloud">
+    <div class="wc-wrap">
+      <div class="p4-topbar">
+        <span class="p4-badge">☁️ Nuage de mots</span>
+        <h2 id="wc-manche-name">Nuage de mots</h2>
+        <button class="btn sm ghost" onclick="goHome()">⌂</button>
+      </div>
+      <div class="p4-challenge-box" id="wc-prompt"></div>
+      <div class="p4-stats">
+        <div class="p4-stat">
+          <div class="p4-stat-num" id="wc-vote-count">0</div>
+          <div class="p4-stat-lbl">votes reçus sur <span id="wc-total-players">0</span></div>
+        </div>
+      </div>
+      <canvas id="wc-canvas" width="900" height="360"></canvas>
+      <div class="game-actions">
+        <button class="btn gold" id="wc-render-btn">☁️ Afficher le nuage</button>
+        <button class="btn big" id="wc-continue-btn" style="display:none">→ Continuer</button>
+      </div>
+    </div>
+  </section>
+
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/wordcloud@1.2.2/src/wordcloud2.min.js"></script>
 <script type="module">
 import { sb } from '../lib/supabase.js'
 import QRCode from 'https://esm.sh/qrcode@1.5.3'
@@ -889,15 +870,16 @@ const LOGO_SVG = `<svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg" 
   <path d="M60 30 69 49l21 3-15 15 4 21-19-10-19 10 4-21-15-15 21-3z" fill="#6aa517"/></svg>`
 
 // ── État ────────────────────────────────────────────────────
-let currentUser       = null
-let activeChannel     = null
-let activeSession     = null
-let QUIZ              = null   // questions auto-scorées (flat array)
-let GS                = null   // game state
-let QUIZ_CONFIG       = null   // { manches: [...], preconfigs: [...] }
-let QUIZ_DB_ID        = null   // ID de la row quizzes en DB
-let sessionPreconfigId = null  // preconfig selected in settings
-const EDITOR_OPEN = new Set() // _id des questions ouvertes dans l'éditeur
+let currentUser   = null
+let activeChannel = null
+let activeSession = null
+let QUIZ          = null   // questions flat array
+let GS            = null   // game state
+let QUIZ_CONFIG   = null   // { manches: [...] }
+let QUIZ_DB_ID    = null
+let QUIZ_LIST     = []     // all quizzes for picker
+let hostProfile   = null
+let WCS           = null   // wordcloud state
 
 // ── Utils ───────────────────────────────────────────────────
 const $ = id => document.getElementById(id)
@@ -933,14 +915,25 @@ function colorFor(name) {
 const initial = n => (n||'?').trim().charAt(0).toUpperCase()
 
 // ── Auth ────────────────────────────────────────────────────
-sb.auth.onAuthStateChange((event, session) => {
+sb.auth.onAuthStateChange(async (event, session) => {
   currentUser = session?.user ?? null
   if (currentUser) {
-    $('user-email').textContent = currentUser.email
-    loadOpenSessions()
-    loadHistory()
-    loadQuizConfig()
+    const { data: wl } = await sb.from('host_whitelist').select('email').eq('email', currentUser.email).maybeSingle()
+    if (!wl) {
+      await sb.auth.signOut()
+      const e1 = $('login-err'); if (e1) { e1.textContent = 'Adresse non autorisée.'; e1.classList.add('show') }
+      const e2 = $('code-err');  if (e2) { e2.textContent = 'Accès non autorisé.'; e2.classList.add('show') }
+      return
+    }
+    const { data: prof } = await sb.from('host_profiles').select('*').eq('user_id', currentUser.id).maybeSingle()
+    hostProfile = prof
+    const displayName = prof?.first_name ? `${prof.first_name} ${prof.last_name || ''}`.trim() : currentUser.email
+    $('user-email').textContent = displayName
+    await loadAllQuizzes()
+    await loadOpenSessions()
+    await loadHistory()
     showScreen('screen-home')
+    if (!prof?.first_name) $('profile-modal').style.display = 'flex'
   } else {
     showScreen('screen-login')
   }
@@ -986,6 +979,33 @@ $('login-form').addEventListener('submit', async e => {
 $('back-login-btn').addEventListener('click', () => showScreen('screen-login'))
 $('logout-btn').addEventListener('click', async () => { await cleanupChannel(); await sb.auth.signOut() })
 
+// ── Profile modal ─────────────────────────────────────────────
+$('profile-save-btn').addEventListener('click', async () => {
+  const firstName = $('profile-firstname').value.trim()
+  const errEl = $('profile-err')
+  if (!firstName) { errEl.textContent = 'Le prénom est obligatoire.'; errEl.classList.add('show'); return }
+  errEl.classList.remove('show')
+  const lastName = $('profile-lastname').value.trim()
+  const btn = $('profile-save-btn'); btn.disabled = true; btn.textContent = '⏳…'
+  try {
+    await sb.from('host_profiles').upsert({ user_id: currentUser.id, first_name: firstName, last_name: lastName, updated_at: new Date().toISOString() })
+    hostProfile = { first_name: firstName, last_name: lastName }
+    $('user-email').textContent = `${firstName} ${lastName}`.trim()
+    $('profile-modal').style.display = 'none'
+  } catch(e) { errEl.textContent = 'Erreur : ' + e.message; errEl.classList.add('show') }
+  btn.disabled = false; btn.textContent = '✓ Enregistrer'
+})
+
+// ── Home tabs ─────────────────────────────────────────────────
+$('tab-sessions').addEventListener('click', () => {
+  $('tab-sessions').classList.add('active'); $('tab-guide').classList.remove('active')
+  $('pane-sessions').classList.add('active'); $('pane-guide').classList.remove('active')
+})
+$('tab-guide').addEventListener('click', () => {
+  $('tab-guide').classList.add('active'); $('tab-sessions').classList.remove('active')
+  $('pane-guide').classList.add('active'); $('pane-sessions').classList.remove('active')
+})
+
 // ── Sessions ─────────────────────────────────────────────────
 async function loadOpenSessions() {
   const { data } = await sb.from('sessions').select('id,code,status,settings,created_at').eq('status','lobby').order('created_at',{ascending:false}).limit(5)
@@ -1001,8 +1021,6 @@ async function loadOpenSessions() {
 }
 
 $('create-btn').addEventListener('click', () => {
-  sessionPreconfigId = null
-  renderPreconfigSelector()
   renderMancheCheckboxes()
   showScreen('screen-settings')
 })
@@ -1030,11 +1048,12 @@ async function startPresence(code) {
   activeChannel = sb.channel(`session:${code}`)
   activeChannel
     .on('presence',  { event: 'sync' }, () => renderPlayers())
-    .on('broadcast', { event: 'answer' },         ({ payload }) => receiveAnswer(payload))
-    .on('broadcast', { event: 'submit:idea' },    ({ payload }) => receiveIdeaSubmit(payload))
-    .on('broadcast', { event: 'vote:idea' },      ({ payload }) => receiveIdeaVote(payload))
-    .on('broadcast', { event: 'submit:engage' },  ({ payload }) => receiveEngageSubmit(payload))
-    .on('broadcast', { event: 'vote:engage' },    ({ payload }) => receiveEngageVote(payload))
+    .on('broadcast', { event: 'answer' },          ({ payload }) => receiveAnswer(payload))
+    .on('broadcast', { event: 'submit:idea' },     ({ payload }) => receiveIdeaSubmit(payload))
+    .on('broadcast', { event: 'vote:idea' },       ({ payload }) => receiveIdeaVote(payload))
+    .on('broadcast', { event: 'submit:engage' },   ({ payload }) => receiveEngageSubmit(payload))
+    .on('broadcast', { event: 'vote:engage' },     ({ payload }) => receiveEngageVote(payload))
+    .on('broadcast', { event: 'vote:wordcloud' },  ({ payload }) => receiveWordcloudVote(payload))
     .subscribe(async status => {
       if (status === 'SUBSCRIBED') await activeChannel.track({ role: 'host', userId: currentUser.id, phase: 'lobby' })
     })
@@ -1090,8 +1109,7 @@ $('start-btn').addEventListener('click', async () => {
 // ── Game state ────────────────────────────────────────────────
 function initGame() {
   const selectedManches = activeSession?.settings?.selectedManches ?? null
-  const preconfigId     = activeSession?.settings?.preconfigId ?? null
-  if (QUIZ_CONFIG) QUIZ = buildQuizFromConfig(selectedManches, preconfigId)
+  if (QUIZ_CONFIG) QUIZ = buildQuizFromConfig(selectedManches)
   const state = activeChannel.presenceState()
   const players = new Map()
   Object.values(state).flat().forEach(p => {
@@ -1105,19 +1123,21 @@ function showQuestion(skipIntro = false) {
   if (!GS || GS.qIdx >= GS.questions.length) { endGame(); return }
   const q = GS.questions[GS.qIdx]
 
-  if (q.type === 'idea')   { startIdeaManche(q.mancheConfig); return }
-  if (q.type === 'engage') { startEngageManche(q.mancheConfig); return }
+  if (q.type === 'idea')      { startIdeaManche(q.mancheConfig); return }
+  if (q.type === 'engage')    { startEngageManche(q.mancheConfig); return }
+  if (q.type === 'wordcloud') { startWordcloudManche(q.mancheConfig); return }
+  if (q.type === 'slider')    { showSliderQuestion(); return }
 
-  // Intro de manche si section change
   if (!skipIntro && q.section) {
     const prev = GS.qIdx > 0 ? GS.questions[GS.qIdx - 1] : null
     if (!prev || prev.section !== q.section) { showRoundIntro(q.section); return }
   }
 
   showScreen('screen-game')
-  const timer = q.timer ?? (activeSession?.settings?.timer ?? 20)
-  GS.endsAt = Date.now() + timer * 1000
-  GS.timerDuration = timer
+  const useTimer = q.timer === true
+  const timerDur = q.timerDuration ?? (activeSession?.settings?.timer ?? 20)
+  GS.endsAt = useTimer ? Date.now() + timerDur * 1000 : Date.now() + 9999999
+  GS.timerDuration = useTimer ? timerDur : 9999999
   GS.currentAnswers = new Map()
   GS.revealed = false
 
@@ -1129,29 +1149,35 @@ function showQuestion(skipIntro = false) {
   $('reveal-btn').disabled = false; $('reveal-btn').style.display = 'inline-flex'
   $('scores-btn').style.display = 'none'
   $('explain-box').style.display = 'none'
-  $('timer-fill').style.width = '100%'
-  $('timer-secs').textContent = timer
+
+  const timerWrap = $('timer-wrap')
+  if (useTimer) {
+    timerWrap.style.visibility = 'visible'
+    $('timer-fill').style.width = '100%'
+    $('timer-secs').textContent = timerDur
+  } else {
+    timerWrap.style.visibility = 'hidden'
+  }
 
   renderOptionsHost(q)
   $('opts-host').classList.remove('revealed')
 
-  activeChannel.send({ type: 'broadcast', event: 'question:show', payload: {
-    idx: GS.qIdx, total: GS.questions.length, questionId: q.id,
-    text: q.text, options: q.options, timer, endsAt: GS.endsAt, points: q.points ?? 1000
-  }})
+  const payload = { idx: GS.qIdx, total: GS.questions.length, questionId: q.id,
+    text: q.text, options: q.options, points: q.points ?? 1000 }
+  if (useTimer) { payload.timer = true; payload.timerDuration = timerDur; payload.endsAt = GS.endsAt }
+  activeChannel.send({ type: 'broadcast', event: 'question:show', payload })
 
   if (GS.timerInterval) clearInterval(GS.timerInterval)
-  GS.timerInterval = setInterval(() => {
-    const rem = GS.endsAt - Date.now()
-    const ratio = Math.max(0, rem / (timer * 1000))
-    $('timer-secs').textContent = Math.max(0, Math.ceil(rem / 1000))
-    $('timer-fill').style.width = (ratio * 100) + '%'
-    $('timer-fill').style.background = ratio > 0.33
-      ? 'linear-gradient(90deg,var(--green),var(--green-b))'
-      : ratio > 0.15 ? 'linear-gradient(90deg,#e8a020,#f4c84a)'
-      : 'linear-gradient(90deg,#c0392b,#e74c3c)'
-    if (rem <= 0 && !GS.revealed) { clearInterval(GS.timerInterval); doReveal() }
-  }, 100)
+  if (useTimer) {
+    GS.timerInterval = setInterval(() => {
+      const rem = GS.endsAt - Date.now()
+      const ratio = Math.max(0, rem / (timerDur * 1000))
+      $('timer-secs').textContent = Math.max(0, Math.ceil(rem / 1000))
+      $('timer-fill').style.width = (ratio * 100) + '%'
+      $('timer-fill').style.background = ratio > 0.33 ? 'linear-gradient(90deg,var(--green),var(--green-b))' : ratio > 0.15 ? 'linear-gradient(90deg,#e8a020,#f4c84a)' : 'linear-gradient(90deg,#c0392b,#e74c3c)'
+      if (rem <= 0 && !GS.revealed) { clearInterval(GS.timerInterval); doReveal() }
+    }, 100)
+  }
 }
 
 function renderOptionsHost(q) {
@@ -1187,8 +1213,13 @@ function receiveAnswer(payload) {
   if (!GS || GS.revealed) return
   const q = GS.questions[GS.qIdx]
   if (payload.questionId !== q.id) return
-  if (payload.clientTs > GS.endsAt + 500) return
   if (GS.currentAnswers.has(payload.tempId)) return
+  if (q.type === 'slider') {
+    GS.currentAnswers.set(payload.tempId, { value: payload.value })
+    const el = $('sq-ans-count'); if (el) el.textContent = GS.currentAnswers.size
+    return
+  }
+  if (payload.clientTs > GS.endsAt + 500) return
 
   const isCorrect  = String(payload.value) === String(q.correct)
   const startTs    = GS.endsAt - GS.timerDuration * 1000
@@ -1488,91 +1519,13 @@ $('fullscreen-btn').addEventListener('click', () => {
 })
 document.addEventListener('fullscreenchange', updateFullscreenBtn)
 
-// ── Préconfigurations ─────────────────────────────────────────
-function renderPreconfigsHome() {
-  const list = $('preconfigs-list'); if (!list) return
-  const preconfigs = QUIZ_CONFIG?.preconfigs || []
-  if (!preconfigs.length) {
-    list.innerHTML = '<p class="empty-msg" style="font-size:.88rem;">Aucune préconfiguration.</p>'
-    return
-  }
-  list.innerHTML = ''
-  preconfigs.forEach(pc => {
-    const qCount = (pc.manches || []).filter(m => !m.type || m.type === 'quiz')
-      .reduce((n, m) => n + (m.questions || []).filter(q => q.type === 'choice' || q.type === 'truefalse').length, 0)
-    const p4Count = (pc.manches || []).filter(m => m.type === 'idea' || m.type === 'engage').length
-    const row = document.createElement('div'); row.className = 'preconfig-row'
-    row.innerHTML = `
-      <div class="preconfig-info">
-        <div class="preconfig-name">${pc.name}</div>
-        <div class="preconfig-meta">${qCount} question${qCount>1?'s':''}${p4Count ? ' · ' + p4Count + ' manche' + (p4Count>1?'s participatives':'participative') : ''}</div>
-      </div>
-      <button class="btn sm" onclick="launchPreconfig('${pc.id}')">▶ Lancer</button>
-      <button class="iconbtn danger" onclick="deletePreconfig('${pc.id}')">×</button>`
-    list.appendChild(row)
-  })
-}
-
-window.launchPreconfig = (id) => {
-  sessionPreconfigId = id
-  renderPreconfigSelector()
-  renderMancheCheckboxes()
-  showScreen('screen-settings')
-}
-
-window.deletePreconfig = async (id) => {
-  if (!QUIZ_CONFIG?.preconfigs) return
-  if (!confirm('Supprimer cette préconfiguration ?')) return
-  QUIZ_CONFIG.preconfigs = QUIZ_CONFIG.preconfigs.filter(p => p.id !== id)
-  await sb.from('quizzes').update({ config: QUIZ_CONFIG }).eq('id', QUIZ_DB_ID)
-  renderPreconfigsHome()
-  renderPreconfigSelector()
-}
-
-async function savePreconfigAs(name) {
-  if (!QUIZ_CONFIG || !name?.trim()) return
-  if (!QUIZ_CONFIG.preconfigs) QUIZ_CONFIG.preconfigs = []
-  const existing = QUIZ_CONFIG.preconfigs.find(p => p.name === name)
-  if (existing) {
-    existing.manches = JSON.parse(JSON.stringify(QUIZ_CONFIG.manches))
-  } else {
-    QUIZ_CONFIG.preconfigs.push({ id: uid(), name, manches: JSON.parse(JSON.stringify(QUIZ_CONFIG.manches)) })
-  }
-  await sb.from('quizzes').update({ config: QUIZ_CONFIG }).eq('id', QUIZ_DB_ID)
-  renderPreconfigsHome()
-  renderPreconfigSelector()
-}
-
-function renderPreconfigSelector() {
-  const preconfigs = QUIZ_CONFIG?.preconfigs || []
-  const card = $('preconfig-card'); const sel = $('preconfig-sel'); if (!sel) return
-  if (!preconfigs.length) { card.style.display = 'none'; return }
-  card.style.display = 'block'
-  sel.innerHTML = '<option value="">— Config actuelle —</option>'
-  preconfigs.forEach(p => {
-    const opt = document.createElement('option'); opt.value = p.id; opt.textContent = p.name
-    sel.appendChild(opt)
-  })
-  if (sessionPreconfigId) sel.value = sessionPreconfigId
-}
-
-$('save-preconfig-home-btn').addEventListener('click', async () => {
-  const name = prompt('Nom de la préconfiguration :', 'Ma config')
-  if (!name?.trim()) return
-  await savePreconfigAs(name.trim())
-})
 
 // ── Settings screen ───────────────────────────────────────────
 $('timer-range').addEventListener('input', () => {
   $('timer-display').textContent = $('timer-range').value + ' s'
 })
 
-$('preconfig-sel').addEventListener('change', () => {
-  sessionPreconfigId = $('preconfig-sel').value || null
-  renderMancheCheckboxes()
-})
-
-$('settings-back-btn').addEventListener('click', () => { sessionPreconfigId = null; showScreen('screen-home') })
+$('settings-back-btn').addEventListener('click', () => showScreen('screen-home'))
 $('settings-create-btn').addEventListener('click', async () => {
   const timer = parseInt($('timer-range').value, 10)
   const speedBonus = $('speed-bonus').checked
@@ -1583,7 +1536,7 @@ $('settings-create-btn').addEventListener('click', async () => {
     for (let i = 0; i < 5; i++) {
       const { data, error } = await sb.from('sessions').insert({
         code: generateCode(), host_id: currentUser.id, status: 'lobby',
-        settings: { timer, speedBonus, selectedManches, preconfigId: sessionPreconfigId || null },
+        settings: { timer, speedBonus, selectedManches },
         quiz_id: QUIZ_DB_ID ?? null
       }).select().single()
       if (!error) { session = data; break }
@@ -1596,74 +1549,54 @@ $('settings-create-btn').addEventListener('click', async () => {
   finally { btn.disabled = false; btn.textContent = '▶ Créer la session' }
 })
 
-// ── Quiz Config ───────────────────────────────────────────────
+// ── Quiz Config / Picker ──────────────────────────────────────
 function uid() { return Math.random().toString(36).slice(2, 9) }
 
-async function loadQuizConfig() {
+async function loadAllQuizzes() {
   try {
-    const { data } = await sb.from('quizzes').select('id,config').eq('owner_id', currentUser.id).maybeSingle()
-    if (data?.config?.manches) {
-      QUIZ_CONFIG = data.config
-      QUIZ_DB_ID  = data.id
-    } else {
-      const json = await fetch('/data/quiz-mgen.json').then(r => r.json())
-      const mancheMap = new Map()
-      json.questions.forEach(q => {
-        const key = q.section || 'Questions'
-        if (!mancheMap.has(key)) mancheMap.set(key, [])
-        mancheMap.get(key).push({
-          _id: q.id, type: q.type, text: q.text || '',
-          options: q.options || [], correct: q.correct ?? 0,
-          points: q.points ?? 1000, timer: q.timer ?? null, explain: q.explain ?? ''
-        })
-      })
-      const manches = [...mancheMap.entries()].map(([name, questions]) => ({ id: uid(), name, questions }))
-      QUIZ_CONFIG = { manches }
-      const { data: row } = await sb.from('quizzes').insert({
-        owner_id: currentUser.id, title: 'Engagements 2030 — le Quizz', config: { manches }
-      }).select('id').single()
-      QUIZ_DB_ID = row?.id ?? null
+    const { data } = await sb.from('quizzes').select('id, title, config, created_at').order('created_at', { ascending: false })
+    QUIZ_LIST = data || []
+    if (QUIZ_LIST.length > 0) {
+      QUIZ_DB_ID  = QUIZ_LIST[0].id
+      QUIZ_CONFIG = QUIZ_LIST[0].config
+      QUIZ = buildQuizFromConfig()
     }
-    QUIZ = buildQuizFromConfig()
-    updateQuizCardInfo()
-    renderPreconfigsHome()
-  } catch(e) { console.warn('loadQuizConfig:', e) }
+    renderQuizPicker()
+  } catch(e) { console.warn('loadAllQuizzes:', e) }
 }
 
-async function saveQuizConfig() {
-  const btn = $('editor-save-btn'); btn.disabled = true; btn.textContent = '⏳ Sauvegarde…'
-  try {
-    await sb.from('quizzes').update({ config: QUIZ_CONFIG }).eq('id', QUIZ_DB_ID)
-    QUIZ = buildQuizFromConfig()
-    updateQuizCardInfo()
-    btn.textContent = '✓ Sauvegardé !'
-    setTimeout(() => { btn.disabled = false; btn.textContent = '💾 Sauvegarder' }, 2000)
-  } catch(e) {
-    alert('Erreur : ' + e.message)
-    btn.disabled = false; btn.textContent = '💾 Sauvegarder'
-  }
+function renderQuizPicker() {
+  const list = $('quiz-picker-list'); if (!list) return
+  if (!QUIZ_LIST.length) { list.innerHTML = '<p class="empty-msg" style="font-size:.88rem;">Aucun quiz — demandez à l\'admin d\'en créer un.</p>'; return }
+  list.innerHTML = ''
+  QUIZ_LIST.forEach(quiz => {
+    const mc = quiz.config?.manches?.length ?? 0
+    const div = document.createElement('div')
+    div.className = 'quiz-pick-item' + (quiz.id === QUIZ_DB_ID ? ' selected' : '')
+    const date = new Date(quiz.created_at).toLocaleDateString('fr-FR', { day:'numeric', month:'short' })
+    div.innerHTML = `<div style="flex:1"><div style="font-weight:800;color:var(--cream);font-size:.95rem">${escHtml(quiz.title || 'Sans titre')}</div><div style="font-size:.75rem;color:rgba(243,238,218,.5);margin-top:2px">${mc} manche${mc>1?'s':''} · ${date}</div></div><span style="font-size:1.2rem">📝</span>`
+    div.addEventListener('click', () => {
+      QUIZ_DB_ID = quiz.id; QUIZ_CONFIG = quiz.config; QUIZ = buildQuizFromConfig()
+      renderQuizPicker(); renderMancheCheckboxes()
+    })
+    list.appendChild(div)
+  })
 }
 
-function getPreconfigManches(preconfigId) {
-  if (!preconfigId) return QUIZ_CONFIG?.manches || []
-  const pc = (QUIZ_CONFIG?.preconfigs || []).find(p => p.id === preconfigId)
-  return pc?.manches || QUIZ_CONFIG?.manches || []
-}
-
-function buildQuizFromConfig(selectedManches = null, preconfigId = null) {
+function buildQuizFromConfig(selectedManches = null) {
   if (!QUIZ_CONFIG) return null
-  const allManches = getPreconfigManches(preconfigId)
-  const manches = selectedManches?.length
-    ? allManches.filter(m => selectedManches.includes(m.id))
-    : allManches
+  const allManches = QUIZ_CONFIG.manches || []
+  const manches = selectedManches?.length ? allManches.filter(m => selectedManches.includes(m.id)) : allManches
   const result = []
   manches.forEach(m => {
-    if (m.type === 'idea' || m.type === 'engage') {
-      result.push({ id: m.id, _id: m.id, type: m.type, section: m.name, mancheConfig: m })
+    const mtype = m.type || 'quiz'
+    if (mtype === 'idea' || mtype === 'engage' || mtype === 'wordcloud') {
+      result.push({ id: m.id, _id: m.id, type: mtype, section: m.name, mancheConfig: m })
     } else {
-      ;(m.questions || [])
-        .filter(q => q.type === 'choice' || q.type === 'truefalse')
-        .forEach(q => result.push({ ...q, id: q._id, section: m.name }))
+      ;(m.questions || []).forEach(q => {
+        if (q.type === 'choice' || q.type === 'truefalse' || q.type === 'slider')
+          result.push({ ...q, id: q._id, section: m.name })
+      })
     }
   })
   return result
@@ -1672,242 +1605,24 @@ function buildQuizFromConfig(selectedManches = null, preconfigId = null) {
 function renderMancheCheckboxes() {
   const wrap = $('manche-checkboxes'); wrap.innerHTML = ''
   if (!QUIZ_CONFIG) { wrap.innerHTML = '<p style="color:rgba(243,238,218,.4);font-size:.9rem;">Aucun quiz chargé.</p>'; return }
-  const manches = getPreconfigManches(sessionPreconfigId)
+  const manches = QUIZ_CONFIG.manches || []
   manches.forEach(m => {
-    const badge = m.type === 'idea' ? '💡 Idée en Or' : m.type === 'engage' ? '🤝 Engagements' : ((m.questions||[]).filter(q => q.type==='choice'||q.type==='truefalse').length) + ' Q'
+    const mtype = m.type || 'quiz'
+    let badge
+    if (mtype === 'idea') badge = '💡 Idée en Or'
+    else if (mtype === 'engage') badge = '🤝 Engagements'
+    else if (mtype === 'wordcloud') badge = '☁️ Nuage de mots'
+    else badge = ((m.questions||[]).filter(q => ['choice','truefalse','slider'].includes(q.type)).length) + ' Q'
     const label = document.createElement('label'); label.className = 'manche-check-row'
-    label.innerHTML = `
-      <input type="checkbox" class="manche-cb" data-id="${m.id}" checked>
-      <span class="manche-name">${m.name}</span>
-      <span class="manche-qcount">${badge}</span>`
+    label.innerHTML = `<input type="checkbox" class="manche-cb" data-id="${m.id}" checked><span class="manche-name">${m.name}</span><span class="manche-qcount">${badge}</span>`
     wrap.appendChild(label)
   })
 }
 
-function updateQuizCardInfo() {
-  if (!QUIZ_CONFIG) return
-  const auto = buildQuizFromConfig()?.filter(q => q.type === 'choice' || q.type === 'truefalse').length ?? 0
-  const p4   = QUIZ_CONFIG.manches.filter(m => m.type === 'idea' || m.type === 'engage').length
-  const nb   = QUIZ_CONFIG.manches.length
-  $('quiz-info-sub').textContent = `${auto} questions auto-scorées${p4 ? ' · ' + p4 + ' manche' + (p4>1?'s':'') + ' participative' + (p4>1?'s':'') : ''} · ${nb} manche${nb>1?'s':''} · Serious game MGEN`
-}
 
-// ── Quiz Editor ───────────────────────────────────────────────
 function escHtml(s) {
   return String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')
 }
-
-function openQuizEditor() {
-  if (!QUIZ_CONFIG) { alert('Quiz non chargé, attendez un instant.'); return }
-  EDITOR_OPEN.clear()
-  renderSections()
-  showScreen('screen-quiz-editor')
-}
-
-function renderSections() {
-  const wrap = $('sections-wrap'); wrap.innerHTML = ''
-  QUIZ_CONFIG.manches.forEach((m, mi) => {
-    const mtype = m.type || 'quiz'
-    const card = document.createElement('div'); card.className = 'section-card'
-    let bodyHtml = ''
-    if (mtype === 'idea') {
-      const ch = escHtml(m.challenge || '')
-      const st = m.submitTimer ?? 90
-      bodyHtml = `<div class="p4-config-box">
-        <div class="p4-config-lbl">💡 Défi soumis aux joueurs</div>
-        <input class="q-inp" value="${ch}" placeholder="Ex : Quelle innovation proposez-vous ?" onchange="editorUpdateMancheField(${mi},'challenge',this.value)">
-        <div class="p4-config-lbl">⏱ Durée de saisie (s)</div>
-        <input class="q-inp num" type="number" min="30" max="300" step="15" value="${st}" onchange="editorUpdateMancheField(${mi},'submitTimer',+this.value)">
-      </div>`
-    } else if (mtype === 'engage') {
-      const cats = m.categories?.length ? m.categories : ['Je m\'alimente','Je me déplace','J\'achète','Je gère mes déchets','J\'économise l\'énergie','Je préserve la biodiversité','J\'agis en citoyen','Je sensibilise']
-      const st = m.submitTimer ?? 90
-      const catsHtml = cats.map((c,ci) => `<div class="cat-row"><input class="q-inp" value="${escHtml(c)}" placeholder="Catégorie ${ci+1}" onchange="editorUpdateCat(${mi},${ci},this.value)"><button class="iconbtn danger" onclick="editorRemoveCat(${mi},${ci})">×</button></div>`).join('')
-      bodyHtml = `<div class="p4-config-box">
-        <div class="p4-config-lbl">🗂 Catégories d'engagement</div>
-        <div class="cats-list" id="cats-${mi}">${catsHtml}</div>
-        <button class="btn sm dark" onclick="editorAddCat(${mi})">➕ Catégorie</button>
-        <div class="p4-config-lbl" style="margin-top:6px">⏱ Durée de saisie (s)</div>
-        <input class="q-inp num" type="number" min="30" max="300" step="15" value="${st}" onchange="editorUpdateMancheField(${mi},'submitTimer',+this.value)">
-      </div>`
-    } else {
-      bodyHtml = `<div id="sq-${mi}"></div><button class="btn sm dark add-q-btn" onclick="editorAddQuestion(${mi})">➕ Question</button>`
-    }
-    card.innerHTML = `
-      <div class="section-head">
-        <div class="section-move">
-          <button class="iconbtn" onclick="editorMoveSection(${mi},-1)">▲</button>
-          <button class="iconbtn" onclick="editorMoveSection(${mi},1)">▼</button>
-        </div>
-        <input class="section-name-inp" value="${escHtml(m.name)}" placeholder="Nom de la manche"
-               onchange="editorUpdateSectionName(${mi},this.value)">
-        <select class="manche-type-sel" onchange="editorUpdateMancheType(${mi},this.value)">
-          <option value="quiz" ${mtype==='quiz'?'selected':''}>📝 Quiz</option>
-          <option value="idea" ${mtype==='idea'?'selected':''}>💡 Idée en Or</option>
-          <option value="engage" ${mtype==='engage'?'selected':''}>🤝 Engagements</option>
-        </select>
-        <button class="iconbtn danger" onclick="editorDeleteSection(${mi})">×</button>
-      </div>
-      ${bodyHtml}`
-    wrap.appendChild(card)
-    if (mtype === 'quiz') {
-      const qWrap = document.getElementById(`sq-${mi}`)
-      ;(m.questions || []).forEach((q, qi) => qWrap.appendChild(renderQRow(q, mi, qi)))
-    }
-  })
-}
-
-function renderQRow(q, mi, qi) {
-  const isOpen = EDITOR_OPEN.has(q._id)
-  const div = document.createElement('div'); div.className = 'q-row-wrap'
-  const preview = escHtml((q.text || '(question vide)').slice(0, 60))
-  const typeBadge = q.type === 'choice' ? '4 choix' : q.type === 'truefalse' ? 'Vrai/Faux' : 'Texte'
-  div.innerHTML = `
-    <div class="q-row" onclick="editorToggleQ('${q._id}')">
-      <div class="q-row-moves">
-        <button class="iconbtn" onclick="event.stopPropagation();editorMoveQuestion(${mi},${qi},-1)">▲</button>
-        <button class="iconbtn" onclick="event.stopPropagation();editorMoveQuestion(${mi},${qi},1)">▼</button>
-      </div>
-      <span class="q-type-badge">${typeBadge}</span>
-      <span class="q-preview">${preview}</span>
-      <button class="iconbtn">${isOpen ? '▾' : '✎'}</button>
-      <button class="iconbtn danger" onclick="event.stopPropagation();editorDeleteQuestion(${mi},${qi})">×</button>
-    </div>`
-  if (isOpen) div.appendChild(renderQEditor(q, mi, qi))
-  return div
-}
-
-function renderQEditor(q, mi, qi) {
-  const div = document.createElement('div'); div.className = 'q-editor'
-  const inner = document.createElement('div'); inner.className = 'q-editor-inner'
-
-  // Type selector
-  const typeField = document.createElement('div'); typeField.className = 'q-field'
-  typeField.innerHTML = `<label class="q-lbl">Type</label>
-    <select class="q-inp" onchange="editorUpdateQField(${mi},${qi},'type',this.value);renderSections()">
-      <option value="choice" ${q.type==='choice'?'selected':''}>4 choix (auto-scoré)</option>
-      <option value="truefalse" ${q.type==='truefalse'?'selected':''}>Vrai/Faux (auto-scoré)</option>
-      <option value="text" ${q.type==='text'?'selected':''}>Texte libre (non scoré)</option>
-    </select>`
-  inner.appendChild(typeField)
-
-  // Question text
-  const textField = document.createElement('div'); textField.className = 'q-field'
-  textField.innerHTML = `<label class="q-lbl">Question</label>
-    <input class="q-inp" value="${escHtml(q.text)}" placeholder="Texte de la question"
-           onchange="editorUpdateQField(${mi},${qi},'text',this.value)">`
-  inner.appendChild(textField)
-
-  // Options
-  if (q.type === 'choice') {
-    const optsField = document.createElement('div'); optsField.className = 'q-field'
-    optsField.innerHTML = `<label class="q-lbl">Options (cliquer ✓ = bonne réponse)</label>`
-    ;(q.options || []).slice(0, 4).forEach((opt, i) => {
-      const txt = typeof opt === 'string' ? opt : (opt?.text ?? '')
-      const row = document.createElement('div'); row.className = 'opt-edit-row'
-      row.innerHTML = `
-        <button class="opt-correct-btn ${i === q.correct ? 'is-correct' : ''}" onclick="editorSetCorrect(${mi},${qi},${i})">✓</button>
-        <span class="opt-key-badge" style="background:${OPT_COLORS[i]}">${OPT_KEYS[i]}</span>
-        <input class="q-inp" value="${escHtml(txt)}" placeholder="Option ${OPT_KEYS[i]}"
-               onchange="editorUpdateOption(${mi},${qi},${i},this.value)">`
-      optsField.appendChild(row)
-    })
-    inner.appendChild(optsField)
-  } else if (q.type === 'truefalse') {
-    const tfField = document.createElement('div'); tfField.className = 'q-field'
-    tfField.innerHTML = `<label class="q-lbl">Bonne réponse</label>
-      <div class="opt-edit-row">
-        <button class="opt-correct-btn ${q.correct===0?'is-correct':''}" onclick="editorSetCorrect(${mi},${qi},0)">✓ Vrai</button>
-        <button class="opt-correct-btn ${q.correct===1?'is-correct':''}" onclick="editorSetCorrect(${mi},${qi},1)">✓ Faux</button>
-      </div>`
-    inner.appendChild(tfField)
-  }
-
-  // Points + timer
-  const numRow = document.createElement('div'); numRow.className = 'q-field-row'
-  numRow.innerHTML = `
-    <div class="q-field"><label class="q-lbl">Points</label>
-      <input class="q-inp num" type="number" min="100" max="5000" step="100" value="${q.points ?? 1000}"
-             onchange="editorUpdateQField(${mi},${qi},'points',+this.value)"></div>
-    <div class="q-field"><label class="q-lbl">Timer (s) — vide = session</label>
-      <input class="q-inp num" type="number" min="5" max="120" step="5" value="${q.timer ?? ''}" placeholder="—"
-             onchange="editorUpdateQField(${mi},${qi},'timer',this.value ? +this.value : null)"></div>`
-  inner.appendChild(numRow)
-
-  // Explain
-  const expField = document.createElement('div'); expField.className = 'q-field'
-  expField.innerHTML = `<label class="q-lbl">Explication affichée après la révélation</label>
-    <textarea class="q-inp q-textarea" rows="2" placeholder="Fun fact ou explication…"
-              onchange="editorUpdateQField(${mi},${qi},'explain',this.value)">${escHtml(q.explain)}</textarea>`
-  inner.appendChild(expField)
-
-  div.appendChild(inner)
-  return div
-}
-
-// Global editor helpers (needed for inline onclick in module context)
-window.renderSections   = () => renderSections()
-window.editorToggleQ    = (_id) => { EDITOR_OPEN.has(_id) ? EDITOR_OPEN.delete(_id) : EDITOR_OPEN.add(_id); renderSections() }
-window.editorMoveSection = (mi, dir) => {
-  const ti = mi + dir; const m = QUIZ_CONFIG.manches
-  if (ti < 0 || ti >= m.length) return
-  ;[m[mi], m[ti]] = [m[ti], m[mi]]; renderSections()
-}
-window.editorUpdateSectionName = (mi, val) => { QUIZ_CONFIG.manches[mi].name = val }
-window.editorDeleteSection = (mi) => {
-  const m = QUIZ_CONFIG.manches[mi]
-  const qCount = (m.questions || []).length
-  if (!confirm(`Supprimer la manche "${m.name}"${qCount ? ` et ses ${qCount} question(s)` : ''} ?`)) return
-  QUIZ_CONFIG.manches.splice(mi, 1); renderSections()
-}
-window.editorAddQuestion = (mi) => {
-  const nq = { _id: uid(), type: 'choice', text: '', options: ['','','',''], correct: 0, points: 1000, timer: null, explain: '' }
-  QUIZ_CONFIG.manches[mi].questions.push(nq); EDITOR_OPEN.add(nq._id); renderSections()
-}
-window.editorDeleteQuestion = (mi, qi) => { QUIZ_CONFIG.manches[mi].questions.splice(qi, 1); renderSections() }
-window.editorMoveQuestion = (mi, qi, dir) => {
-  const qs = QUIZ_CONFIG.manches[mi].questions; const ti = qi + dir
-  if (ti < 0 || ti >= qs.length) return
-  ;[qs[qi], qs[ti]] = [qs[ti], qs[qi]]; renderSections()
-}
-window.editorUpdateQField  = (mi, qi, field, val) => { QUIZ_CONFIG.manches[mi].questions[qi][field] = val }
-window.editorUpdateOption  = (mi, qi, i, val) => {
-  const opts = QUIZ_CONFIG.manches[mi].questions[qi].options
-  if (typeof opts[i] === 'string') opts[i] = val; else opts[i] = { ...(opts[i] || {}), text: val }
-}
-window.editorSetCorrect    = (mi, qi, i) => { QUIZ_CONFIG.manches[mi].questions[qi].correct = i; renderSections() }
-window.editorUpdateMancheType = (mi, type) => {
-  const m = QUIZ_CONFIG.manches[mi]; m.type = type
-  if (type === 'idea')   { if (!m.challenge)   m.challenge = ''; if (!m.submitTimer) m.submitTimer = 90 }
-  if (type === 'engage') { if (!m.categories)  m.categories = ['Je m\'alimente','Je me déplace','J\'achète','Je gère mes déchets','J\'économise l\'énergie','Je préserve la biodiversité','J\'agis en citoyen','Je sensibilise']; if (!m.submitTimer) m.submitTimer = 90 }
-  if (!m.questions) m.questions = []
-  renderSections()
-}
-window.editorUpdateMancheField = (mi, field, val) => { QUIZ_CONFIG.manches[mi][field] = val }
-window.editorUpdateCat = (mi, ci, val) => {
-  if (!QUIZ_CONFIG.manches[mi].categories) QUIZ_CONFIG.manches[mi].categories = []
-  QUIZ_CONFIG.manches[mi].categories[ci] = val
-}
-window.editorAddCat = (mi) => {
-  if (!QUIZ_CONFIG.manches[mi].categories) QUIZ_CONFIG.manches[mi].categories = []
-  QUIZ_CONFIG.manches[mi].categories.push(''); renderSections()
-}
-window.editorRemoveCat = (mi, ci) => { QUIZ_CONFIG.manches[mi].categories?.splice(ci, 1); renderSections() }
-
-$('editor-back-btn').addEventListener('click', () => showScreen('screen-home'))
-$('editor-save-btn').addEventListener('click', saveQuizConfig)
-$('editor-saveconfig-btn').addEventListener('click', async () => {
-  const name = prompt('Nom de la préconfiguration :', 'Ma config')
-  if (!name?.trim()) return
-  await savePreconfigAs(name.trim())
-  const btn = $('editor-saveconfig-btn'); btn.textContent = '✓ Sauvegardé !'; setTimeout(() => { btn.textContent = '📂 Préconfiguration' }, 2000)
-})
-$('edit-quiz-btn').addEventListener('click', openQuizEditor)
-$('add-section-btn').addEventListener('click', () => {
-  QUIZ_CONFIG.manches.push({ id: uid(), name: 'Nouvelle manche', questions: [] })
-  renderSections()
-  $('sections-wrap').lastElementChild?.scrollIntoView({ behavior: 'smooth' })
-})
 
 // ── Round intro ───────────────────────────────────────────────
 function showRoundIntro(sectionName) {
@@ -2124,7 +1839,7 @@ function receiveEngageVote(payload) {
   if (!P4S || P4S.kind !== 'engage' || P4S.phase !== 'vote') return
   const key = `${payload.tempId}__${payload.targetTempId}`; if (P4S.votes.has(key)) return
   const authorId = P4S.anonymousMap.get(payload.targetTempId); if (!authorId || authorId === payload.tempId) return
-  const criteria = (Array.isArray(payload.criteria) ? payload.criteria : []).filter(c => CRITERIA_KEYS.includes(c))
+  const criteria = payload.criteria || {}  // { concret:N, aligne:N, inspirant:N, impact:N } 1-5
   P4S.votes.set(key, { voterTempId:payload.tempId, anonId:payload.targetTempId, criteria })
   $('engage-vote-count').textContent = P4S.votes.size
 }
@@ -2136,24 +1851,33 @@ function showEngageReveal() {
   P4S.phase = 'reveal'
   const cPts = activeSession?.settings?.engageCriterionPoints ?? 50
   const bMax = activeSession?.settings?.engageBonusMax ?? 200
-  const criteriaByAnon = new Map()
+  // Aggregate star ratings (average per criterion, 1-5)
+  const ratingsByAnon = new Map()
   P4S.votes.forEach(({ anonId, criteria }) => {
-    if (!criteriaByAnon.has(anonId)) criteriaByAnon.set(anonId, { concret:0, aligne:0, inspirant:0, impact:0 })
-    const c = criteriaByAnon.get(anonId); criteria.forEach(k => { if (k in c) c[k]++ })
+    if (!ratingsByAnon.has(anonId)) ratingsByAnon.set(anonId, { concret:[], aligne:[], inspirant:[], impact:[] })
+    const r = ratingsByAnon.get(anonId)
+    CRITERIA_KEYS.forEach(k => { if (criteria[k] >= 1 && criteria[k] <= 5) r[k].push(criteria[k]) })
+  })
+  const avgByAnon = new Map()
+  ratingsByAnon.forEach((ratings, anonId) => {
+    const avg = {}
+    CRITERIA_KEYS.forEach(k => { avg[k] = ratings[k].length ? Math.round(ratings[k].reduce((s,v)=>s+v,0)/ratings[k].length*10)/10 : 0 })
+    avgByAnon.set(anonId, avg)
   })
   const results = []
   P4S.submissions.forEach((sub, authorId) => {
     const anonId = [...P4S.anonymousMap.entries()].find(([,v]) => v === authorId)?.[0]
-    const crit = anonId ? (criteriaByAnon.get(anonId)||{ concret:0, aligne:0, inspirant:0, impact:0 }) : { concret:0, aligne:0, inspirant:0, impact:0 }
-    const pts = (crit.concret + crit.aligne + crit.inspirant + crit.impact) * cPts
+    const crit = anonId ? (avgByAnon.get(anonId)||{ concret:0, aligne:0, inspirant:0, impact:0 }) : { concret:0, aligne:0, inspirant:0, impact:0 }
+    const pts = Math.round((crit.concret + crit.aligne + crit.inspirant + crit.impact) * cPts)
     const player = GS.players.get(authorId); if (player) player.score += pts
     results.push({ authorId, name:sub.name, category:sub.category, text:sub.text, crit, pts, bonus:0 })
   })
   P4S.revealResults = results
+  const starDisp = v => v ? ('★' + v.toFixed(1)) : '—'
   const tbody = $('engage-rev-body'); tbody.innerHTML = ''
   results.forEach((r, i) => {
     const tr = document.createElement('tr')
-    tr.innerHTML = `<td style="font-weight:700;white-space:nowrap">${escHtml(r.name)}</td><td style="font-size:.82em;white-space:nowrap">${escHtml(r.category)}</td><td style="max-width:200px">${escHtml(r.text)}</td><td style="text-align:center">${r.crit.concret}</td><td style="text-align:center">${r.crit.aligne}</td><td style="text-align:center">${r.crit.inspirant}</td><td style="text-align:center">${r.crit.impact}</td><td><input class="engage-bonus-inp" type="number" min="0" max="${bMax}" step="50" value="0" data-idx="${i}"></td><td style="font-weight:900;color:var(--gold)" id="engage-pts-${i}">${r.pts}</td>`
+    tr.innerHTML = `<td style="font-weight:700;white-space:nowrap">${escHtml(r.name)}</td><td style="font-size:.82em;white-space:nowrap">${escHtml(r.category)}</td><td style="max-width:200px">${escHtml(r.text)}</td><td style="text-align:center">${starDisp(r.crit.concret)}</td><td style="text-align:center">${starDisp(r.crit.aligne)}</td><td style="text-align:center">${starDisp(r.crit.inspirant)}</td><td style="text-align:center">${starDisp(r.crit.impact)}</td><td><input class="engage-bonus-inp" type="number" min="0" max="${bMax}" step="50" value="0" data-idx="${i}"></td><td style="font-weight:900;color:var(--gold)" id="engage-pts-${i}">${r.pts}</td>`
     tbody.appendChild(tr)
   })
   activeChannel.send({ type:'broadcast', event:'round:engage:reveal', payload:{ perSubmission: results.map(r => ({ name:r.name, category:r.category, text:r.text, criteriaCounts:r.crit, pts:r.pts, bonus:0 })) }})
@@ -2191,6 +1915,170 @@ async function logEngageManche() {
     }
   } catch(e) { console.warn('logEngage:', e) }
 }
+
+// ── goHome back button ────────────────────────────────────────
+function goHome() {
+  if (!confirm('Retourner à l\'accueil ? La session reste active et peut être reprise.')) return
+  if (GS?.timerInterval) clearInterval(GS.timerInterval)
+  if (P4S?.timerInterval) clearInterval(P4S.timerInterval)
+  loadOpenSessions(); loadHistory(); showScreen('screen-home')
+}
+window.goHome = goHome
+
+// ── Slider question ───────────────────────────────────────────
+function showSliderQuestion() {
+  const q = GS.questions[GS.qIdx]
+  showScreen('screen-slider')
+  GS.currentAnswers = new Map(); GS.revealed = false
+  $('sq-num').textContent = GS.qIdx + 1
+  $('sq-total').textContent = GS.questions.length
+  $('sq-text').textContent = q.text
+  $('sq-ans-count').textContent = '0'
+  $('sq-ans-total').textContent = GS.players.size
+
+  const useTimer = q.timer === true
+  const timerDur = q.timerDuration ?? 30
+  const timerWrap = $('sq-timer-wrap')
+  if (useTimer) {
+    timerWrap.style.display = 'flex'
+    GS.endsAt = Date.now() + timerDur * 1000
+    $('sq-timer-fill').style.width = '100%'
+    $('sq-timer-secs').textContent = timerDur
+    if (GS.timerInterval) clearInterval(GS.timerInterval)
+    GS.timerInterval = setInterval(() => {
+      const rem = GS.endsAt - Date.now()
+      const ratio = Math.max(0, rem / (timerDur * 1000))
+      $('sq-timer-secs').textContent = Math.max(0, Math.ceil(rem / 1000))
+      $('sq-timer-fill').style.width = (ratio * 100) + '%'
+      if (rem <= 0 && !GS.revealed) { clearInterval(GS.timerInterval); doSliderReveal() }
+    }, 100)
+  } else {
+    timerWrap.style.display = 'none'
+    GS.endsAt = Date.now() + 9999999
+  }
+
+  const payload = { type:'slider', idx:GS.qIdx, total:GS.questions.length, questionId:q.id,
+    text:q.text, unit:q.unit||'', min:q.min??0, max:q.max??100 }
+  if (useTimer) { payload.timer = true; payload.timerDuration = timerDur; payload.endsAt = GS.endsAt }
+  activeChannel.send({ type:'broadcast', event:'question:show', payload })
+}
+
+$('slider-reveal-btn').addEventListener('click', doSliderReveal)
+
+function doSliderReveal() {
+  if (!GS || GS.revealed) return
+  GS.revealed = true
+  if (GS.timerInterval) clearInterval(GS.timerInterval)
+  const q = GS.questions[GS.qIdx]
+  const correct = parseFloat(q.correct)
+
+  const answers = []
+  GS.players.forEach((player, tempId) => {
+    const ans = GS.currentAnswers.get(tempId)
+    if (ans !== undefined) {
+      const value = parseFloat(ans.value)
+      if (!isNaN(value)) answers.push({ tempId, name:player.name, emoji:player.emoji||'🎮', value, delta:Math.abs(value-correct) })
+    }
+  })
+  answers.sort((a, b) => a.delta - b.delta)
+  const BASE = q.points ?? 1000
+  answers.forEach((a, i) => { a.pts = Math.round(BASE * Math.pow(0.7, i)) })
+
+  const scores = []
+  GS.players.forEach((player, tempId) => {
+    const ans = answers.find(a => a.tempId === tempId)
+    const delta = ans?.pts ?? 0; player.score += delta
+    scores.push({ tempId, name:player.name, delta, total:player.score })
+  })
+  scores.sort((a,b) => b.total-a.total).forEach((s,i) => { s.rank = i+1 })
+
+  activeChannel.send({ type:'broadcast', event:'question:reveal', payload:{
+    type:'slider', questionId:q.id, correct, unit:q.unit||'',
+    answers:answers.map(a=>({ tempId:a.tempId, name:a.name, value:a.value, pts:a.pts })), scores
+  }})
+  GS.log.push({ questionId:q.id, type:'slider', answers:answers.map(a=>({ tempId:a.tempId, name:a.name, value:a.value, pts:a.pts, isCorrect:a.delta===0 })) })
+
+  $('sr-text').textContent = q.text
+  $('sr-correct').textContent = correct + (q.unit ? ' '+q.unit : '')
+  $('sr-min').textContent = (q.min??0) + (q.unit?' '+q.unit:'')
+  $('sr-max').textContent = (q.max??100) + (q.unit?' '+q.unit:'')
+  showScreen('screen-slider-reveal')
+  setTimeout(() => animateSliderReveal(q, answers, correct), 200)
+}
+
+function animateSliderReveal(q, answers, correct) {
+  const min = q.min??0; const max = q.max??100; const range = max-min || 1
+  const pct = v => Math.max(5, Math.min(95, (v-min)/range*90+5))
+  const marker = $('sr-correct-marker'); if (marker) marker.style.left = pct(correct) + '%'
+  const avatarsEl = $('sr-avatars'); const labelsEl = $('sr-labels')
+  if (avatarsEl) avatarsEl.innerHTML = ''; if (labelsEl) labelsEl.innerHTML = ''
+  ;[...answers].reverse().forEach((ans, i) => {
+    const dot = document.createElement('div'); dot.className = 'slider-avatar'
+    dot.style.cssText = `left:50%;background:${colorFor(ans.name)};z-index:${answers.length-i};`
+    dot.textContent = ans.emoji; if (avatarsEl) avatarsEl.appendChild(dot)
+    const lbl = document.createElement('div'); lbl.className = 'slider-label'; lbl.style.left='50%'; lbl.textContent = ans.value
+    if (labelsEl) labelsEl.appendChild(lbl)
+    const t = pct(ans.value)
+    setTimeout(() => { dot.style.left = t+'%'; lbl.style.left = t+'%' }, 100+i*350)
+  })
+  const rankList = $('sr-ranking'); if (!rankList) return; rankList.innerHTML = ''
+  answers.forEach((ans, i) => {
+    const row = document.createElement('div'); row.className = 'sb-line'; row.style.animationDelay=(i*.07)+'s'
+    const medal = i===0?'🥇':i===1?'🥈':i===2?'🥉':(i+1)
+    row.innerHTML = `<div class="sb-rank">${medal}</div><div class="sb-nm">${ans.emoji} ${ans.name}</div><div style="flex:1;text-align:center;color:rgba(243,238,218,.7);font-size:.9rem">${ans.value}${q.unit?' '+q.unit:''}</div><div class="sb-sc">+${ans.pts}</div>`
+    rankList.appendChild(row)
+  })
+}
+
+$('slider-continue-btn').addEventListener('click', () => { GS.qIdx++; showQuestion() })
+
+// ── Wordcloud manche ──────────────────────────────────────────
+function startWordcloudManche(m) {
+  WCS = { mancheConfig:m, votes:new Map(), wordCounts:{} }
+  $('wc-manche-name').textContent = m.name || 'Nuage de mots'
+  $('wc-prompt').textContent = m.prompt || m.challenge || 'Quel mot vous vient à l\'esprit ?'
+  $('wc-vote-count').textContent = '0'
+  $('wc-total-players').textContent = GS.players.size
+  $('wc-render-btn').style.display = 'inline-flex'
+  $('wc-continue-btn').style.display = 'none'
+  const canvas = $('wc-canvas'); if (canvas) { const ctx=canvas.getContext('2d'); ctx.clearRect(0,0,canvas.width,canvas.height) }
+  activeChannel.send({ type:'broadcast', event:'round:wordcloud:prompt', payload:{
+    prompt: m.prompt || m.challenge || 'Quel mot vous vient à l\'esprit ?', words: m.words || []
+  }})
+  showScreen('screen-wordcloud')
+}
+
+function receiveWordcloudVote(payload) {
+  if (!WCS) return
+  if (WCS.votes.has(payload.tempId)) return
+  const words = Array.isArray(payload.words) ? payload.words.filter(w=>typeof w==='string'&&w.trim()) : []
+  WCS.votes.set(payload.tempId, words)
+  $('wc-vote-count').textContent = WCS.votes.size
+  words.forEach(w => { WCS.wordCounts[w] = (WCS.wordCounts[w]||0)+1 })
+  if (activeSession) words.forEach(word => sb.from('wordcloud_votes').insert({ session_id:activeSession.id, round_key:WCS.mancheConfig.id, voter_tempid:payload.tempId, word }).catch(()=>{}))
+  updateWordcloudCanvas()
+}
+
+function updateWordcloudCanvas() {
+  const canvas = $('wc-canvas'); if (!canvas || !window.WordCloud) return
+  const entries = Object.entries(WCS.wordCounts).filter(([,c])=>c>0)
+  if (!entries.length) return
+  const maxC = Math.max(...entries.map(([,c])=>c))
+  const list = entries.map(([w,c])=>[w, Math.round(14+(c/maxC)*52)])
+  try {
+    window.WordCloud(canvas, { list, fontFamily:'Outfit,sans-serif', minSize:10, rotateRatio:0.2,
+      backgroundColor:'transparent', color:()=>['#6aa517','#86bfeb','#f4c84a','#8cc63f','#f1e9d2'][Math.floor(Math.random()*5)] })
+  } catch(_) {}
+}
+
+$('wc-render-btn').addEventListener('click', () => {
+  updateWordcloudCanvas()
+  const topWords = Object.entries(WCS.wordCounts).sort((a,b)=>b[1]-a[1]).slice(0,20).map(([word,count])=>({word,count}))
+  activeChannel.send({ type:'broadcast', event:'round:wordcloud:reveal', payload:{ topWords }})
+  $('wc-render-btn').style.display = 'none'
+  $('wc-continue-btn').style.display = 'inline-flex'
+})
+$('wc-continue-btn').addEventListener('click', () => { GS.qIdx++; showQuestion() })
 
 // ── Init ─────────────────────────────────────────────────────
 spawnStars()

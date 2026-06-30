@@ -117,6 +117,28 @@
       color: rgba(243,238,218,.88); line-height: 1.5; max-width: 420px; text-align: left;
     }
 
+    /* ── Slider input ── */
+    #screen-slider-input { flex-direction: column; overflow: hidden; }
+    .player-wrap {
+      flex: 1; overflow-y: auto; padding: clamp(20px,4vw,36px);
+      display: flex; flex-direction: column; gap: 20px; justify-content: center; align-items: center;
+    }
+    .q-card {
+      background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.12);
+      border-radius: 24px; padding: clamp(20px,4vw,32px);
+      width: min(480px, 100%); display: flex; flex-direction: column; gap: 16px;
+    }
+    .q-text { font-size: clamp(1rem,3vw,1.3rem); font-weight: 900; color: var(--cream); line-height: 1.2; text-align: center; }
+
+    /* ── Wordcloud ── */
+    #screen-wordcloud-vote { flex-direction: column; overflow: hidden; }
+    .wc-word-chip {
+      padding: 8px 14px; background: rgba(255,255,255,.08); border: 1.5px solid rgba(255,255,255,.15);
+      border-radius: 20px; font-size: .85rem; color: var(--cream); cursor: pointer; transition: all .15s;
+      user-select: none; -webkit-user-select: none;
+    }
+    .wc-word-chip.selected { background: rgba(106,165,23,.3); border-color: var(--green); color: #fff; font-weight: 700; }
+
     /* ── Phase 4 joueur ── */
     #screen-idea-input, #screen-p4-waiting, #screen-idea-vote-p,
     #screen-engage-input, #screen-engage-vote-p, #screen-p4-result {
@@ -153,17 +175,16 @@
     }
     .idea-vote-btn:hover { background: rgba(255,255,255,.14); }
     .idea-vote-btn.selected { border-color: var(--gold); background: rgba(244,200,74,.18); }
-    /* Engage vote criteria */
+    /* Engage vote card */
     .engage-item-card { background: rgba(255,255,255,.06); border-radius: 16px; padding: 14px; display: flex; flex-direction: column; gap: 10px; border: 1px solid rgba(255,255,255,.1); }
     .engage-item-cat { font-size: .75rem; font-weight: 800; text-transform: uppercase; letter-spacing: 1.5px; color: var(--green); }
     .engage-item-text { font-size: clamp(.95rem,3.5vw,1.15rem); font-weight: 700; color: var(--cream); line-height: 1.3; }
-    .criteria-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-    .crit-btn {
-      font-family: inherit; font-size: .9rem; font-weight: 700; color: rgba(243,238,218,.65);
-      background: rgba(255,255,255,.06); border: 2px solid rgba(255,255,255,.15); border-radius: 10px;
-      padding: .5em .7em; cursor: pointer; transition: all .15s; text-align: center; -webkit-tap-highlight-color: transparent;
-    }
-    .crit-btn.active { border-color: var(--green); background: rgba(106,165,23,.25); color: var(--cream); }
+    /* Star rating */
+    .star-row { display: flex; align-items: center; gap: 12px; }
+    .crit-label { font-size: .85rem; color: rgba(243,238,218,.7); min-width: 100px; }
+    .stars-input { display: flex; gap: 4px; }
+    .star-btn { font-size: 1.4rem; color: rgba(243,238,218,.25); cursor: pointer; transition: color .1s; user-select: none; -webkit-user-select: none; }
+    .star-btn.active, .star-btn.hover { color: #F4C84A; }
     /* P4 result */
     .p4j-result-icon { font-size: clamp(3.5rem,14vw,6rem); text-align: center; animation: pop .5s ease-out; }
     .p4j-result-pts { font-size: clamp(2rem,8vw,3rem); font-weight: 900; color: var(--gold); text-align: center; text-shadow: 0 4px 20px rgba(244,200,74,.4); animation: pop .4s .1s ease-out both; }
@@ -196,6 +217,20 @@
     .go-player-score { font-size: clamp(1.6rem,6vw,2.4rem); font-weight: 900; color: var(--gold); }
     .go-player-msg   { font-size: clamp(1rem,3.5vw,1.4rem); font-weight: 700; color: rgba(243,238,218,.8); max-width: 320px; }
     .go-player-winner { font-size: clamp(.9rem,3vw,1.15rem); font-weight: 600; color: rgba(243,238,218,.55); }
+
+    /* ── Back button (in-game) ── */
+    .back-btn {
+      position: absolute; top: 14px; left: 14px; z-index: 10;
+      font-family: inherit; font-size: .8rem; font-weight: 700; color: rgba(243,238,218,.5);
+      background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.1); border-radius: 999px;
+      padding: .3em .8em; cursor: pointer; transition: all .15s; -webkit-tap-highlight-color: transparent;
+    }
+    .back-btn:hover { color: var(--cream); background: rgba(255,255,255,.12); }
+    /* Screens that need relative positioning for back-btn */
+    #screen-answered, #screen-player-reveal, #screen-p4-waiting,
+    #screen-idea-input, #screen-idea-vote-p, #screen-engage-input,
+    #screen-engage-vote-p, #screen-p4-result, #screen-slider-input,
+    #screen-wordcloud-vote { position: relative; }
   </style>
 </head>
 <body>
@@ -218,8 +253,12 @@
           <input id="code-inp" class="inp code-inp" type="text" maxlength="6" placeholder="XXXXXX" autocomplete="off" autocorrect="off" autocapitalize="characters" spellcheck="false">
         </div>
         <div>
-          <div class="inp-label">Ton prénom / pseudo</div>
-          <input id="name-inp" class="inp" type="text" maxlength="24" placeholder="Ex : Camille" autocomplete="nickname">
+          <div class="inp-label">Prénom *</div>
+          <input id="firstname-inp" class="inp" type="text" maxlength="24" placeholder="Votre prénom" autocomplete="given-name" required>
+        </div>
+        <div>
+          <div class="inp-label">Nom</div>
+          <input id="lastname-inp" class="inp" type="text" maxlength="32" placeholder="Votre nom (optionnel)" autocomplete="family-name">
         </div>
         <div class="emoji-section">
           <label>Ton avatar</label>
@@ -241,6 +280,7 @@
     <div class="player-count-area"><strong id="wait-count">1</strong>&nbsp;participant(s) connecté(s)</div>
     <div class="spinner"></div>
     <button class="btn ghost sm" id="leave-btn">← Changer de code</button>
+    <button class="btn ghost sm" id="home-btn" style="opacity:.6;font-size:.78rem;">⬅ Retour à l'accueil</button>
   </section>
 
   <!-- ══ PICK PLAYER (late join) ══════════════════════════════ -->
@@ -261,6 +301,30 @@
     </div>
   </section>
 
+  <!-- ══ SLIDER INPUT ═══════════════════════════════════════ -->
+  <section class="screen" id="screen-slider-input">
+    <button class="back-btn" id="slider-back-btn">⬅ Attente</button>
+    <div class="player-wrap">
+      <div class="q-card">
+        <div class="q-text" id="slider-q-text"></div>
+        <div id="slider-unit-display" style="color:rgba(243,238,218,.5);font-size:.9rem;margin-top:8px;text-align:center;"></div>
+
+        <!-- Number input with +/- buttons -->
+        <div style="display:flex;align-items:center;gap:12px;justify-content:center;margin:24px 0;">
+          <button class="btn dark" id="slider-minus" style="font-size:1.5rem;width:52px;height:52px;border-radius:50%;padding:0;display:flex;align-items:center;justify-content:center;">−</button>
+          <input type="number" id="slider-number-inp" style="
+            font-family:Outfit,sans-serif;font-size:1.8rem;font-weight:900;color:var(--cream);
+            background:rgba(255,255,255,.1);border:2px solid rgba(255,255,255,.2);border-radius:14px;
+            padding:12px 16px;width:160px;text-align:center;outline:none;
+          " value="0">
+          <button class="btn dark" id="slider-plus" style="font-size:1.5rem;width:52px;height:52px;border-radius:50%;padding:0;display:flex;align-items:center;justify-content:center;">＋</button>
+        </div>
+
+        <button class="btn big w-full" id="slider-submit-btn">📤 Valider ma réponse</button>
+      </div>
+    </div>
+  </section>
+
   <!-- ══ QUESTION ═══════════════════════════════════════════ -->
   <section class="screen" id="screen-question">
     <div class="qp-top">
@@ -276,6 +340,7 @@
 
   <!-- ══ ANSWERED ═══════════════════════════════════════════ -->
   <section class="screen" id="screen-answered">
+    <button class="back-btn" id="answered-back-btn">⬅ Attente</button>
     <div class="answered-icon">✅</div>
     <div class="answered-msg">Réponse envoyée !</div>
     <div class="answered-sub">En attente de la révélation…</div>
@@ -284,15 +349,30 @@
 
   <!-- ══ RÉSULTAT ═══════════════════════════════════════════ -->
   <section class="screen" id="screen-player-reveal">
-    <div class="result-icon" id="result-icon"></div>
-    <div class="result-msg"  id="result-msg"></div>
-    <div class="result-pts"  id="result-pts"></div>
-    <div class="result-total" id="result-total"></div>
+    <button class="back-btn" id="reveal-back-btn">⬅ Attente</button>
+    <div class="result-icon" id="reveal-icon"></div>
+    <div class="result-msg"  id="reveal-msg"></div>
+    <div class="result-pts"  id="reveal-delta"></div>
+    <div class="result-total" id="reveal-total"></div>
     <div class="result-explain" id="result-explain" style="display:none;"></div>
+  </section>
+
+  <!-- ══ WORDCLOUD VOTE ════════════════════════════════════ -->
+  <section class="screen" id="screen-wordcloud-vote">
+    <button class="back-btn" id="wc-back-btn">⬅ Attente</button>
+    <div class="player-wrap" style="overflow-y:auto;">
+      <div style="font-size:clamp(1rem,3vw,1.2rem);font-weight:700;color:var(--cream);text-align:center;margin-bottom:16px;" id="wc-prompt-player"></div>
+      <div style="font-size:.85rem;color:rgba(243,238,218,.5);text-align:center;margin-bottom:16px;">Touchez les mots qui vous correspondent (plusieurs choix possibles)</div>
+      <div id="wc-words-grid" style="display:flex;flex-wrap:wrap;gap:8px;justify-content:center;padding:4px 0;"></div>
+      <div style="position:sticky;bottom:16px;padding-top:16px;background:linear-gradient(transparent,rgba(17,49,36,.9));">
+        <button class="btn big w-full" id="wc-vote-submit-btn">🌥️ Envoyer mes mots</button>
+      </div>
+    </div>
   </section>
 
   <!-- ══ IDEA : SAISIE ════════════════════════════════════════════ -->
   <section class="screen" id="screen-idea-input">
+    <button class="back-btn" id="idea-input-back-btn">⬅ Attente</button>
     <div class="p4j-badge">💡 L'idée en Or</div>
     <div class="p4j-head">Votre idée</div>
     <div class="p4j-challenge" id="idea-challenge-p"></div>
@@ -306,14 +386,16 @@
 
   <!-- ══ P4 : EN ATTENTE ═══════════════════════════════════════════ -->
   <section class="screen" id="screen-p4-waiting">
+    <button class="back-btn" id="p4-waiting-back-btn">⬅ Attente</button>
     <div class="p4j-wait-icon" id="p4-wait-icon">⏳</div>
     <div class="p4j-head" id="p4-wait-title">En attente…</div>
-    <div class="p4j-sub"  id="p4-wait-sub">Attendez le signal de l'animateur.</div>
+    <div class="p4j-sub"  id="p4-waiting-msg">Attendez le signal de l'animateur.</div>
     <div class="p4j-counter" id="p4-wait-counter" style="display:none;"></div>
   </section>
 
   <!-- ══ IDEA : VOTE ═══════════════════════════════════════════════ -->
   <section class="screen" id="screen-idea-vote-p">
+    <button class="back-btn" id="idea-vote-back-btn">⬅ Attente</button>
     <div class="p4j-badge">💡 Vote</div>
     <div class="p4j-head">Choisissez votre idée préférée</div>
     <div class="p4j-sub">Votez pour l'idée la plus prometteuse. Pas la vôtre !</div>
@@ -324,6 +406,7 @@
 
   <!-- ══ ENGAGE : SAISIE ═══════════════════════════════════════════ -->
   <section class="screen" id="screen-engage-input">
+    <button class="back-btn" id="engage-input-back-btn">⬅ Attente</button>
     <div class="p4j-badge">🤝 Mes engagements</div>
     <div class="p4j-head">Mon engagement</div>
     <div class="p4j-sub">Je m'engage à…</div>
@@ -336,17 +419,19 @@
     <button class="btn big" id="engage-submit-btn" style="justify-content:center;">🤝 Soumettre mon engagement</button>
   </section>
 
-  <!-- ══ ENGAGE : VOTE CRITÈRES ════════════════════════════════════ -->
+  <!-- ══ ENGAGE : VOTE ÉTOILES ════════════════════════════════════ -->
   <section class="screen" id="screen-engage-vote-p">
+    <button class="back-btn" id="engage-vote-back-btn">⬅ Attente</button>
     <div class="p4j-badge">🤝 Vote critères</div>
     <div class="p4j-head">Évaluez les engagements</div>
-    <div class="p4j-sub">Cochez les critères remplis. Pas votre engagement !</div>
+    <div class="p4j-sub">Notez chaque engagement de 1 à 5 étoiles. Pas le vôtre !</div>
     <div id="engage-vote-items-p" style="display:flex;flex-direction:column;gap:12px;width:100%;"></div>
     <button class="btn big" id="engage-vote-submit-btn" style="justify-content:center;margin-top:8px;">✅ Valider mes votes</button>
   </section>
 
   <!-- ══ RÉSULTAT P4 ════════════════════════════════════════════════ -->
   <section class="screen" id="screen-p4-result">
+    <button class="back-btn" id="p4-result-back-btn">⬅ Attente</button>
     <div class="p4j-result-icon" id="p4-result-icon">🎯</div>
     <div class="p4j-head" id="p4-result-title">Résultat</div>
     <div class="p4j-result-pts" id="p4-result-pts">+0 pts</div>
@@ -373,13 +458,11 @@ const OPT_COLORS = ['#e74c3c','#2980b9','#f0b429','#27ae60']
 const OPT_KEYS   = ['A','B','C','D']
 const EMOJIS     = ['🦁','🐼','🦊','🐸','🐨','🐯','🦋','🦄','🐙','🐬','🦉','🐺','🐧','🦎','🦅','🐳']
 
-const LOGO_SVG = `<svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-  <path d="M24 12h72a18 18 0 0 1 18 18v44a18 18 0 0 1-18 18H58l-22 22 4-22h-16a18 18 0 0 1-18-18V30A18 18 0 0 1 24 12Z" fill="#f1e9d2"/>
-  <path d="M60 30 69 49l21 3-15 15 4 21-19-10-19 10 4-21-15-15 21-3z" fill="#6aa517"/></svg>`
-
 // ── État joueur ──────────────────────────────────────────────
-const PS = {
+let PS = {
   tempId:            crypto.randomUUID(),
+  firstName:         null,
+  lastName:          null,
   name:              null,
   code:              null,
   emoji:             EMOJIS[0],
@@ -391,6 +474,8 @@ const PS = {
   endsAt:            0,
   timerDuration:     0
 }
+
+let currentQ = null
 
 // ── Emoji picker ─────────────────────────────────────────────
 function initEmojiGrid(preselect = null) {
@@ -409,18 +494,32 @@ function initEmojiGrid(preselect = null) {
 }
 
 // ── localStorage reconnect ────────────────────────────────────
-function lsKey(code, name) { return `mco_${code}_${name.toLowerCase().trim()}` }
+function lsKey(code, name) { return `mco_${code}_${name.toLowerCase().replace(/\s+/g,'_')}` }
 
 function restorePlayer(code, name) {
   try {
     const stored = JSON.parse(localStorage.getItem(lsKey(code, name)) || 'null')
-    if (stored?.tempId) { PS.tempId = stored.tempId; return stored.emoji || null }
+    if (stored?.tempId) {
+      PS.tempId    = stored.tempId
+      PS.firstName = stored.firstName || stored.name || name
+      PS.lastName  = stored.lastName  || ''
+      return stored.emoji || null
+    }
   } catch (_) {}
   return null
 }
 
-function savePlayer(code, name) {
-  try { localStorage.setItem(lsKey(code, name), JSON.stringify({ tempId: PS.tempId, name, emoji: PS.emoji, ts: Date.now() })) } catch (_) {}
+function savePlayer(code) {
+  try {
+    localStorage.setItem(lsKey(code, PS.name), JSON.stringify({
+      tempId:    PS.tempId,
+      firstName: PS.firstName,
+      lastName:  PS.lastName,
+      name:      PS.name,
+      emoji:     PS.emoji,
+      ts:        Date.now()
+    }))
+  } catch (_) {}
 }
 
 // ── Utils ───────────────────────────────────────────────────
@@ -457,27 +556,33 @@ initEmojiGrid()
 // ── Formulaire join ───────────────────────────────────────────
 $('join-form').addEventListener('submit', async e => {
   e.preventDefault()
-  const code  = $('code-inp').value.trim().toUpperCase().replace(/[^A-Z0-9]/g, '')
-  const name  = $('name-inp').value.trim()
+  const code      = $('code-inp').value.trim().toUpperCase().replace(/[^A-Z0-9]/g, '')
+  const firstName = $('firstname-inp').value.trim()
+  const lastName  = $('lastname-inp').value.trim()
   const errEl = $('join-err'); const btn = $('join-btn')
   errEl.classList.remove('show')
   if (code.length !== 6) { errEl.textContent = 'Le code doit comporter 6 caractères.'; errEl.classList.add('show'); return }
-  if (!name) { errEl.textContent = 'Saisis ton prénom ou un pseudo.'; errEl.classList.add('show'); return }
+  if (!firstName) { errEl.textContent = 'Saisis ton prénom.'; errEl.classList.add('show'); return }
   btn.disabled = true; btn.textContent = '⏳ Connexion…'
-  try { await joinLobby(code, name) }
+  try { await joinLobby(code, firstName, lastName) }
   catch (err) { errEl.textContent = err.message; errEl.classList.add('show') }
   finally { btn.disabled = false; btn.textContent = '🚀 Rejoindre' }
 })
 
 // ── Rejoindre le lobby ───────────────────────────────────────
-async function joinLobby(code, name) {
-  PS.name = name; PS.code = code; PS.score = 0
-  const storedEmoji = restorePlayer(code, name)
+async function joinLobby(code, firstName, lastName) {
+  PS.firstName = firstName
+  PS.lastName  = lastName
+  PS.name      = firstName + (lastName ? ' ' + lastName : '')
+  PS.code      = code
+  PS.score     = 0
+
+  const storedEmoji = restorePlayer(code, PS.name)
   if (storedEmoji) { PS.emoji = storedEmoji; initEmojiGrid(storedEmoji) }
 
   if (activeChannel) { clearTimeout(hostCheckTimer); await activeChannel.unsubscribe(); activeChannel = null }
 
-  $('wait-name').textContent = (PS.emoji ? PS.emoji + ' ' : '') + name
+  $('wait-name').textContent = (PS.emoji ? PS.emoji + ' ' : '') + firstName
   $('wait-code').textContent = code
   $('wait-count').textContent = '1'
   $('no-host-banner').classList.remove('show')
@@ -502,7 +607,6 @@ async function joinLobby(code, name) {
           showPickPlayerScreen(existingPlayers)
           return
         }
-        // Not playing yet → track immediately as normal player
         doTrackAsPlayer()
       }
 
@@ -513,18 +617,26 @@ async function joinLobby(code, name) {
         clearTimeout(hostCheckTimer); hostCheckTimer = null; $('no-host-banner').classList.remove('show')
       }
     })
-    .on('broadcast', { event: 'round:intro' },          ({ payload }) => showRoundIntroPlayer(payload))
-    .on('broadcast', { event: 'question:show' },        ({ payload }) => handleQuestionShow(payload))
-    .on('broadcast', { event: 'question:reveal' },      ({ payload }) => handleReveal(payload))
-    .on('broadcast', { event: 'game:ended' },           ({ payload }) => handleGameEnded(payload))
-    .on('broadcast', { event: 'round:idea:prompt' },    ({ payload }) => handleIdeaPrompt(payload))
-    .on('broadcast', { event: 'round:idea:vote' },      ({ payload }) => handleIdeaVotePhase(payload))
-    .on('broadcast', { event: 'round:idea:reveal' },    ({ payload }) => handleIdeaRevealPlayer(payload))
-    .on('broadcast', { event: 'round:engage:prompt' },  ({ payload }) => handleEngagePrompt(payload))
-    .on('broadcast', { event: 'round:engage:vote' },    ({ payload }) => handleEngageVotePhase(payload))
-    .on('broadcast', { event: 'round:engage:reveal' },  ({ payload }) => handleEngageRevealPlayer(payload))
-    .on('broadcast', { event: 'host:submitted' },       ({ payload }) => { const el = $('p4-wait-counter'); if (el) { el.style.display='block'; el.textContent = `${payload.n} / ${payload.total} soumissions reçues`; }})
-    .on('broadcast', { event: 'host:voted' },           ({ payload }) => { const el = $('p4-wait-counter'); if (el) { el.style.display='block'; el.textContent = `${payload.n} / ${payload.total} votes reçus`; }})
+    .on('broadcast', { event: 'round:intro' },                ({ payload }) => showRoundIntroPlayer(payload))
+    .on('broadcast', { event: 'question:show' },              ({ payload }) => handleQuestionShow(payload))
+    .on('broadcast', { event: 'question:reveal' },            ({ payload }) => handleReveal(payload))
+    .on('broadcast', { event: 'game:ended' },                 ({ payload }) => handleGameEnded(payload))
+    .on('broadcast', { event: 'round:idea:prompt' },          ({ payload }) => handleIdeaPrompt(payload))
+    .on('broadcast', { event: 'round:idea:vote' },            ({ payload }) => handleIdeaVotePhase(payload))
+    .on('broadcast', { event: 'round:idea:reveal' },          ({ payload }) => handleIdeaRevealPlayer(payload))
+    .on('broadcast', { event: 'round:engage:prompt' },        ({ payload }) => handleEngagePrompt(payload))
+    .on('broadcast', { event: 'round:engage:vote' },          ({ payload }) => handleEngageVotePhase(payload))
+    .on('broadcast', { event: 'round:engage:reveal' },        ({ payload }) => handleEngageRevealPlayer(payload))
+    .on('broadcast', { event: 'round:wordcloud:prompt' },     ({ payload }) => handleWordcloudPrompt(payload))
+    .on('broadcast', { event: 'round:wordcloud:reveal' },     () => { showScreen('screen-p4-waiting'); $('p4-waiting-msg').textContent = '🌥️ Voilà le nuage !' })
+    .on('broadcast', { event: 'host:submitted' }, ({ payload }) => {
+      const el = $('p4-wait-counter')
+      if (el) { el.style.display = 'block'; el.textContent = `${payload.n} / ${payload.total} soumissions reçues` }
+    })
+    .on('broadcast', { event: 'host:voted' }, ({ payload }) => {
+      const el = $('p4-wait-counter')
+      if (el) { el.style.display = 'block'; el.textContent = `${payload.n} / ${payload.total} votes reçus` }
+    })
     .subscribe(async status => {
       if (status === 'SUBSCRIBED') {
         hostCheckTimer = setTimeout(() => {
@@ -538,8 +650,16 @@ async function joinLobby(code, name) {
 }
 
 async function doTrackAsPlayer() {
-  savePlayer(PS.code, PS.name)
-  await activeChannel.track({ role: 'player', name: PS.name, tempId: PS.tempId, emoji: PS.emoji })
+  savePlayer(PS.code)
+  await activeChannel.track({
+    role:      'player',
+    tempId:    PS.tempId,
+    firstName: PS.firstName,
+    lastName:  PS.lastName,
+    name:      PS.name,
+    emoji:     PS.emoji,
+    score:     PS.score
+  })
 }
 
 function showPickPlayerScreen(players) {
@@ -551,8 +671,12 @@ function showPickPlayerScreen(players) {
       const btn = document.createElement('button'); btn.className = 'pick-player-btn'
       btn.innerHTML = `<span class="pick-emoji">${p.emoji || '🎮'}</span><span class="pick-name">${p.name}</span><span style="font-size:.8rem;color:rgba(243,238,218,.45);">→ reprendre</span>`
       btn.addEventListener('click', () => {
-        PS.tempId = p.tempId; PS.name = p.name; PS.emoji = p.emoji || PS.emoji
-        $('wait-name').textContent = (PS.emoji ? PS.emoji + ' ' : '') + PS.name
+        PS.tempId    = p.tempId
+        PS.name      = p.name
+        PS.firstName = p.firstName || p.name
+        PS.lastName  = p.lastName  || ''
+        PS.emoji     = p.emoji || PS.emoji
+        $('wait-name').textContent = (PS.emoji ? PS.emoji + ' ' : '') + PS.firstName
         $('wait-code').textContent = PS.code
         $('wait-status-msg').textContent = 'Partie en cours — en attente de la prochaine question…'
         showScreen('screen-waiting')
@@ -585,7 +709,25 @@ $('leave-btn').addEventListener('click', async () => {
   showScreen('screen-join')
 })
 
+$('home-btn').addEventListener('click', async () => {
+  clearTimeout(hostCheckTimer); hostCheckTimer = null
+  clearInterval(PS.timerInterval)
+  if (activeChannel) { await activeChannel.unsubscribe(); activeChannel = null }
+  $('join-btn').disabled = false; $('join-btn').textContent = '🚀 Rejoindre'
+  $('wait-status-msg').textContent = 'En attente de l\'animateur…'
+  showScreen('screen-join')
+})
+
 $('play-again-btn').addEventListener('click', () => showScreen('screen-join'))
+
+// ── Boutons retour (in-game → waiting) ───────────────────────
+;[
+  'answered-back-btn', 'reveal-back-btn', 'p4-waiting-back-btn',
+  'idea-input-back-btn', 'idea-vote-back-btn', 'engage-input-back-btn',
+  'engage-vote-back-btn', 'p4-result-back-btn', 'slider-back-btn', 'wc-back-btn'
+].forEach(id => {
+  $(id)?.addEventListener('click', () => showScreen('screen-waiting'))
+})
 
 // ── Round intro ───────────────────────────────────────────────
 function showRoundIntroPlayer(payload) {
@@ -600,7 +742,11 @@ function showRoundIntroPlayer(payload) {
 
 // ── Question reçue ────────────────────────────────────────────
 function handleQuestionShow(payload) {
-  PS.currentQuestionId = payload.questionId
+  currentQ = payload
+
+  if (payload.type === 'slider') { handleSliderQuestion(payload); return }
+
+  PS.currentQuestionId = payload.questionId || payload.id
   PS.hasAnswered       = false
   PS.selectedOption    = null
   PS.endsAt            = payload.endsAt
@@ -687,16 +833,39 @@ function submitAnswer(value) {
 function handleReveal(payload) {
   clearInterval(PS.timerInterval)
 
-  const myEntry   = payload.scores.find(s => s.tempId === PS.tempId)
+  // Slider reveal
+  if (payload.type === 'slider') {
+    const myResult = payload.scores?.find(s => s.tempId === PS.tempId)
+    if (myResult) {
+      PS.score += myResult.delta || 0
+      $('reveal-icon').textContent  = myResult.rank === 1 ? '🥇' : myResult.rank === 2 ? '🥈' : `#${myResult.rank}`
+      $('reveal-msg').textContent   = `Votre réponse : ${myResult.value?.toLocaleString('fr-FR')} · Correct : ${payload.correct?.toLocaleString('fr-FR')}`
+      $('reveal-delta').textContent = `+${myResult.delta} pts`
+      $('reveal-delta').className   = 'result-pts ' + (myResult.delta > 0 ? 'gain' : 'zero')
+      $('reveal-total').textContent = PS.score + ' pts'
+    } else {
+      $('reveal-icon').textContent  = '⏰'
+      $('reveal-msg').textContent   = `Correct : ${payload.correct?.toLocaleString('fr-FR')}`
+      $('reveal-delta').textContent = '0 pt'
+      $('reveal-delta').className   = 'result-pts zero'
+      $('reveal-total').textContent = PS.score + ' pts'
+    }
+    $('result-explain').style.display = 'none'
+    showScreen('screen-player-reveal')
+    return
+  }
+
+  // Standard choice/truefalse reveal
+  const myEntry   = payload.scores?.find(s => s.tempId === PS.tempId)
   const isCorrect = PS.hasAnswered && String(PS.selectedOption) === String(payload.correct)
   const delta     = myEntry?.delta ?? 0
   PS.score        = myEntry?.total ?? PS.score
 
-  $('result-icon').textContent = isCorrect ? '✅' : PS.hasAnswered ? '❌' : '⏰'
-  $('result-msg').textContent  = isCorrect ? 'Bonne réponse !' : PS.hasAnswered ? 'Raté !' : 'Pas de réponse'
-  $('result-pts').textContent  = delta > 0 ? `+${delta} pts` : '0 pt'
-  $('result-pts').className    = 'result-pts ' + (delta > 0 ? 'gain' : 'zero')
-  $('result-total').textContent = `Total : ${PS.score} pt${PS.score > 1 ? 's' : ''}`
+  $('reveal-icon').textContent  = isCorrect ? '✅' : PS.hasAnswered ? '❌' : '⏰'
+  $('reveal-msg').textContent   = isCorrect ? 'Bonne réponse !' : PS.hasAnswered ? 'Raté !' : 'Pas de réponse'
+  $('reveal-delta').textContent = delta > 0 ? `+${delta} pts` : '0 pt'
+  $('reveal-delta').className   = 'result-pts ' + (delta > 0 ? 'gain' : 'zero')
+  $('reveal-total').textContent = `Total : ${PS.score} pt${PS.score > 1 ? 's' : ''}`
 
   const expEl = $('result-explain')
   if (payload.explain) { expEl.textContent = payload.explain; expEl.style.display = 'block' }
@@ -727,17 +896,20 @@ function handleGameEnded(payload) {
 }
 
 // ── Phase 4 joueur ───────────────────────────────────────────
-const P4J = { kind:null, hasSubmitted:false, selectedVoteId:null, engageCriteria:new Map() }
+const P4J = { kind: null, hasSubmitted: false, selectedVoteId: null, engageRatings: new Map() }
 const CRITERIA_DEF = [
-  { key:'concret',   label:'🎯 Concret' },
-  { key:'aligne',    label:'✅ Aligné' },
-  { key:'inspirant', label:'✨ Inspirant' },
-  { key:'impact',    label:'🚀 Impact' }
+  { key: 'concret',   label: '🎯 Concret' },
+  { key: 'aligne',    label: '✅ Aligné' },
+  { key: 'inspirant', label: '✨ Inspirant' },
+  { key: 'impact',    label: '🚀 Impact' }
 ]
 
 function p4Wait(icon, title, sub) {
-  $('p4-wait-icon').textContent = icon; $('p4-wait-title').textContent = title; $('p4-wait-sub').textContent = sub
-  $('p4-wait-counter').style.display = 'none'; showScreen('screen-p4-waiting')
+  $('p4-wait-icon').textContent   = icon
+  $('p4-wait-title').textContent  = title
+  $('p4-waiting-msg').textContent = sub
+  $('p4-wait-counter').style.display = 'none'
+  showScreen('screen-p4-waiting')
 }
 
 // ─ Idea ──────────────────────────────────────────────────────
@@ -758,7 +930,7 @@ $('idea-submit-btn').addEventListener('click', () => {
   const text = $('idea-text-inp').value.trim()
   if (!text) { $('idea-input-err').textContent = 'Écrivez votre idée avant de soumettre.'; $('idea-input-err').classList.add('show'); return }
   P4J.hasSubmitted = true; $('idea-submit-btn').disabled = true; $('idea-submit-btn').textContent = '⏳ Envoi…'
-  activeChannel.send({ type:'broadcast', event:'submit:idea', payload:{ tempId:PS.tempId, name:PS.name, text }})
+  activeChannel.send({ type: 'broadcast', event: 'submit:idea', payload: { tempId: PS.tempId, name: PS.name, text }})
   p4Wait('✅', 'Idée envoyée !', 'En attente du vote…')
 })
 
@@ -770,7 +942,7 @@ function handleIdeaVotePhase(payload) {
   $('idea-vote-err').classList.remove('show')
   payload.items.forEach((item, i) => {
     const el = document.createElement('button'); el.className = 'idea-vote-btn'; el.dataset.anonId = item.tempId
-    el.textContent = `${i+1}. ${item.text}`
+    el.textContent = `${i + 1}. ${item.text}`
     el.addEventListener('click', () => {
       if (btn.disabled) return
       list.querySelectorAll('.idea-vote-btn').forEach(b => b.classList.remove('selected'))
@@ -784,7 +956,7 @@ function handleIdeaVotePhase(payload) {
 $('idea-vote-submit-btn').addEventListener('click', () => {
   if (!P4J.selectedVoteId) { $('idea-vote-err').textContent = 'Choisissez une idée.'; $('idea-vote-err').classList.add('show'); return }
   $('idea-vote-submit-btn').disabled = true; $('idea-vote-submit-btn').textContent = '⏳ Envoi…'
-  activeChannel.send({ type:'broadcast', event:'vote:idea', payload:{ tempId:PS.tempId, name:PS.name, targetTempId:P4J.selectedVoteId }})
+  activeChannel.send({ type: 'broadcast', event: 'vote:idea', payload: { tempId: PS.tempId, name: PS.name, targetTempId: P4J.selectedVoteId }})
   p4Wait('🗳️', 'Vote envoyé !', 'En attente de la révélation…')
 })
 
@@ -803,7 +975,7 @@ function handleIdeaRevealPlayer(payload) {
 // ─ Engage ────────────────────────────────────────────────────
 function handleEngagePrompt(payload) {
   clearInterval(PS.timerInterval)
-  P4J.kind = 'engage'; P4J.hasSubmitted = false; P4J.engageCriteria = new Map()
+  P4J.kind = 'engage'; P4J.hasSubmitted = false; P4J.engageRatings = new Map()
   const cats = payload.categories?.length ? payload.categories : ['Mon engagement']
   $('engage-cat-sel').innerHTML = cats.map(c => `<option value="${c}">${c}</option>`).join('')
   $('engage-text-inp').value = ''; $('engage-char-count').textContent = '0'
@@ -819,30 +991,56 @@ $('engage-submit-btn').addEventListener('click', () => {
   const text = $('engage-text-inp').value.trim(); const cat = $('engage-cat-sel').value
   if (!text) { $('engage-input-err').textContent = 'Décrivez votre engagement.'; $('engage-input-err').classList.add('show'); return }
   P4J.hasSubmitted = true; $('engage-submit-btn').disabled = true; $('engage-submit-btn').textContent = '⏳ Envoi…'
-  activeChannel.send({ type:'broadcast', event:'submit:engage', payload:{ tempId:PS.tempId, name:PS.name, text, category:cat }})
+  activeChannel.send({ type: 'broadcast', event: 'submit:engage', payload: { tempId: PS.tempId, name: PS.name, text, category: cat }})
   p4Wait('✅', 'Engagement envoyé !', 'En attente du vote multi-critères…')
 })
 
+// ─ Star rating builder ────────────────────────────────────────
+function buildStarInput(criterion, currentRatings) {
+  const div = document.createElement('div'); div.className = 'star-row'
+  const labels = { concret: '🎯 Concret', aligne: '✅ Aligné', inspirant: '✨ Inspirant', impact: '🚀 Impact' }
+  const labelSpan = document.createElement('span'); labelSpan.className = 'crit-label'; labelSpan.textContent = labels[criterion] || criterion
+  div.appendChild(labelSpan)
+  const starsDiv = document.createElement('div'); starsDiv.className = 'stars-input'
+  for (let i = 1; i <= 5; i++) {
+    const star = document.createElement('span'); star.className = 'star-btn'; star.textContent = '★'; star.dataset.val = i
+    starsDiv.appendChild(star)
+  }
+  function updateStars(val) {
+    currentRatings[criterion] = val
+    starsDiv.querySelectorAll('.star-btn').forEach(s => {
+      s.classList.toggle('active', +s.dataset.val <= val)
+    })
+  }
+  starsDiv.querySelectorAll('.star-btn').forEach(star => {
+    star.addEventListener('click', () => updateStars(+star.dataset.val))
+    star.addEventListener('mouseenter', () => {
+      starsDiv.querySelectorAll('.star-btn').forEach(s => s.classList.toggle('hover', +s.dataset.val <= +star.dataset.val))
+    })
+    star.addEventListener('mouseleave', () => {
+      starsDiv.querySelectorAll('.star-btn').forEach(s => s.classList.remove('hover'))
+    })
+  })
+  div.appendChild(starsDiv)
+  return div
+}
+
 function handleEngageVotePhase(payload) {
   if (!payload.items?.length) { p4Wait('⏳', 'Vote en cours…', 'En attente des engagements.'); return }
-  P4J.engageCriteria = new Map()
+  P4J.engageRatings = new Map()
   const wrap = $('engage-vote-items-p'); wrap.innerHTML = ''
   payload.items.forEach(item => {
-    P4J.engageCriteria.set(item.tempId, new Set())
+    const ratings = { concret: 0, aligne: 0, inspirant: 0, impact: 0 }
+    P4J.engageRatings.set(item.tempId, ratings)
     const card = document.createElement('div'); card.className = 'engage-item-card'
-    const critsId = 'crits-' + item.tempId.replace(/[^a-z0-9]/gi, '')
-    card.innerHTML = `<div class="engage-item-cat">${item.category || 'Engagement'}</div><div class="engage-item-text">"${item.text}"</div><div class="criteria-btns" id="${critsId}"></div>`
-    wrap.appendChild(card)
-    const critsDiv = document.getElementById(critsId)
-    CRITERIA_DEF.forEach(({ key, label }) => {
-      const btn = document.createElement('button'); btn.className = 'crit-btn'; btn.textContent = label
-      btn.addEventListener('click', () => {
-        btn.classList.toggle('active')
-        const s = P4J.engageCriteria.get(item.tempId)
-        btn.classList.contains('active') ? s.add(key) : s.delete(key)
-      })
-      critsDiv?.appendChild(btn)
+    const catDiv  = document.createElement('div'); catDiv.className = 'engage-item-cat'; catDiv.textContent = item.category || 'Engagement'
+    const textDiv = document.createElement('div'); textDiv.className = 'engage-item-text'; textDiv.textContent = `"${item.text}"`
+    const starsWrap = document.createElement('div'); starsWrap.style.cssText = 'display:flex;flex-direction:column;gap:10px;margin-top:14px;'
+    CRITERIA_DEF.forEach(({ key }) => {
+      starsWrap.appendChild(buildStarInput(key, ratings))
     })
+    card.appendChild(catDiv); card.appendChild(textDiv); card.appendChild(starsWrap)
+    wrap.appendChild(card)
   })
   const vBtn = $('engage-vote-submit-btn'); vBtn.disabled = false; vBtn.textContent = '✅ Valider mes votes'
   showScreen('screen-engage-vote-p')
@@ -850,14 +1048,19 @@ function handleEngageVotePhase(payload) {
 
 $('engage-vote-submit-btn').addEventListener('click', () => {
   $('engage-vote-submit-btn').disabled = true; $('engage-vote-submit-btn').textContent = '⏳ Envoi…'
-  P4J.engageCriteria.forEach((criteriaSet, anonId) => {
-    if (criteriaSet.size > 0) activeChannel.send({ type:'broadcast', event:'vote:engage', payload:{ tempId:PS.tempId, name:PS.name, targetTempId:anonId, criteria:[...criteriaSet] }})
+  P4J.engageRatings.forEach((ratings, targetTempId) => {
+    activeChannel.send({ type: 'broadcast', event: 'vote:engage', payload: {
+      tempId:       PS.tempId,
+      targetTempId,
+      criteria:     { concret: ratings.concret || 0, aligne: ratings.aligne || 0, inspirant: ratings.inspirant || 0, impact: ratings.impact || 0 }
+    }})
   })
   p4Wait('🗳️', 'Votes envoyés !', 'En attente de la révélation…')
 })
 
 function handleEngageRevealPlayer(payload) {
-  const my = payload.perSubmission?.find(e => e.name === PS.name); const pts = my?.pts ?? 0
+  const my = payload.perSubmission?.find(e => e.tempId === PS.tempId || e.name === PS.name)
+  const pts = my?.pts ?? 0
   PS.score += pts
   $('p4-result-icon').textContent  = pts > 0 ? '🤝' : '🎯'
   $('p4-result-title').textContent = 'Votre engagement'
@@ -865,11 +1068,78 @@ function handleEngageRevealPlayer(payload) {
   $('p4-result-pts').style.color   = pts > 0 ? 'var(--gold)' : 'rgba(243,238,218,.4)'
   if (my) {
     const c = my.criteriaCounts
-    $('p4-result-sub').textContent = `🎯${c.concret} ✅${c.aligne} ✨${c.inspirant} 🚀${c.impact}` + (my.bonus > 0 ? ` + bonus +${my.bonus}pts` : '')
+    $('p4-result-sub').textContent = `🎯${c?.concret ?? 0} ✅${c?.aligne ?? 0} ✨${c?.inspirant ?? 0} 🚀${c?.impact ?? 0}` + (my.bonus > 0 ? ` + bonus +${my.bonus}pts` : '')
   }
   $('p4-result-total').textContent = `Total : ${PS.score} pts`
   showScreen('screen-p4-result')
 }
+
+// ─ Slider ────────────────────────────────────────────────────
+let sliderStep = 1
+let sliderMin = 0, sliderMax = 10000
+
+function handleSliderQuestion(payload) {
+  showScreen('screen-slider-input')
+  sliderMin  = payload.min ?? 0
+  sliderMax  = payload.max ?? 1000
+  sliderStep = Math.max(1, Math.floor((sliderMax - sliderMin) / 200))
+  $('slider-q-text').textContent     = payload.text || ''
+  $('slider-unit-display').textContent = payload.unit || ''
+  const midVal = Math.round((sliderMin + sliderMax) / 2)
+  const inp = $('slider-number-inp')
+  inp.value = midVal; inp.min = sliderMin; inp.max = sliderMax
+  $('slider-submit-btn').disabled = false; $('slider-submit-btn').textContent = '📤 Valider ma réponse'
+}
+
+$('slider-minus').addEventListener('click', () => {
+  const v = Math.max(sliderMin, (+$('slider-number-inp').value || 0) - sliderStep)
+  $('slider-number-inp').value = v
+})
+$('slider-plus').addEventListener('click', () => {
+  const v = Math.min(sliderMax, (+$('slider-number-inp').value || 0) + sliderStep)
+  $('slider-number-inp').value = v
+})
+
+$('slider-submit-btn').addEventListener('click', () => {
+  const value = parseFloat($('slider-number-inp').value)
+  if (isNaN(value)) return
+  $('slider-submit-btn').disabled = true; $('slider-submit-btn').textContent = '✓ Réponse envoyée !'
+  activeChannel.send({ type: 'broadcast', event: 'answer', payload: {
+    tempId:     PS.tempId,
+    questionId: currentQ?.id,
+    value,
+    name:       PS.name,
+    clientTs:   Date.now()
+  }})
+  showScreen('screen-p4-waiting')
+  $('p4-waiting-msg').textContent = '📐 Réponse envoyée ! En attente de la révélation…'
+})
+
+// ─ Wordcloud ─────────────────────────────────────────────────
+let selectedWords = new Set()
+
+function handleWordcloudPrompt(payload) {
+  selectedWords = new Set()
+  $('wc-prompt-player').textContent = payload.prompt || ''
+  const grid = $('wc-words-grid'); grid.innerHTML = ''
+  ;(payload.words || []).forEach(w => {
+    const chip = document.createElement('div'); chip.className = 'wc-word-chip'; chip.textContent = w
+    chip.addEventListener('click', () => {
+      if (selectedWords.has(w)) { selectedWords.delete(w); chip.classList.remove('selected') }
+      else { selectedWords.add(w); chip.classList.add('selected') }
+    })
+    grid.appendChild(chip)
+  })
+  $('wc-vote-submit-btn').disabled = false; $('wc-vote-submit-btn').textContent = '🌥️ Envoyer mes mots'
+  showScreen('screen-wordcloud-vote')
+}
+
+$('wc-vote-submit-btn').addEventListener('click', () => {
+  $('wc-vote-submit-btn').disabled = true; $('wc-vote-submit-btn').textContent = '✓ Mots envoyés !'
+  activeChannel.send({ type: 'broadcast', event: 'vote:wordcloud', payload: { tempId: PS.tempId, words: [...selectedWords] }})
+  showScreen('screen-p4-waiting')
+  $('p4-waiting-msg').textContent = `🌥️ ${selectedWords.size} mot(s) envoyé(s) ! En attente du nuage…`
+})
 
 // ── Init ─────────────────────────────────────────────────────
 spawnStars()

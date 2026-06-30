@@ -14,17 +14,17 @@
     .landing {
       height: 100dvh; display: flex; flex-direction: column;
       align-items: center; justify-content: center;
-      gap: clamp(28px,5vh,52px); padding: 24px;
+      gap: clamp(20px,4vh,44px); padding: 20px;
       position: relative; z-index: 1; text-align: center;
     }
     .landing-logo { animation: floatLogo 5s ease-in-out infinite; filter: drop-shadow(0 8px 24px rgba(0,0,0,.4)); }
-    .landing-title { font-size: clamp(2rem,6vw,3.4rem); font-weight: 900; color: var(--cream); line-height: 1.05; }
-    .landing-sub { font-size: clamp(.9rem,2.5vw,1.15rem); color: rgba(243,238,218,.55); margin-top: -16px; }
-    .landing-btns { display: flex; flex-direction: column; gap: 14px; width: min(360px,100%); }
+    .landing-title { font-size: clamp(1.5rem,5vw,3rem); font-weight: 900; color: var(--cream); line-height: 1.08; }
+    .landing-sub { font-size: clamp(.85rem,2.2vw,1.1rem); color: rgba(243,238,218,.55); margin-top: -12px; }
+    .landing-btns { display: flex; flex-direction: column; gap: 12px; width: min(360px,100%); }
     .landing-btn {
-      display: flex; align-items: center; gap: 18px;
+      display: flex; align-items: center; gap: 16px;
       background: rgba(255,255,255,.06); border: 1.5px solid rgba(255,255,255,.13);
-      border-radius: 22px; padding: clamp(18px,3vw,26px) clamp(20px,4vw,32px);
+      border-radius: 20px; padding: clamp(14px,2.5vw,22px) clamp(18px,3.5vw,28px);
       cursor: pointer; text-decoration: none;
       transition: background .2s, transform .15s, box-shadow .2s;
       backdrop-filter: blur(12px); box-shadow: 0 10px 32px rgba(0,0,0,.3);
@@ -32,19 +32,20 @@
     }
     .landing-btn:nth-child(1) { animation-delay: .08s; border-color: rgba(106,165,23,.45); }
     .landing-btn:nth-child(2) { animation-delay: .16s; border-color: rgba(134,191,235,.35); }
+    .landing-btn:nth-child(3) { animation-delay: .24s; border-color: rgba(244,200,74,.3); }
     .landing-btn:hover { background: rgba(255,255,255,.12); transform: translateY(-3px); box-shadow: 0 18px 48px rgba(0,0,0,.4); }
     .landing-btn:active { transform: translateY(0) scale(.98); }
-    .lb-icon  { font-size: clamp(2rem,5vw,2.8rem); flex: none; }
-    .lb-label { font-size: clamp(1.2rem,3.5vw,1.7rem); font-weight: 900; color: var(--cream); display: block; }
-    .lb-desc  { font-size: clamp(.8rem,2vw,.95rem); color: rgba(243,238,218,.5); font-weight: 500; display: block; margin-top: 2px; }
-    .lb-arr   { margin-left: auto; font-size: 1.4rem; color: rgba(243,238,218,.35); flex: none; }
+    .lb-icon  { font-size: clamp(1.8rem,4.5vw,2.4rem); flex: none; }
+    .lb-label { font-size: clamp(1.1rem,3vw,1.5rem); font-weight: 900; color: var(--cream); display: block; }
+    .lb-desc  { font-size: clamp(.75rem,1.8vw,.9rem); color: rgba(243,238,218,.5); font-weight: 500; display: block; margin-top: 2px; }
+    .lb-arr   { margin-left: auto; font-size: 1.3rem; color: rgba(243,238,218,.35); flex: none; }
   </style>
 </head>
 <body>
 <div id="stars" aria-hidden="true"></div>
 <div class="landing">
   <div>
-    <img src="/assets/logo-mgen.png" alt="MGEN" class="landing-logo" style="width:96px;height:96px;border-radius:18px;margin:0 auto 18px;display:block;">
+    <img src="/assets/logo-mgen.png" alt="MGEN" class="landing-logo" style="width:88px;height:88px;border-radius:16px;margin:0 auto 16px;display:block;">
     <div class="landing-title">Engagements 2030<br>le Quizz</div>
     <div class="landing-sub">Serious game MGEN · Temps réel</div>
   </div>
@@ -53,7 +54,7 @@
       <span class="lb-icon">🎯</span>
       <span>
         <span class="lb-label">Animer</span>
-        <span class="lb-desc">Créer et piloter une session</span>
+        <span class="lb-desc">Démarrer et piloter une session</span>
       </span>
       <span class="lb-arr">›</span>
     </a>
@@ -62,6 +63,14 @@
       <span>
         <span class="lb-label">Rejoindre</span>
         <span class="lb-desc">Participer à une partie en cours</span>
+      </span>
+      <span class="lb-arr">›</span>
+    </a>
+    <a href="/admin/" class="landing-btn">
+      <span class="lb-icon">⚙️</span>
+      <span>
+        <span class="lb-label">Administration</span>
+        <span class="lb-desc">Gérer les quiz, l'historique, les accès</span>
       </span>
       <span class="lb-arr">›</span>
     </a>

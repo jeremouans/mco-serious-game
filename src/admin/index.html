@@ -1,0 +1,1421 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+  <meta name="theme-color" content="#113124">
+  <title>Administration — Engagements 2030</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/lib/theme.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/wordcloud@1.2.2/src/wordcloud2.min.js"></script>
+  <style>
+    /* ─── Layout ─── */
+    html,body{overflow:hidden;}
+    .screen{display:none;position:fixed;inset:0;overflow-y:auto;animation:screenIn .3s ease-out;}
+    .screen.active{display:flex;flex-direction:column;}
+    @keyframes screenIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+
+    /* ─── Admin shell (non-editor screens) ─── */
+    .admin-wrap{
+      width:100%;max-width:900px;margin:0 auto;padding:24px 20px 40px;
+      display:flex;flex-direction:column;gap:20px;
+    }
+    .admin-header{
+      display:flex;align-items:center;gap:14px;
+      background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);
+      border-radius:18px;padding:16px 20px;backdrop-filter:blur(12px);
+    }
+    .admin-header-logo{width:44px;height:44px;border-radius:10px;flex:none;}
+    .admin-header-title{font-size:1.15rem;font-weight:800;color:var(--cream);flex:1;}
+    .admin-header-user{font-size:.8rem;color:rgba(243,238,218,.5);text-align:right;}
+    .admin-header-user span{display:block;color:rgba(243,238,218,.8);font-weight:600;}
+
+    /* ─── Cards ─── */
+    .card{
+      background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);
+      border-radius:18px;padding:20px;backdrop-filter:blur(12px);
+    }
+    .card-title{font-size:1rem;font-weight:800;color:var(--cream);margin-bottom:14px;display:flex;align-items:center;gap:8px;}
+
+    /* ─── Stats row ─── */
+    .stats-row{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;}
+    .stat-card{
+      background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);
+      border-radius:14px;padding:16px;text-align:center;
+    }
+    .stat-num{font-size:2rem;font-weight:900;color:var(--gold);}
+    .stat-lbl{font-size:.78rem;color:rgba(243,238,218,.55);font-weight:600;margin-top:2px;}
+
+    /* ─── Nav cards grid ─── */
+    .nav-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;}
+    .nav-card{
+      display:flex;align-items:center;gap:14px;
+      background:rgba(255,255,255,.07);border:1.5px solid rgba(255,255,255,.13);
+      border-radius:16px;padding:18px 20px;cursor:pointer;
+      transition:background .2s,transform .15s;text-decoration:none;
+    }
+    .nav-card:hover{background:rgba(255,255,255,.13);transform:translateY(-2px);}
+    .nav-icon{font-size:1.8rem;flex:none;}
+    .nav-lbl{font-size:1rem;font-weight:800;color:var(--cream);}
+    .nav-desc{font-size:.78rem;color:rgba(243,238,218,.5);margin-top:2px;}
+
+    /* ─── Session rows (history) ─── */
+    .session-table{width:100%;border-collapse:collapse;}
+    .session-table th{
+      text-align:left;font-size:.75rem;font-weight:700;
+      color:rgba(243,238,218,.45);padding:6px 10px;border-bottom:1px solid rgba(255,255,255,.08);
+    }
+    .session-table td{padding:10px;font-size:.88rem;color:var(--cream);vertical-align:middle;}
+    .session-table tr{border-bottom:1px solid rgba(255,255,255,.05);cursor:pointer;transition:background .15s;}
+    .session-table tr:hover{background:rgba(255,255,255,.06);}
+    .session-table tr:last-child{border-bottom:none;}
+    .badge{
+      display:inline-block;padding:3px 10px;border-radius:20px;font-size:.72rem;font-weight:700;
+    }
+    .badge-lobby{background:rgba(134,191,235,.2);color:#86BFEB;}
+    .badge-playing{background:rgba(106,165,23,.2);color:#8cc63f;}
+    .badge-ended{background:rgba(255,255,255,.08);color:rgba(243,238,218,.5);}
+    .search-bar{
+      display:flex;gap:10px;align-items:center;
+      background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.14);
+      border-radius:12px;padding:10px 16px;
+    }
+    .search-bar input{
+      background:none;border:none;outline:none;color:var(--cream);font-family:Outfit,sans-serif;
+      font-size:.95rem;flex:1;
+    }
+    .search-bar input::placeholder{color:rgba(243,238,218,.35);}
+
+    /* ─── Whitelist ─── */
+    .wl-row{
+      display:flex;align-items:center;gap:10px;padding:10px 14px;
+      background:rgba(255,255,255,.05);border-radius:10px;margin-bottom:8px;
+    }
+    .wl-email{flex:1;font-size:.9rem;color:var(--cream);}
+    .wl-del{background:none;border:none;cursor:pointer;color:rgba(243,238,218,.4);font-size:1rem;padding:4px 8px;border-radius:6px;transition:color .15s,background .15s;}
+    .wl-del:hover{color:#e74c3c;background:rgba(231,76,60,.12);}
+
+    /* ─── Quiz Editor ─── */
+    #screen-quiz-editor{overflow:hidden;}
+    .editor-layout{flex:1;display:flex;overflow:hidden;}
+    .editor-sidebar{
+      width:240px;flex:none;
+      background:rgba(0,0,0,.25);border-right:1px solid rgba(255,255,255,.1);
+      display:flex;flex-direction:column;overflow-y:auto;
+    }
+    .editor-main{flex:1;overflow-y:auto;padding:20px;}
+    .editor-topbar{
+      display:flex;align-items:center;gap:12px;padding:14px 18px;
+      background:rgba(0,0,0,.2);border-bottom:1px solid rgba(255,255,255,.08);
+      flex:none;flex-wrap:wrap;
+    }
+    .editor-quiz-title{
+      flex:1;min-width:160px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);
+      border-radius:10px;padding:8px 14px;color:var(--cream);font-family:Outfit,sans-serif;
+      font-size:.95rem;font-weight:700;outline:none;
+    }
+    .editor-quiz-title:focus{border-color:var(--green);}
+
+    /* Sidebar manche items */
+    .sidebar-section{padding:10px;border-bottom:1px solid rgba(255,255,255,.08);}
+    .sidebar-lbl{font-size:.7rem;font-weight:700;color:rgba(243,238,218,.35);text-transform:uppercase;letter-spacing:.08em;padding:6px 6px 4px;}
+    .manche-chip{
+      display:flex;align-items:center;gap:10px;padding:10px 10px;border-radius:10px;
+      cursor:pointer;transition:background .15s;margin-bottom:4px;
+    }
+    .manche-chip:hover{background:rgba(255,255,255,.08);}
+    .manche-chip.selected{background:rgba(106,165,23,.18);border:1px solid rgba(106,165,23,.35);}
+    .manche-chip-icon{font-size:1.2rem;flex:none;}
+    .manche-chip-info{flex:1;min-width:0;}
+    .manche-chip-name{font-size:.82rem;font-weight:700;color:var(--cream);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+    .manche-chip-type{font-size:.7rem;color:rgba(243,238,218,.4);}
+    .manche-chip-actions{display:flex;gap:2px;opacity:0;transition:opacity .15s;}
+    .manche-chip:hover .manche-chip-actions{opacity:1;}
+    .chip-btn{background:none;border:none;cursor:pointer;color:rgba(243,238,218,.5);padding:2px 4px;border-radius:4px;font-size:.85rem;}
+    .chip-btn:hover{background:rgba(255,255,255,.1);color:var(--cream);}
+
+    /* Manche type cards */
+    .mtype-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-bottom:20px;}
+    .mtype-card{
+      border:2px solid rgba(255,255,255,.1);border-radius:14px;padding:14px;cursor:pointer;
+      transition:border-color .15s,background .15s;text-align:center;
+    }
+    .mtype-card:hover{background:rgba(255,255,255,.07);}
+    .mtype-card.active{border-color:var(--green);background:rgba(106,165,23,.1);}
+    .mtype-icon{font-size:1.8rem;margin-bottom:6px;}
+    .mtype-name{font-size:.82rem;font-weight:800;color:var(--cream);}
+    .mtype-desc{font-size:.7rem;color:rgba(243,238,218,.45);margin-top:4px;line-height:1.3;}
+
+    /* Question rows */
+    .q-section{margin-top:18px;}
+    .q-row{
+      background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);
+      border-radius:12px;margin-bottom:10px;overflow:hidden;
+    }
+    .q-row-head{
+      display:flex;align-items:center;gap:10px;padding:12px 16px;cursor:pointer;
+      transition:background .15s;
+    }
+    .q-row-head:hover{background:rgba(255,255,255,.05);}
+    .q-num{width:26px;height:26px;border-radius:50%;background:rgba(106,165,23,.25);
+      color:var(--green-b);font-size:.78rem;font-weight:800;display:flex;align-items:center;justify-content:center;flex:none;}
+    .q-type-badge{
+      font-size:.65rem;font-weight:700;padding:2px 8px;border-radius:10px;flex:none;
+      background:rgba(134,191,235,.15);color:#86BFEB;
+    }
+    .q-preview{flex:1;font-size:.88rem;color:rgba(243,238,218,.7);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+    .q-row-body{padding:16px;border-top:1px solid rgba(255,255,255,.08);display:none;}
+    .q-row.open .q-row-body{display:block;}
+    .q-row.open .q-row-head{background:rgba(255,255,255,.04);}
+
+    /* Form elements in editor */
+    .field-group{margin-bottom:14px;}
+    .field-lbl{font-size:.75rem;font-weight:700;color:rgba(243,238,218,.5);margin-bottom:5px;display:block;}
+    .field-input{
+      width:100%;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);
+      border-radius:10px;padding:9px 12px;color:var(--cream);font-family:Outfit,sans-serif;
+      font-size:.9rem;outline:none;box-sizing:border-box;transition:border-color .2s;
+    }
+    .field-input:focus{border-color:var(--green);}
+    .field-row{display:flex;gap:10px;align-items:flex-start;}
+    .field-row .field-group{flex:1;}
+    .opt-row{display:flex;gap:8px;align-items:center;margin-bottom:8px;}
+    .opt-radio{width:18px;height:18px;accent-color:var(--green);cursor:pointer;flex:none;}
+    .opt-input{flex:1;}
+    .opt-lbl-color{width:28px;height:28px;border-radius:6px;flex:none;}
+    .toggle-row{display:flex;align-items:center;gap:10px;padding:8px 0;}
+    .toggle-lbl{font-size:.85rem;color:rgba(243,238,218,.7);flex:1;}
+    .toggle-sub{display:flex;gap:8px;align-items:center;margin-top:6px;}
+    .word-chip{
+      display:inline-block;padding:5px 10px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);
+      border-radius:20px;font-size:.8rem;color:var(--cream);cursor:pointer;margin:3px;transition:background .15s;
+    }
+    .word-chip:hover{background:rgba(231,76,60,.2);border-color:rgba(231,76,60,.4);}
+    .q-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:12px;padding-top:12px;border-top:1px solid rgba(255,255,255,.08);}
+
+    /* ─── Report ─── */
+    #screen-report{background:#fff;color:#222;}
+    .report-topbar{
+      display:flex;align-items:center;gap:12px;padding:14px 20px;
+      background:var(--ever);border-bottom:3px solid var(--green);flex:none;
+    }
+    #report-content{
+      flex:1;overflow-y:auto;padding:28px;max-width:860px;margin:0 auto;width:100%;
+      font-family:Outfit,sans-serif;color:#1a1a1a;box-sizing:border-box;
+    }
+    .report-h1{font-size:1.6rem;font-weight:900;color:var(--ever);margin:0 0 4px;}
+    .report-meta{font-size:.85rem;color:#666;margin-bottom:24px;}
+    .report-h2{font-size:1.1rem;font-weight:800;color:var(--ever);border-left:4px solid var(--green);padding-left:10px;margin:28px 0 12px;}
+    .report-kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:24px;}
+    .kpi-card{background:#f5f9f0;border:2px solid #dde8cc;border-radius:12px;padding:14px;text-align:center;}
+    .kpi-num{font-size:1.8rem;font-weight:900;color:var(--ever);}
+    .kpi-lbl{font-size:.78rem;color:#666;font-weight:600;}
+    .report-table{width:100%;border-collapse:collapse;font-size:.88rem;margin-bottom:20px;}
+    .report-table th{background:var(--ever);color:#fff;padding:8px 12px;text-align:left;font-size:.78rem;}
+    .report-table td{padding:8px 12px;border-bottom:1px solid #eee;}
+    .report-table tr:nth-child(even) td{background:#f9f9f9;}
+    .appro-bar-wrap{background:#e8e8e8;border-radius:4px;height:8px;width:100%;min-width:60px;}
+    .appro-bar{height:100%;border-radius:4px;background:var(--green);}
+    .star-display{color:#F4C84A;font-size:.9rem;letter-spacing:1px;}
+    .gold-badge{background:var(--gold);color:var(--ever);padding:2px 8px;border-radius:10px;font-size:.72rem;font-weight:800;}
+    #wc-canvas-report{max-width:100%;border-radius:12px;background:#f5f9f0;}
+    .idea-row{background:#fffdf0;border-left:3px solid var(--gold);padding:10px 14px;border-radius:0 8px 8px 0;margin-bottom:8px;}
+    .engage-row{background:#f5f9f0;border-left:3px solid var(--green);padding:10px 14px;border-radius:0 8px 8px 0;margin-bottom:8px;}
+
+    /* ─── Login screen ─── */
+    .login-center{
+      flex:1;display:flex;align-items:center;justify-content:center;
+      padding:24px;position:relative;z-index:1;
+    }
+    .login-box{
+      width:min(400px,100%);
+      background:rgba(255,255,255,.07);border:1.5px solid rgba(255,255,255,.15);
+      border-radius:24px;padding:32px 28px;backdrop-filter:blur(16px);
+    }
+    .login-logo{width:72px;height:72px;border-radius:14px;display:block;margin:0 auto 16px;}
+    .login-title{font-size:1.4rem;font-weight:900;color:var(--cream);text-align:center;margin-bottom:4px;}
+    .login-sub{font-size:.85rem;color:rgba(243,238,218,.5);text-align:center;margin-bottom:24px;}
+    .tabs{display:flex;gap:0;background:rgba(0,0,0,.2);border-radius:10px;padding:4px;margin-bottom:20px;}
+    .tab{
+      flex:1;padding:9px;text-align:center;font-size:.85rem;font-weight:700;color:rgba(243,238,218,.5);
+      border-radius:8px;cursor:pointer;transition:background .2s,color .2s;
+    }
+    .tab.active{background:rgba(255,255,255,.12);color:var(--cream);}
+    .tab-pane{display:none;}
+    .tab-pane.active{display:block;}
+    .input-group{margin-bottom:14px;}
+    .input-group label{display:block;font-size:.78rem;font-weight:700;color:rgba(243,238,218,.5);margin-bottom:5px;}
+    .input-group input{
+      width:100%;box-sizing:border-box;
+      background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.18);
+      border-radius:10px;padding:11px 14px;color:var(--cream);font-family:Outfit,sans-serif;
+      font-size:.95rem;outline:none;transition:border-color .2s;
+    }
+    .input-group input:focus{border-color:var(--green);}
+    .err-msg{color:#e74c3c;font-size:.82rem;margin-top:6px;display:none;}
+    .link-btn{background:none;border:none;color:rgba(243,238,218,.45);font-size:.8rem;cursor:pointer;text-decoration:underline;display:block;margin-top:8px;}
+
+    /* ─── Check email ─── */
+    .check-email-box{
+      flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
+      gap:18px;padding:32px;text-align:center;position:relative;z-index:1;
+    }
+    .check-icon{font-size:4rem;}
+    .check-title{font-size:1.5rem;font-weight:900;color:var(--cream);}
+    .check-sub{color:rgba(243,238,218,.55);max-width:320px;}
+  </style>
+</head>
+<body>
+<div id="stars" aria-hidden="true"></div>
+
+<!-- ═══════════════════════════════════════════════ LOGIN ══ -->
+<section class="screen active" id="screen-login">
+  <div class="login-center">
+    <div class="login-box">
+      <img src="/assets/logo-mgen.png" alt="MGEN" class="login-logo">
+      <div class="login-title">Administration</div>
+      <div class="login-sub">Accès réservé aux gestionnaires du quiz</div>
+
+      <div class="tabs">
+        <div class="tab active" data-tab="magic">🔗 Lien magique</div>
+        <div class="tab" data-tab="code">🔑 Code d'accès</div>
+      </div>
+
+      <div class="tab-pane active" id="tab-magic">
+        <div class="input-group">
+          <label>Adresse email admin</label>
+          <input type="email" id="magic-email" placeholder="votre@email.fr" autocomplete="email">
+        </div>
+        <div class="err-msg" id="magic-err"></div>
+        <button class="btn big" id="magic-btn" style="width:100%">📧 Envoyer le lien de connexion</button>
+      </div>
+
+      <div class="tab-pane" id="tab-code">
+        <div class="input-group">
+          <label>Code d'accès administrateur</label>
+          <input type="password" id="code-input" placeholder="••••••••••••" autocomplete="off">
+        </div>
+        <div class="err-msg" id="code-err"></div>
+        <button class="btn big" id="code-btn" style="width:100%">🔓 Accéder</button>
+        <p style="font-size:.75rem;color:rgba(243,238,218,.35);margin-top:10px;text-align:center;">
+          Le code envoie un lien magique à l'adresse admin configurée.
+        </p>
+      </div>
+
+      <button class="link-btn" onclick="window.location='/'">← Retour à l'accueil</button>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════ CHECK EMAIL ══ -->
+<section class="screen" id="screen-check-email">
+  <div class="check-email-box">
+    <div class="check-icon">📬</div>
+    <div class="check-title">Vérifiez votre boîte mail</div>
+    <div class="check-sub">Un lien de connexion a été envoyé à <strong id="sent-to-email"></strong>. Cliquez sur le lien pour accéder à l'administration.</div>
+    <button class="btn ghost" onclick="showScreen('screen-login')">← Retour</button>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════ HOME ══ -->
+<section class="screen" id="screen-home">
+  <div class="admin-wrap" style="position:relative;z-index:1;">
+    <div class="admin-header">
+      <img src="/assets/logo-mgen.png" alt="MGEN" class="admin-header-logo">
+      <div style="flex:1;">
+        <div class="admin-header-title">Administration · Engagements 2030</div>
+      </div>
+      <div class="admin-header-user" id="admin-user-info">
+        <span id="admin-display-name">—</span>
+        <button class="btn ghost sm" id="logout-btn" style="margin-top:6px;font-size:.75rem;padding:5px 10px;">Déconnexion</button>
+      </div>
+    </div>
+
+    <!-- Stats -->
+    <div class="stats-row" id="home-stats">
+      <div class="stat-card"><div class="stat-num" id="stat-sessions">—</div><div class="stat-lbl">Sessions</div></div>
+      <div class="stat-card"><div class="stat-num" id="stat-players">—</div><div class="stat-lbl">Joueurs total</div></div>
+      <div class="stat-card"><div class="stat-num" id="stat-quizzes">—</div><div class="stat-lbl">Configs quiz</div></div>
+    </div>
+
+    <!-- Nav -->
+    <div class="nav-grid">
+      <div class="nav-card" id="nav-editor">
+        <span class="nav-icon">🎲</span>
+        <div><div class="nav-lbl">Éditeur de Quiz</div><div class="nav-desc">Créer et modifier les configurations</div></div>
+      </div>
+      <div class="nav-card" id="nav-history">
+        <span class="nav-icon">📊</span>
+        <div><div class="nav-lbl">Historique</div><div class="nav-desc">Toutes les sessions et bilans</div></div>
+      </div>
+      <div class="nav-card" id="nav-whitelist">
+        <span class="nav-icon">🔐</span>
+        <div><div class="nav-lbl">Accès animateurs</div><div class="nav-desc">Gérer les emails autorisés</div></div>
+      </div>
+    </div>
+
+    <!-- Recent sessions -->
+    <div class="card">
+      <div class="card-title">📋 Sessions récentes</div>
+      <div id="home-recent-sessions">
+        <div style="color:rgba(243,238,218,.4);font-size:.9rem;">Chargement…</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════ QUIZ EDITOR ══ -->
+<section class="screen" id="screen-quiz-editor">
+  <!-- Top bar -->
+  <div class="editor-topbar">
+    <button class="btn ghost sm" id="editor-back-btn">← Accueil</button>
+    <input type="text" class="editor-quiz-title" id="editor-quiz-title" placeholder="Titre de la configuration…">
+    <button class="btn sm" id="editor-save-btn">💾 Enregistrer</button>
+    <button class="btn ghost sm" id="editor-new-btn">＋ Nouveau</button>
+    <button class="btn ghost sm" id="editor-export-btn">📤 Export JSON</button>
+    <button class="btn ghost sm" id="editor-delete-btn" style="color:rgba(231,76,60,.7);">🗑️</button>
+  </div>
+
+  <div class="editor-layout">
+    <!-- Sidebar: manche list -->
+    <div class="editor-sidebar">
+      <div class="sidebar-section">
+        <div class="sidebar-lbl">Configurations</div>
+        <div id="quiz-select-list" style="max-height:160px;overflow-y:auto;"></div>
+        <button class="btn ghost sm" id="new-quiz-btn" style="width:100%;margin-top:8px;font-size:.8rem;">＋ Nouvelle config</button>
+      </div>
+
+      <div class="sidebar-section" style="flex:1;">
+        <div class="sidebar-lbl">Manches</div>
+        <div id="manche-list"></div>
+        <button class="btn ghost sm" id="add-manche-btn" style="width:100%;margin-top:8px;font-size:.8rem;">＋ Ajouter une manche</button>
+      </div>
+    </div>
+
+    <!-- Main: manche editor -->
+    <div class="editor-main" id="editor-main">
+      <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:200px;color:rgba(243,238,218,.3);text-align:center;">
+        <div style="font-size:2rem;margin-bottom:10px;">←</div>
+        <div>Sélectionnez une manche pour l'éditer</div>
+        <div style="font-size:.8rem;margin-top:6px;">ou ajoutez une nouvelle manche</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════ HISTORY ══ -->
+<section class="screen" id="screen-history">
+  <div class="admin-wrap" style="position:relative;z-index:1;">
+    <div style="display:flex;align-items:center;gap:12px;">
+      <button class="btn ghost sm" onclick="showScreen('screen-home')">← Accueil</button>
+      <h2 style="color:var(--cream);font-size:1.2rem;font-weight:900;margin:0;flex:1;">📊 Historique des sessions</h2>
+    </div>
+
+    <div class="search-bar">
+      <span style="color:rgba(243,238,218,.4);">🔍</span>
+      <input type="text" id="history-search" placeholder="Rechercher par animateur, participant, code…">
+    </div>
+
+    <div class="card" style="overflow:auto;">
+      <table class="session-table">
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Code</th>
+            <th>Animateur</th>
+            <th>Joueurs</th>
+            <th>Statut</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="history-tbody">
+          <tr><td colspan="6" style="color:rgba(243,238,218,.4);text-align:center;padding:20px;">Chargement…</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════════ REPORT ══ -->
+<section class="screen" id="screen-report">
+  <div class="report-topbar">
+    <button class="btn ghost sm" id="report-back-btn" style="color:var(--cream);">← Retour</button>
+    <span style="color:var(--cream);font-weight:800;flex:1;font-size:1rem;">📄 Bilan de session</span>
+    <button class="btn gold sm" id="export-pdf-btn">📥 Exporter PDF</button>
+  </div>
+  <div id="report-content">
+    <!-- Populated by renderReport() -->
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════ WHITELIST ══ -->
+<section class="screen" id="screen-whitelist">
+  <div class="admin-wrap" style="position:relative;z-index:1;">
+    <div style="display:flex;align-items:center;gap:12px;">
+      <button class="btn ghost sm" onclick="showScreen('screen-home')">← Accueil</button>
+      <h2 style="color:var(--cream);font-size:1.2rem;font-weight:900;margin:0;flex:1;">🔐 Accès animateurs</h2>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Ajouter un email autorisé</div>
+      <div style="display:flex;gap:10px;">
+        <input type="email" id="wl-email-input" class="field-input" placeholder="animateur@mgen.fr" style="flex:1;">
+        <button class="btn sm" id="wl-add-btn">Ajouter</button>
+      </div>
+      <div class="err-msg" id="wl-err"></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Emails autorisés</div>
+      <div id="wl-list">
+        <div style="color:rgba(243,238,218,.4);font-size:.9rem;">Chargement…</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script type="module">
+import { sb } from '/lib/supabase.js'
+
+// ─── Constants ───────────────────────────────────────────────
+const ADMIN_EMAIL = 'admin@mgen.fr'
+const ADMIN_CODE  = 'mcomgenadmin'
+
+const MANCHE_TYPES = [
+  { type:'quiz',      icon:'🎯', name:'Questions Quiz',   desc:'Choix multiples, vrai/faux ou slider — auto-scoré' },
+  { type:'wordcloud', icon:'🌥️', name:'Nuage de mots',    desc:'Vote sur des mots-clés, nuage en direct' },
+  { type:'idea',      icon:'💡', name:'L\'idée en Or',    desc:'Chacun propose, le groupe vote pour la meilleure' },
+  { type:'engage',    icon:'🤝', name:'Mes Engagements',  desc:'Engagement individuel noté sur 4 critères étoiles' }
+]
+
+const WORDCLOUD_DEFAULTS = [
+  'Protection','Santé','Solidarité','Engagement','Communauté','Bien-être','Confiance',
+  'Sécurité','Avenir','Responsabilité','Innovation','Écoute','Proximité','Qualité',
+  'Accessibilité','Transparence','Respect','Équité','Durabilité','Impact','Valeurs',
+  'Collectif','Humain','Bienveillance','Prévention','Inclusion','Territoire','Citoyenneté',
+  'Coopération','Développement','Performance','Efficacité','Service','Excellence','Expertise',
+  'Partenariat','Entraide','Reconnaissance','Croissance','Agilité','Fiabilité','Intégrité',
+  'Diversité','Cohésion','Leadership','Transformation','Ambition','Stratégie','Compétence','Numérique'
+]
+
+const OPT_COLORS = ['#e74c3c','#2980b9','#f0b429','#27ae60']
+
+// ─── State ───────────────────────────────────────────────────
+let currentAdmin = null
+let quizList = []
+let currentQuiz = null   // { id, title, config: { manches:[] } }
+let selectedMancheIdx = -1
+let historyAll = []
+let histProfiles = {}
+let historySearch = ''
+let reportSession = null
+
+// ─── Utilities ───────────────────────────────────────────────
+const $ = id => document.getElementById(id)
+function uid() { return Math.random().toString(36).slice(2,9) }
+function escHtml(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;') }
+function fmtDate(ts) {
+  if (!ts) return '—'
+  const d = new Date(ts)
+  return d.toLocaleDateString('fr-FR',{day:'2-digit',month:'2-digit',year:'2-digit',hour:'2-digit',minute:'2-digit'})
+}
+function fmtDur(a, b) {
+  if (!a||!b) return '—'
+  const s = Math.round((new Date(b)-new Date(a))/1000)
+  const m = Math.floor(s/60), sec = s%60
+  return `${m}min${sec>0?` ${sec}s`:''}`
+}
+
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'))
+  $(id).classList.add('active')
+}
+
+function spawnStars() {
+  const box = $('stars'); if(!box) return; box.innerHTML = ''
+  for (let i=0;i<12;i++){
+    const s=document.createElement('span'); s.className='star'; s.textContent='✦'
+    s.style.left=Math.random()*100+'%'; s.style.top=Math.random()*100+'%'
+    s.style.fontSize=(8+Math.random()*22)+'px'
+    s.style.setProperty('--d',(3+Math.random()*4).toFixed(2)+'s')
+    s.style.setProperty('--f',(7+Math.random()*8).toFixed(2)+'s')
+    s.style.animationDelay=(Math.random()*-6).toFixed(2)+'s, '+(Math.random()*-8).toFixed(2)+'s'
+    box.appendChild(s)
+  }
+}
+spawnStars()
+
+// ─── Auth ─────────────────────────────────────────────────────
+sb.auth.onAuthStateChange(async (event, session) => {
+  if ((event === 'SIGNED_IN' || event === 'INITIAL_SESSION') && session) {
+    await handleAuth(session)
+  } else if (event === 'SIGNED_OUT') {
+    showScreen('screen-login')
+  }
+})
+
+async function handleAuth(session) {
+  currentAdmin = session.user
+  // Check is_admin via RPC (try to read admin_emails)
+  const { data: adminCheck } = await sb.from('admin_emails')
+    .select('email').eq('email', currentAdmin.email).maybeSingle()
+  if (!adminCheck) {
+    await sb.auth.signOut()
+    showErr('magic-err', 'Cet email n\'est pas autorisé en tant qu\'administrateur.')
+    showScreen('screen-login')
+    return
+  }
+  // Load profile
+  const { data: prof } = await sb.from('host_profiles')
+    .select('first_name,last_name').eq('user_id', currentAdmin.id).maybeSingle()
+  const displayName = prof && (prof.first_name || prof.last_name)
+    ? `${prof.first_name} ${prof.last_name}`.trim()
+    : currentAdmin.email
+  if ($('admin-display-name')) $('admin-display-name').textContent = displayName
+  loadHome()
+  showScreen('screen-home')
+}
+
+function showErr(id, msg) {
+  const el = $(id); if(!el) return
+  el.textContent = msg; el.style.display = 'block'
+  setTimeout(() => { el.style.display = 'none' }, 4000)
+}
+
+// Tab switching
+document.querySelectorAll('.tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    const name = tab.dataset.tab
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'))
+    document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'))
+    tab.classList.add('active')
+    $(`tab-${name}`)?.classList.add('active')
+  })
+})
+
+$('magic-btn').addEventListener('click', async () => {
+  const email = $('magic-email').value.trim()
+  if (!email) { showErr('magic-err','Saisissez un email.'); return }
+  $('magic-btn').disabled = true; $('magic-btn').textContent = 'Envoi…'
+  const { error } = await sb.auth.signInWithOtp({ email, options: { emailRedirectTo: window.location.origin+'/admin/' } })
+  $('magic-btn').disabled = false; $('magic-btn').textContent = '📧 Envoyer le lien de connexion'
+  if (error) { showErr('magic-err', error.message); return }
+  $('sent-to-email').textContent = email
+  showScreen('screen-check-email')
+})
+
+$('code-btn').addEventListener('click', async () => {
+  const code = $('code-input').value.trim()
+  if (code !== ADMIN_CODE) { showErr('code-err','Code incorrect.'); return }
+  $('code-btn').disabled = true; $('code-btn').textContent = 'Envoi du lien…'
+  const { error } = await sb.auth.signInWithOtp({ email: ADMIN_EMAIL, options: { emailRedirectTo: window.location.origin+'/admin/' } })
+  $('code-btn').disabled = false; $('code-btn').textContent = '🔓 Accéder'
+  if (error) { showErr('code-err', error.message); return }
+  $('sent-to-email').textContent = ADMIN_EMAIL
+  showScreen('screen-check-email')
+})
+
+$('logout-btn').addEventListener('click', () => sb.auth.signOut())
+
+// ─── Home ─────────────────────────────────────────────────────
+async function loadHome() {
+  const [sessRes, quizRes, playRes] = await Promise.all([
+    sb.from('sessions').select('*').order('created_at', { ascending: false }),
+    sb.from('quizzes').select('id,title,created_at').order('created_at', { ascending: false }),
+    sb.from('players').select('id')
+  ])
+  quizList = quizRes.data || []
+  historyAll = sessRes.data || []
+
+  if ($('stat-sessions')) $('stat-sessions').textContent = historyAll.length
+  if ($('stat-players')) $('stat-players').textContent = (playRes.data||[]).length
+  if ($('stat-quizzes')) $('stat-quizzes').textContent = quizList.length
+
+  const recent = historyAll.slice(0,5)
+  $('home-recent-sessions').innerHTML = recent.length === 0
+    ? '<div style="color:rgba(243,238,218,.4);font-size:.9rem;">Aucune session pour l\'instant.</div>'
+    : recent.map(s => `
+      <div class="wl-row" style="cursor:pointer;" onclick="openSessionReport('${s.id}')">
+        <span style="font-size:1rem;">📋</span>
+        <span class="wl-email"><strong>${escHtml(s.code)}</strong> · ${fmtDate(s.created_at)}</span>
+        <span class="badge badge-${s.status}">${s.status}</span>
+      </div>`).join('')
+}
+
+window.openSessionReport = openSessionReport
+
+$('nav-editor').addEventListener('click', () => { openQuizEditor(); showScreen('screen-quiz-editor') })
+$('nav-history').addEventListener('click', () => { loadHistory(); showScreen('screen-history') })
+$('nav-whitelist').addEventListener('click', () => { loadWhitelist(); showScreen('screen-whitelist') })
+
+// ─── History ──────────────────────────────────────────────────
+async function loadHistory() {
+  $('history-tbody').innerHTML = '<tr><td colspan="6" style="text-align:center;padding:20px;color:rgba(243,238,218,.4);">Chargement…</td></tr>'
+
+  const [sessRes, profRes, playRes] = await Promise.all([
+    sb.from('sessions').select('*').order('created_at', { ascending: false }),
+    sb.from('host_profiles').select('*'),
+    sb.from('players').select('session_id')
+  ])
+  historyAll = sessRes.data || []
+  histProfiles = Object.fromEntries((profRes.data||[]).map(p => [p.user_id, p]))
+
+  const countMap = {}
+  for (const p of (playRes.data||[])) { countMap[p.session_id] = (countMap[p.session_id]||0)+1 }
+
+  historyAll = historyAll.map(s => ({ ...s, playerCount: countMap[s.id]||0, hostProfile: histProfiles[s.host_id]||null }))
+  renderHistory()
+}
+
+function renderHistory() {
+  const q = historySearch.toLowerCase()
+  const filtered = historyAll.filter(s => {
+    if (!q) return true
+    const name = s.hostProfile ? `${s.hostProfile.first_name} ${s.hostProfile.last_name}`.toLowerCase() : ''
+    return (s.code||'').toLowerCase().includes(q) || name.includes(q)
+  })
+  if (filtered.length === 0) {
+    $('history-tbody').innerHTML = '<tr><td colspan="6" style="text-align:center;padding:20px;color:rgba(243,238,218,.4);">Aucun résultat.</td></tr>'
+    return
+  }
+  $('history-tbody').innerHTML = filtered.map(s => {
+    const hostName = s.hostProfile ? `${s.hostProfile.first_name} ${s.hostProfile.last_name}`.trim() : '—'
+    const dur = s.ended_at && s.started_at ? fmtDur(s.started_at, s.ended_at) : '—'
+    return `<tr onclick="openSessionReport('${s.id}')">
+      <td>${fmtDate(s.created_at)}</td>
+      <td><strong>${escHtml(s.code)}</strong></td>
+      <td>${escHtml(hostName)}</td>
+      <td>${s.playerCount}</td>
+      <td><span class="badge badge-${s.status}">${s.status}</span></td>
+      <td><button class="btn ghost sm" onclick="event.stopPropagation();openSessionReport('${s.id}')">Bilan →</button></td>
+    </tr>`
+  }).join('')
+}
+
+$('history-search').addEventListener('input', e => {
+  historySearch = e.target.value
+  renderHistory()
+})
+
+// ─── Report ───────────────────────────────────────────────────
+async function openSessionReport(sessionId) {
+  $('report-content').innerHTML = '<div style="padding:40px;text-align:center;color:#666;">Chargement du bilan…</div>'
+  showScreen('screen-report')
+
+  const [sessRes, playRes, ansRes, resRes, subRes, voteRes, wcRes] = await Promise.all([
+    sb.from('sessions').select('*').eq('id', sessionId).single(),
+    sb.from('players').select('*').eq('session_id', sessionId).order('score', { ascending: false }),
+    sb.from('answers').select('*').eq('session_id', sessionId),
+    sb.from('results').select('*').eq('session_id', sessionId).order('rank'),
+    sb.from('submissions').select('*').eq('session_id', sessionId),
+    sb.from('votes').select('*').eq('session_id', sessionId),
+    sb.from('wordcloud_votes').select('*').eq('session_id', sessionId)
+  ])
+
+  reportSession = {
+    session: sessRes.data,
+    players: playRes.data || [],
+    answers: ansRes.data || [],
+    results: resRes.data || [],
+    submissions: subRes.data || [],
+    votes: voteRes.data || [],
+    wordcloudVotes: wcRes.data || []
+  }
+
+  const hostProf = histProfiles[sessRes.data?.host_id] || null
+  renderReport(reportSession, hostProf)
+}
+
+function renderReport(data, hostProf) {
+  const { session, players, answers, results, submissions, votes, wordcloudVotes } = data
+  const hostName = hostProf ? `${hostProf.first_name} ${hostProf.last_name}`.trim() : '—'
+  const dur = session.ended_at && session.started_at ? fmtDur(session.started_at, session.ended_at) : '—'
+  const avgScore = players.length ? Math.round(players.reduce((a,p)=>a+p.score,0)/players.length) : 0
+
+  // Question appropriation
+  const qMap = {}
+  for (const a of answers) {
+    if (!qMap[a.question_id]) qMap[a.question_id] = { total:0, correct:0, text: a.question_id }
+    qMap[a.question_id].total++
+    if (a.is_correct) qMap[a.question_id].correct++
+  }
+
+  // Ideas
+  const ideas = submissions.filter(s => s.kind === 'idea')
+  const engages = submissions.filter(s => s.kind === 'engage')
+
+  // Wordcloud
+  const wcFreq = {}
+  for (const v of wordcloudVotes) wcFreq[v.word] = (wcFreq[v.word]||0)+1
+  const topWords = Object.entries(wcFreq).sort((a,b)=>b[1]-a[1]).slice(0,40)
+
+  $('report-content').innerHTML = `
+    <div class="report-h1">Bilan — Session ${escHtml(session.code)}</div>
+    <div class="report-meta">
+      Animateur : <strong>${escHtml(hostName)}</strong> ·
+      Date : <strong>${fmtDate(session.created_at)}</strong> ·
+      Durée : <strong>${dur}</strong>
+    </div>
+
+    <!-- KPIs -->
+    <div class="report-kpis">
+      <div class="kpi-card"><div class="kpi-num">${players.length}</div><div class="kpi-lbl">Participants</div></div>
+      <div class="kpi-card"><div class="kpi-num">${avgScore}</div><div class="kpi-lbl">Score moyen</div></div>
+      <div class="kpi-card"><div class="kpi-num">${Object.keys(qMap).length}</div><div class="kpi-lbl">Questions jouées</div></div>
+    </div>
+
+    <!-- Classement -->
+    <div class="report-h2">🏆 Classement final</div>
+    <table class="report-table">
+      <thead><tr><th>Rang</th><th>Participant</th><th>Score</th></tr></thead>
+      <tbody>
+        ${players.map((p,i) => `
+          <tr>
+            <td>${i===0?'🥇':i===1?'🥈':i===2?'🥉':'#'+(i+1)}</td>
+            <td>${escHtml(p.first_name&&p.last_name ? p.first_name+' '+p.last_name : p.name)}</td>
+            <td><strong>${p.score}</strong> pts</td>
+          </tr>`).join('')}
+      </tbody>
+    </table>
+
+    <!-- Niveau d'appropriation par question -->
+    ${Object.keys(qMap).length > 0 ? `
+    <div class="report-h2">📊 Niveau d'appropriation par question</div>
+    <table class="report-table">
+      <thead><tr><th>Question</th><th>Répondants</th><th>Taux de succès</th></tr></thead>
+      <tbody>
+        ${Object.entries(qMap).map(([id, q]) => {
+          const pct = q.total > 0 ? Math.round(q.correct/q.total*100) : 0
+          return `<tr>
+            <td style="max-width:300px;word-break:break-word;">${escHtml(id)}</td>
+            <td>${q.total}</td>
+            <td>
+              <div style="display:flex;align-items:center;gap:8px;">
+                <div class="appro-bar-wrap"><div class="appro-bar" style="width:${pct}%"></div></div>
+                <span style="font-weight:700;min-width:36px;">${pct}%</span>
+              </div>
+            </td>
+          </tr>`}).join('')}
+      </tbody>
+    </table>` : ''}
+
+    <!-- Idées -->
+    ${ideas.length > 0 ? `
+    <div class="report-h2">💡 Idées générées</div>
+    ${ideas.sort((a,b)=>b.points-a.points).map(s => {
+      const voteCount = votes.filter(v=>v.submission_id===s.id).length
+      return `<div class="idea-row">
+        ${s.is_gold ? '<span class="gold-badge">🥇 Idée en Or</span> ' : ''}
+        <strong>${escHtml(s.text)}</strong>
+        <div style="margin-top:4px;font-size:.82rem;color:#666;">
+          Auteur : ${escHtml(s.author_name||'?')} · ${voteCount} vote(s) · ${s.points} pts
+        </div>
+      </div>`}).join('')}` : ''}
+
+    <!-- Engagements -->
+    ${engages.length > 0 ? `
+    <div class="report-h2">🤝 Engagements pris</div>
+    ${engages.map(s => {
+      const sVotes = votes.filter(v=>v.submission_id===s.id)
+      const criteria = ['concret','aligne','inspirant','impact']
+      const cMap = {}
+      for (const v of sVotes) if(v.criterion) {
+        if(!cMap[v.criterion]) cMap[v.criterion]={sum:0,count:0}
+        cMap[v.criterion].sum += (v.rating||1)
+        cMap[v.criterion].count++
+      }
+      const starsHtml = (crit) => {
+        const avg = cMap[crit] ? Math.round(cMap[crit].sum/cMap[crit].count) : 0
+        return '★'.repeat(avg)+'☆'.repeat(5-avg)
+      }
+      return `<div class="engage-row">
+        <strong>${escHtml(s.category||'—')}</strong> — ${escHtml(s.text)}
+        <div style="margin-top:6px;font-size:.8rem;color:#666;">
+          Auteur : ${escHtml(s.author_name||'?')} · ${s.points} pts
+        </div>
+        <div style="margin-top:6px;font-size:.82rem;display:flex;gap:14px;flex-wrap:wrap;">
+          ${criteria.map(c=>`<span>
+            <span style="color:#666;text-transform:capitalize;">${c}</span>
+            <span class="star-display">${starsHtml(c)}</span>
+          </span>`).join('')}
+        </div>
+      </div>`}).join('')}` : ''}
+
+    <!-- Nuage de mots -->
+    ${topWords.length > 0 ? `
+    <div class="report-h2">🌥️ Nuage de mots</div>
+    <canvas id="wc-canvas-report" width="700" height="350"></canvas>
+    <div style="margin-top:10px;">
+      <table class="report-table">
+        <thead><tr><th>Mot</th><th>Votes</th></tr></thead>
+        <tbody>
+          ${topWords.slice(0,15).map(([w,c])=>`<tr><td>${escHtml(w)}</td><td>${c}</td></tr>`).join('')}
+        </tbody>
+      </table>
+    </div>` : ''}
+  `
+
+  // Render wordcloud if present
+  if (topWords.length > 0 && typeof WordCloud !== 'undefined') {
+    setTimeout(() => {
+      const canvas = $('wc-canvas-report')
+      if (canvas) {
+        WordCloud(canvas, {
+          list: topWords,
+          gridSize: 8, weightFactor: w => Math.max(14, w*6),
+          fontFamily: 'Outfit, sans-serif',
+          color: (w, weight) => ['#113124','#6AA517','#86BFEB','#F4C84A'][Math.floor(Math.random()*4)],
+          rotateRatio: 0.3, backgroundColor: '#f5f9f0',
+          shrinkToFit: true
+        })
+      }
+    }, 100)
+  }
+}
+
+$('report-back-btn').addEventListener('click', () => showScreen('screen-history'))
+
+$('export-pdf-btn').addEventListener('click', async () => {
+  $('export-pdf-btn').textContent = '⏳ Génération…'
+  $('export-pdf-btn').disabled = true
+  await new Promise(r => setTimeout(r, 300))
+  const code = reportSession?.session?.code || 'session'
+  const date = new Date().toISOString().slice(0,10)
+  html2pdf()
+    .set({
+      margin: [10,10,10,10],
+      filename: `bilan-${code}-${date}.pdf`,
+      image: { type:'jpeg', quality:0.95 },
+      html2canvas: { scale:2, useCORS:true, logging:false },
+      jsPDF: { unit:'mm', format:'a4', orientation:'portrait' }
+    })
+    .from($('report-content'))
+    .save()
+    .then(() => {
+      $('export-pdf-btn').textContent = '📥 Exporter PDF'
+      $('export-pdf-btn').disabled = false
+    })
+})
+
+// ─── Whitelist ────────────────────────────────────────────────
+async function loadWhitelist() {
+  $('wl-list').innerHTML = '<div style="color:rgba(243,238,218,.4);font-size:.9rem;">Chargement…</div>'
+  const { data } = await sb.from('host_whitelist').select('*').order('added_at', { ascending: false })
+  const list = data || []
+  $('wl-list').innerHTML = list.length === 0
+    ? '<div style="color:rgba(243,238,218,.4);font-size:.9rem;">Aucun email autorisé pour l\'instant.</div>'
+    : list.map(r => `
+      <div class="wl-row">
+        <span class="wl-email">${escHtml(r.email)}</span>
+        <button class="wl-del" onclick="removeFromWhitelist('${escHtml(r.email)}')">✕</button>
+      </div>`).join('')
+}
+
+window.removeFromWhitelist = async email => {
+  await sb.from('host_whitelist').delete().eq('email', email)
+  loadWhitelist()
+}
+
+$('wl-add-btn').addEventListener('click', async () => {
+  const email = $('wl-email-input').value.trim().toLowerCase()
+  if (!email || !email.includes('@')) { showErr('wl-err','Email invalide.'); return }
+  const { error } = await sb.from('host_whitelist').insert({ email })
+  if (error) { showErr('wl-err', error.code === '23505' ? 'Email déjà dans la liste.' : error.message); return }
+  $('wl-email-input').value = ''
+  loadWhitelist()
+})
+
+// ─── Quiz Editor ──────────────────────────────────────────────
+function openQuizEditor(quizId = null) {
+  // Load quiz list in sidebar
+  renderQuizSelectList()
+  if (quizId) {
+    loadQuizById(quizId)
+  } else if (quizList.length > 0) {
+    loadQuizById(quizList[0].id)
+  } else {
+    currentQuiz = { id: null, title: 'Nouveau quiz', config: { manches: [] } }
+    selectedMancheIdx = -1
+    renderEditorUI()
+  }
+}
+
+function renderQuizSelectList() {
+  $('quiz-select-list').innerHTML = quizList.map(q => `
+    <div class="manche-chip${currentQuiz?.id===q.id?' selected':''}" onclick="switchQuiz('${q.id}')">
+      <span class="manche-chip-icon">🎲</span>
+      <div class="manche-chip-info">
+        <div class="manche-chip-name">${escHtml(q.title||'Sans titre')}</div>
+      </div>
+    </div>`).join('') || '<div style="color:rgba(243,238,218,.35);font-size:.8rem;padding:6px;">Aucun quiz</div>'
+}
+window.switchQuiz = id => loadQuizById(id)
+
+async function loadQuizById(id) {
+  const { data } = await sb.from('quizzes').select('*').eq('id', id).single()
+  if (!data) return
+  currentQuiz = { id: data.id, title: data.title, config: data.config || { manches:[] } }
+  if (!currentQuiz.config.manches) currentQuiz.config.manches = []
+  selectedMancheIdx = currentQuiz.config.manches.length > 0 ? 0 : -1
+  renderEditorUI()
+}
+
+function renderEditorUI() {
+  $('editor-quiz-title').value = currentQuiz?.title || ''
+  renderMancheList()
+  renderMancheEditor()
+  renderQuizSelectList()
+}
+
+function renderMancheList() {
+  const manches = currentQuiz?.config?.manches || []
+  $('manche-list').innerHTML = manches.map((m, i) => {
+    const mt = MANCHE_TYPES.find(t => t.type === m.type) || { icon:'❓' }
+    return `<div class="manche-chip${i===selectedMancheIdx?' selected':''}" onclick="selectManche(${i})">
+      <span class="manche-chip-icon">${mt.icon}</span>
+      <div class="manche-chip-info">
+        <div class="manche-chip-name">${escHtml(m.name||m.type)}</div>
+        <div class="manche-chip-type">${m.type}${m.questions?` · ${m.questions.length} q.`:''}</div>
+      </div>
+      <div class="manche-chip-actions">
+        <button class="chip-btn" onclick="event.stopPropagation();moveMancheUp(${i})" title="Monter">↑</button>
+        <button class="chip-btn" onclick="event.stopPropagation();moveMancheDown(${i})" title="Descendre">↓</button>
+        <button class="chip-btn" onclick="event.stopPropagation();deleteManche(${i})" title="Supprimer" style="color:rgba(231,76,60,.6);">✕</button>
+      </div>
+    </div>`
+  }).join('') || '<div style="color:rgba(243,238,218,.3);font-size:.8rem;padding:8px 6px;">Aucune manche</div>'
+}
+
+window.selectManche = idx => {
+  selectedMancheIdx = idx
+  renderMancheList()
+  renderMancheEditor()
+}
+window.moveMancheUp = idx => {
+  if (idx === 0) return
+  const m = currentQuiz.config.manches
+  ;[m[idx-1], m[idx]] = [m[idx], m[idx-1]]
+  if (selectedMancheIdx === idx) selectedMancheIdx = idx-1
+  else if (selectedMancheIdx === idx-1) selectedMancheIdx = idx
+  renderMancheList(); renderMancheEditor()
+}
+window.moveMancheDown = idx => {
+  const m = currentQuiz.config.manches
+  if (idx >= m.length-1) return
+  ;[m[idx], m[idx+1]] = [m[idx+1], m[idx]]
+  if (selectedMancheIdx === idx) selectedMancheIdx = idx+1
+  else if (selectedMancheIdx === idx+1) selectedMancheIdx = idx
+  renderMancheList(); renderMancheEditor()
+}
+window.deleteManche = idx => {
+  if (!confirm('Supprimer cette manche ?')) return
+  currentQuiz.config.manches.splice(idx, 1)
+  if (selectedMancheIdx >= currentQuiz.config.manches.length) selectedMancheIdx = currentQuiz.config.manches.length - 1
+  renderMancheList(); renderMancheEditor()
+}
+
+$('add-manche-btn').addEventListener('click', () => {
+  // Add a default quiz manche
+  if (!currentQuiz) return
+  currentQuiz.config.manches.push({ id: uid(), type:'quiz', name:'Nouvelle manche', questions:[] })
+  selectedMancheIdx = currentQuiz.config.manches.length - 1
+  renderMancheList(); renderMancheEditor()
+})
+
+function renderMancheEditor() {
+  const main = $('editor-main')
+  const manches = currentQuiz?.config?.manches || []
+  if (selectedMancheIdx < 0 || selectedMancheIdx >= manches.length) {
+    main.innerHTML = `<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:200px;color:rgba(243,238,218,.3);text-align:center;">
+      <div style="font-size:2rem;margin-bottom:10px;">←</div>
+      <div>Sélectionnez une manche</div>
+    </div>`
+    return
+  }
+  const m = manches[selectedMancheIdx]
+  main.innerHTML = buildMancheEditorHTML(m, selectedMancheIdx)
+  attachMancheEditorListeners(m, selectedMancheIdx)
+}
+
+function buildMancheEditorHTML(m, mi) {
+  const typeDefs = MANCHE_TYPES.map(t => `
+    <div class="mtype-card${m.type===t.type?' active':''}" onclick="setMancheType(${mi},'${t.type}')">
+      <div class="mtype-icon">${t.icon}</div>
+      <div class="mtype-name">${t.name}</div>
+      <div class="mtype-desc">${t.desc}</div>
+    </div>`).join('')
+
+  let specificFields = ''
+  if (m.type === 'quiz') {
+    const qs = m.questions || []
+    specificFields = `
+      <div class="q-section">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+          <span style="color:rgba(243,238,218,.6);font-size:.85rem;font-weight:700;">${qs.length} question(s)</span>
+          <div style="display:flex;gap:8px;">
+            <button class="btn ghost sm" onclick="addQuestion(${mi},'choice')">＋ Choix</button>
+            <button class="btn ghost sm" onclick="addQuestion(${mi},'truefalse')">＋ Vrai/Faux</button>
+            <button class="btn ghost sm" onclick="addQuestion(${mi},'slider')">＋ Slider</button>
+          </div>
+        </div>
+        ${qs.map((q, qi) => buildQRowHTML(q, mi, qi)).join('')}
+      </div>`
+  } else if (m.type === 'wordcloud') {
+    const words = m.words || WORDCLOUD_DEFAULTS
+    specificFields = `
+      <div class="field-group">
+        <label class="field-lbl">Prompt (question posée)</label>
+        <input class="field-input" id="wc-prompt-${mi}" value="${escHtml(m.prompt||'')}">
+      </div>
+      <div class="field-group">
+        <label class="field-lbl">Durée de vote (secondes)</label>
+        <input class="field-input" type="number" id="wc-dur-${mi}" value="${m.durationSecs||120}" style="width:120px;">
+      </div>
+      <div class="field-group">
+        <label class="field-lbl">Mots proposés (${words.length} mots) — cliquez pour retirer</label>
+        <div id="wc-words-${mi}">${words.map(w=>`<span class="word-chip" onclick="removeWord(${mi},'${escHtml(w)}')">${escHtml(w)}</span>`).join('')}</div>
+        <div style="display:flex;gap:8px;margin-top:10px;">
+          <input class="field-input" id="wc-new-word-${mi}" placeholder="Ajouter un mot…" style="flex:1;">
+          <button class="btn ghost sm" onclick="addWord(${mi})">＋</button>
+          <button class="btn ghost sm" onclick="resetWords(${mi})">Réinitialiser</button>
+        </div>
+      </div>`
+  } else if (m.type === 'idea') {
+    specificFields = `
+      <div class="field-group">
+        <label class="field-lbl">Défi / challenge proposé</label>
+        <textarea class="field-input" id="idea-challenge-${mi}" rows="3" style="resize:vertical;">${escHtml(m.challenge||'')}</textarea>
+      </div>
+      <div class="field-group">
+        <label class="field-lbl">Durée de saisie (secondes)</label>
+        <input class="field-input" type="number" id="idea-dur-${mi}" value="${m.durationSecs||90}" style="width:120px;">
+      </div>`
+  } else if (m.type === 'engage') {
+    const cats = m.categories || ['Mon engagement']
+    specificFields = `
+      <div class="field-group">
+        <label class="field-lbl">Catégories d'engagement</label>
+        <div id="engage-cats-${mi}">${cats.map((c,ci)=>`
+          <div style="display:flex;gap:8px;margin-bottom:6px;">
+            <input class="field-input" value="${escHtml(c)}" oninput="updateCat(${mi},${ci},this.value)" style="flex:1;">
+            <button class="btn ghost sm" onclick="removeCat(${mi},${ci})">✕</button>
+          </div>`).join('')}</div>
+        <button class="btn ghost sm" style="margin-top:6px;" onclick="addCat(${mi})">＋ Catégorie</button>
+      </div>
+      <div class="field-group">
+        <label class="field-lbl">Durée de saisie (secondes)</label>
+        <input class="field-input" type="number" id="engage-dur-${mi}" value="${m.durationSecs||90}" style="width:120px;">
+      </div>`
+  }
+
+  return `
+    <div style="max-width:680px;">
+      <div class="field-group">
+        <label class="field-lbl">Type de manche</label>
+        <div class="mtype-grid">${typeDefs}</div>
+      </div>
+      <div class="field-group">
+        <label class="field-lbl">Nom de la manche</label>
+        <input class="field-input" id="manche-name-${mi}" value="${escHtml(m.name||'')}">
+      </div>
+      ${specificFields}
+    </div>`
+}
+
+function buildQRowHTML(q, mi, qi) {
+  const typeLbl = { choice:'Choix', truefalse:'Vrai/Faux', slider:'Slider' }[q.type] || q.type
+  const preview = q.text ? q.text.slice(0,60)+(q.text.length>60?'…':'') : '(question vide)'
+  return `
+    <div class="q-row" id="qrow-${mi}-${qi}">
+      <div class="q-row-head" onclick="toggleQ(${mi},${qi})">
+        <span class="q-num">${qi+1}</span>
+        <span class="q-type-badge">${typeLbl}</span>
+        <span class="q-preview">${escHtml(preview)}</span>
+        <div style="display:flex;gap:4px;margin-left:8px;">
+          <button class="chip-btn" onclick="event.stopPropagation();moveQUp(${mi},${qi})">↑</button>
+          <button class="chip-btn" onclick="event.stopPropagation();moveQDown(${mi},${qi})">↓</button>
+          <button class="chip-btn" onclick="event.stopPropagation();deleteQ(${mi},${qi})" style="color:rgba(231,76,60,.6);">✕</button>
+        </div>
+      </div>
+      <div class="q-row-body">${buildQEditorHTML(q, mi, qi)}</div>
+    </div>`
+}
+
+function buildQEditorHTML(q, mi, qi) {
+  const pid = `q-${mi}-${qi}`
+  if (q.type === 'slider') {
+    return `
+      <div class="field-group">
+        <label class="field-lbl">Question</label>
+        <textarea class="field-input" id="${pid}-text" rows="2" oninput="updateQField(${mi},${qi},'text',this.value)">${escHtml(q.text||'')}</textarea>
+      </div>
+      <div class="field-row">
+        <div class="field-group">
+          <label class="field-lbl">Bonne réponse (chiffre)</label>
+          <input class="field-input" type="number" id="${pid}-correct" value="${q.correct||0}" oninput="updateQField(${mi},${qi},'correct',+this.value)">
+        </div>
+        <div class="field-group">
+          <label class="field-lbl">Unité</label>
+          <input class="field-input" id="${pid}-unit" value="${escHtml(q.unit||'')}" placeholder="ex: salariés" oninput="updateQField(${mi},${qi},'unit',this.value)">
+        </div>
+      </div>
+      <div class="field-row">
+        <div class="field-group">
+          <label class="field-lbl">Minimum</label>
+          <input class="field-input" type="number" value="${q.min||0}" oninput="updateQField(${mi},${qi},'min',+this.value)">
+        </div>
+        <div class="field-group">
+          <label class="field-lbl">Maximum</label>
+          <input class="field-input" type="number" value="${q.max||1000}" oninput="updateQField(${mi},${qi},'max',+this.value)">
+        </div>
+        <div class="field-group">
+          <label class="field-lbl">Points</label>
+          <input class="field-input" type="number" value="${q.points||1000}" oninput="updateQField(${mi},${qi},'points',+this.value)">
+        </div>
+      </div>
+      ${buildTimerFields(q, pid, mi, qi)}
+      <div class="field-group">
+        <label class="field-lbl">Explication (optionnel)</label>
+        <input class="field-input" value="${escHtml(q.explain||'')}" oninput="updateQField(${mi},${qi},'explain',this.value)">
+      </div>`
+  }
+
+  if (q.type === 'truefalse') {
+    return `
+      <div class="field-group">
+        <label class="field-lbl">Affirmation</label>
+        <textarea class="field-input" rows="2" oninput="updateQField(${mi},${qi},'text',this.value)">${escHtml(q.text||'')}</textarea>
+      </div>
+      <div class="field-group">
+        <label class="field-lbl">Bonne réponse</label>
+        <label style="display:flex;align-items:center;gap:8px;cursor:pointer;margin-bottom:6px;">
+          <input type="radio" name="${pid}-correct" value="0" ${q.correct===0?'checked':''} onchange="updateQField(${mi},${qi},'correct',0)">
+          <span style="color:var(--cream);">✅ Vrai</span>
+        </label>
+        <label style="display:flex;align-items:center;gap:8px;cursor:pointer;">
+          <input type="radio" name="${pid}-correct" value="1" ${q.correct===1?'checked':''} onchange="updateQField(${mi},${qi},'correct',1)">
+          <span style="color:var(--cream);">❌ Faux</span>
+        </label>
+      </div>
+      <div class="field-row">
+        <div class="field-group"><label class="field-lbl">Points</label><input class="field-input" type="number" value="${q.points||800}" oninput="updateQField(${mi},${qi},'points',+this.value)"></div>
+      </div>
+      ${buildTimerFields(q, pid, mi, qi)}
+      ${buildImageField(q, mi, qi)}
+      <div class="field-group"><label class="field-lbl">Explication</label><input class="field-input" value="${escHtml(q.explain||'')}" oninput="updateQField(${mi},${qi},'explain',this.value)"></div>`
+  }
+
+  // choice (default)
+  const opts = q.options || ['','','','']
+  return `
+    <div class="field-group">
+      <label class="field-lbl">Question</label>
+      <textarea class="field-input" rows="2" oninput="updateQField(${mi},${qi},'text',this.value)">${escHtml(q.text||'')}</textarea>
+    </div>
+    ${buildImageField(q, mi, qi)}
+    <div class="field-group">
+      <label class="field-lbl">Options (sélectionnez la bonne réponse ●)</label>
+      ${opts.map((o, oi) => `
+        <div class="opt-row">
+          <input type="radio" class="opt-radio" name="${pid}-correct" value="${oi}" ${q.correct===oi?'checked':''} onchange="updateQField(${mi},${qi},'correct',${oi})">
+          <div class="opt-lbl-color" style="background:${OPT_COLORS[oi]};"></div>
+          <input class="field-input opt-input" value="${escHtml(o)}" placeholder="Option ${String.fromCharCode(65+oi)}" oninput="updateQOption(${mi},${qi},${oi},this.value)">
+        </div>`).join('')}
+    </div>
+    <div class="field-row">
+      <div class="field-group"><label class="field-lbl">Points</label><input class="field-input" type="number" value="${q.points||1000}" oninput="updateQField(${mi},${qi},'points',+this.value)"></div>
+    </div>
+    ${buildTimerFields(q, pid, mi, qi)}
+    <div class="field-group"><label class="field-lbl">Explication (affichée après la réponse)</label><input class="field-input" value="${escHtml(q.explain||'')}" oninput="updateQField(${mi},${qi},'explain',this.value)"></div>`
+}
+
+function buildTimerFields(q, pid, mi, qi) {
+  return `
+    <div class="toggle-row">
+      <span class="toggle-lbl">⏱️ Timer</span>
+      <input type="checkbox" ${q.timer?'checked':''} onchange="updateQField(${mi},${qi},'timer',this.checked)" id="${pid}-timer">
+      <label for="${pid}-timer" style="color:rgba(243,238,218,.5);font-size:.82rem;cursor:pointer;">Activer</label>
+    </div>
+    ${q.timer ? `<div class="toggle-sub">
+      <label class="field-lbl" style="margin:0;">Durée (s)</label>
+      <input class="field-input" type="number" value="${q.timerDuration||60}" style="width:80px;" oninput="updateQField(${mi},${qi},'timerDuration',+this.value)">
+      <label style="display:flex;align-items:center;gap:6px;font-size:.82rem;color:rgba(243,238,218,.6);cursor:pointer;">
+        <input type="checkbox" ${q.speedBonus?'checked':''} onchange="updateQField(${mi},${qi},'speedBonus',this.checked)">
+        Bonus vitesse
+      </label>
+    </div>` : ''}`
+}
+
+function buildImageField(q, mi, qi) {
+  return `<div class="field-group">
+    <label class="field-lbl">Image (URL, optionnel)</label>
+    <input class="field-input" value="${escHtml(q.image||'')}" placeholder="https://…" oninput="updateQField(${mi},${qi},'image',this.value)">
+  </div>`
+}
+
+function attachMancheEditorListeners(m, mi) {
+  // Name
+  $(`manche-name-${mi}`)?.addEventListener('input', e => {
+    currentQuiz.config.manches[mi].name = e.target.value
+    renderMancheList()
+  })
+  // Wordcloud
+  $(`wc-prompt-${mi}`)?.addEventListener('input', e => { currentQuiz.config.manches[mi].prompt = e.target.value })
+  $(`wc-dur-${mi}`)?.addEventListener('input', e => { currentQuiz.config.manches[mi].durationSecs = +e.target.value })
+  $(`idea-challenge-${mi}`)?.addEventListener('input', e => { currentQuiz.config.manches[mi].challenge = e.target.value })
+  $(`idea-dur-${mi}`)?.addEventListener('input', e => { currentQuiz.config.manches[mi].durationSecs = +e.target.value })
+  $(`engage-dur-${mi}`)?.addEventListener('input', e => { currentQuiz.config.manches[mi].durationSecs = +e.target.value })
+}
+
+window.setMancheType = (mi, type) => {
+  const m = currentQuiz.config.manches[mi]
+  const oldName = m.name
+  currentQuiz.config.manches[mi] = { id: m.id, type, name: oldName }
+  if (type === 'quiz') currentQuiz.config.manches[mi].questions = []
+  if (type === 'wordcloud') { currentQuiz.config.manches[mi].prompt = ''; currentQuiz.config.manches[mi].words = [...WORDCLOUD_DEFAULTS]; currentQuiz.config.manches[mi].durationSecs = 120 }
+  if (type === 'idea') { currentQuiz.config.manches[mi].challenge = ''; currentQuiz.config.manches[mi].durationSecs = 90 }
+  if (type === 'engage') { currentQuiz.config.manches[mi].categories = ['Mon engagement']; currentQuiz.config.manches[mi].durationSecs = 90 }
+  renderMancheList(); renderMancheEditor()
+}
+
+window.addQuestion = (mi, type) => {
+  const m = currentQuiz.config.manches[mi]
+  if (!m.questions) m.questions = []
+  const defaults = {
+    choice: { type:'choice', text:'', options:['','','',''], correct:0, points:1000, timer:false, timerDuration:60, speedBonus:false, image:'', explain:'' },
+    truefalse: { type:'truefalse', text:'', options:['Vrai','Faux'], correct:0, points:800, timer:false, timerDuration:60, speedBonus:false, image:'', explain:'' },
+    slider: { type:'slider', text:'', correct:0, unit:'', min:0, max:1000, points:1000, timer:false, timerDuration:60, explain:'' }
+  }
+  m.questions.push({ id: uid(), ...defaults[type] })
+  renderMancheEditor()
+  // Scroll to bottom and open new question
+  setTimeout(() => {
+    const last = m.questions.length - 1
+    const row = $(`qrow-${mi}-${last}`)
+    if (row) { row.classList.add('open'); row.scrollIntoView({ behavior:'smooth', block:'nearest' }) }
+  }, 50)
+}
+
+window.toggleQ = (mi, qi) => {
+  $(`qrow-${mi}-${qi}`)?.classList.toggle('open')
+}
+window.deleteQ = (mi, qi) => {
+  if (!confirm('Supprimer cette question ?')) return
+  currentQuiz.config.manches[mi].questions.splice(qi, 1)
+  renderMancheEditor()
+}
+window.moveQUp = (mi, qi) => {
+  if (qi === 0) return
+  const qs = currentQuiz.config.manches[mi].questions
+  ;[qs[qi-1], qs[qi]] = [qs[qi], qs[qi-1]]
+  renderMancheEditor()
+}
+window.moveQDown = (mi, qi) => {
+  const qs = currentQuiz.config.manches[mi].questions
+  if (qi >= qs.length-1) return
+  ;[qs[qi], qs[qi+1]] = [qs[qi+1], qs[qi]]
+  renderMancheEditor()
+}
+window.updateQField = (mi, qi, field, val) => {
+  currentQuiz.config.manches[mi].questions[qi][field] = val
+  // Re-render if timer changed (to show/hide duration fields)
+  if (field === 'timer') {
+    const openState = $(`qrow-${mi}-${qi}`)?.classList.contains('open')
+    renderMancheEditor()
+    if (openState) $(`qrow-${mi}-${qi}`)?.classList.add('open')
+  }
+}
+window.updateQOption = (mi, qi, oi, val) => {
+  currentQuiz.config.manches[mi].questions[qi].options[oi] = val
+}
+window.addWord = mi => {
+  const inp = $(`wc-new-word-${mi}`)
+  const word = inp?.value.trim(); if (!word) return
+  if (!currentQuiz.config.manches[mi].words) currentQuiz.config.manches[mi].words = [...WORDCLOUD_DEFAULTS]
+  currentQuiz.config.manches[mi].words.push(word)
+  inp.value = ''
+  renderMancheEditor()
+}
+window.removeWord = (mi, word) => {
+  const m = currentQuiz.config.manches[mi]
+  m.words = (m.words || WORDCLOUD_DEFAULTS).filter(w => w !== word)
+  renderMancheEditor()
+}
+window.resetWords = mi => {
+  currentQuiz.config.manches[mi].words = [...WORDCLOUD_DEFAULTS]
+  renderMancheEditor()
+}
+window.updateCat = (mi, ci, val) => {
+  currentQuiz.config.manches[mi].categories[ci] = val
+}
+window.addCat = mi => {
+  if (!currentQuiz.config.manches[mi].categories) currentQuiz.config.manches[mi].categories = []
+  currentQuiz.config.manches[mi].categories.push('Nouvelle catégorie')
+  renderMancheEditor()
+}
+window.removeCat = (mi, ci) => {
+  currentQuiz.config.manches[mi].categories.splice(ci, 1)
+  renderMancheEditor()
+}
+
+// Save quiz
+$('editor-save-btn').addEventListener('click', saveCurrentQuiz)
+async function saveCurrentQuiz() {
+  if (!currentQuiz) return
+  $('editor-save-btn').textContent = '⏳…'; $('editor-save-btn').disabled = true
+  const title = $('editor-quiz-title').value.trim() || 'Quiz sans titre'
+  currentQuiz.title = title
+  let result
+  if (currentQuiz.id) {
+    result = await sb.from('quizzes').update({ title, config: currentQuiz.config, updated_at: new Date() }).eq('id', currentQuiz.id).select().single()
+  } else {
+    result = await sb.from('quizzes').insert({ title, config: currentQuiz.config, owner_id: currentAdmin.id }).select().single()
+    if (result.data) { currentQuiz.id = result.data.id }
+  }
+  $('editor-save-btn').textContent = result.error ? '⚠️ Erreur' : '✅ Enregistré'
+  setTimeout(() => { $('editor-save-btn').textContent = '💾 Enregistrer'; $('editor-save-btn').disabled = false }, 1800)
+  // Refresh quiz list
+  const { data } = await sb.from('quizzes').select('id,title,created_at').order('created_at', { ascending: false })
+  quizList = data || []
+  renderQuizSelectList()
+}
+
+$('editor-new-btn').addEventListener('click', () => {
+  currentQuiz = { id:null, title:'Nouveau quiz', config:{ manches:[] } }
+  selectedMancheIdx = -1
+  renderEditorUI()
+})
+
+$('editor-delete-btn').addEventListener('click', async () => {
+  if (!currentQuiz?.id) return
+  if (!confirm(`Supprimer "${currentQuiz.title}" ? Cette action est irréversible.`)) return
+  await sb.from('quizzes').delete().eq('id', currentQuiz.id)
+  const { data } = await sb.from('quizzes').select('id,title,created_at').order('created_at', { ascending: false })
+  quizList = data || []
+  currentQuiz = quizList.length ? null : { id:null, title:'Nouveau quiz', config:{ manches:[] } }
+  selectedMancheIdx = -1
+  openQuizEditor(quizList[0]?.id)
+})
+
+$('editor-export-btn').addEventListener('click', () => {
+  if (!currentQuiz) return
+  const blob = new Blob([JSON.stringify(currentQuiz.config, null, 2)], { type:'application/json' })
+  const a = document.createElement('a')
+  a.href = URL.createObjectURL(blob)
+  a.download = `${(currentQuiz.title||'quiz').replace(/\s+/g,'-')}.json`
+  a.click()
+})
+
+$('editor-back-btn').addEventListener('click', () => showScreen('screen-home'))
+
+$('new-quiz-btn').addEventListener('click', () => {
+  currentQuiz = { id:null, title:'Nouveau quiz', config:{ manches:[] } }
+  selectedMancheIdx = -1
+  renderEditorUI()
+})
+</script>
+</body>
+</html>
