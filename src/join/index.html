@@ -758,7 +758,7 @@ function handleQuestionShow(payload) {
   $('qp-text').textContent  = payload.text
 
   const opts = $('qp-opts'); opts.innerHTML = ''
-  payload.options.forEach((opt, i) => {
+  ;(payload.options || []).forEach((opt, i) => {
     const txt = typeof opt === 'string' ? opt : opt.text
     const btn = document.createElement('button')
     btn.className = 'opt-btn'
@@ -768,7 +768,7 @@ function handleQuestionShow(payload) {
     btn.addEventListener('click', () => submitAnswer(i))
     opts.appendChild(btn)
   })
-  opts.className = 'qp-opts ' + (payload.options.length === 2 ? 'two' : 'four')
+  opts.className = 'qp-opts ' + ((payload.options?.length ?? 4) === 2 ? 'two' : 'four')
 
   showScreen('screen-question')
 

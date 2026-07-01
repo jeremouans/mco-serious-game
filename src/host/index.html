@@ -623,7 +623,7 @@
     <div class="game-wrap">
       <div class="game-topbar">
         <div class="q-badge">Q <span id="q-num">1</span> / <span id="q-total">14</span></div>
-        <div class="timer-wrap">
+        <div class="timer-wrap" id="timer-wrap">
           <div class="timer-track"><div class="timer-fill" id="timer-fill" style="width:100%"></div></div>
           <div class="timer-secs" id="timer-secs">20</div>
         </div>
@@ -1144,7 +1144,7 @@ function showQuestion(skipIntro = false) {
   $('opts-host').classList.remove('revealed')
 
   const payload = { idx: GS.qIdx, total: GS.questions.length, questionId: q.id,
-    text: q.text, options: q.options, points: q.points ?? 1000 }
+    text: q.text, options: q.options, points: q.points ?? 1000, type: q.type }
   if (useTimer) { payload.timer = true; payload.timerDuration = timerDur; payload.endsAt = GS.endsAt }
   activeChannel.send({ type: 'broadcast', event: 'question:show', payload })
 
@@ -1576,7 +1576,7 @@ function buildQuizFromConfig(selectedManches = null) {
     } else {
       ;(m.questions || []).forEach(q => {
         if (q.type === 'choice' || q.type === 'truefalse' || q.type === 'slider')
-          result.push({ ...q, id: q._id, section: m.name })
+          result.push({ ...q, id: q.id || q._id, section: m.name })
       })
     }
   })
@@ -1819,7 +1819,7 @@ $('engage-next-btn').addEventListener('click', () => { P4S.carouselIdx = Math.mi
 function receiveEngageVote(payload) {
   if (!P4S || P4S.kind !== 'engage' || P4S.phase !== 'vote') return
   const key = `${payload.tempId}__${payload.targetTempId}`; if (P4S.votes.has(key)) return
-  const authorId = P4S.anonymousMap.get(payload.targetTempId); if (!authorId || authorId === payload.tempId) return
+  const authorId = P4S.anonymousMap.get(payload.targetTempId); if (!authorId) return
   const criteria = payload.criteria || {}  // { concret:N, aligne:N, inspirant:N, impact:N } 1-5
   P4S.votes.set(key, { voterTempId:payload.tempId, anonId:payload.targetTempId, criteria })
   $('engage-vote-count').textContent = P4S.votes.size
