@@ -368,18 +368,31 @@
 
     /* Slider screens */
     #screen-slider, #screen-slider-reveal { overflow-y:auto; padding:clamp(14px,2.2vw,32px); }
-    .slider-wrap { width:min(1000px,100%); margin:auto; display:flex; flex-direction:column; gap:18px; }
-    .slider-line { position:relative; height:90px; border-radius:40px; margin:10px 0; }
-    .slider-track { position:absolute; top:50%; left:5%; right:5%; height:8px; background:rgba(255,255,255,.2); border-radius:4px; transform:translateY(-50%); }
-    .slider-correct-marker { position:absolute; top:50%; width:4px; background:var(--green); border-radius:2px; height:60px; transform:translate(-50%,-50%); box-shadow:0 0 12px rgba(106,165,23,.6); transition:left .8s cubic-bezier(.2,1,.3,1); }
-    .slider-avatar { position:absolute; top:50%; width:44px; height:44px; border-radius:50%; transform:translate(-50%,-50%); display:grid; place-items:center; font-size:1.4rem; transition:left 1.2s cubic-bezier(.2,1,.3,1); border:3px solid rgba(255,255,255,.3); box-shadow:0 4px 12px rgba(0,0,0,.3); }
-    .slider-label { position:absolute; top:calc(50% + 28px); transform:translateX(-50%); font-size:.7rem; font-weight:700; color:rgba(243,238,218,.7); white-space:nowrap; transition:left 1.2s cubic-bezier(.2,1,.3,1); }
-    .slider-min-max { display:flex; justify-content:space-between; font-size:.8rem; color:rgba(243,238,218,.5); padding:0 5%; }
+    .slider-wrap { width:min(1000px,100%); margin:auto; display:flex; flex-direction:column; gap:20px; }
+    .slider-reveal-hero { text-align:center; }
+    .slider-reveal-hero h2 { font-size:clamp(1.3rem,3vw,2rem); color:var(--cream); }
+    .slider-reveal-hero .correct-val { font-size:clamp(2rem,6vw,3.5rem); font-weight:900; color:var(--green); text-shadow:0 0 24px rgba(106,165,23,.5); }
+    .slider-track-wrap { position:relative; padding:60px 5% 40px; }
+    .slider-line { position:relative; height:16px; border-radius:8px; background:linear-gradient(90deg,rgba(231,76,60,.4) 0%,rgba(244,200,74,.3) 50%,rgba(106,165,23,.4) 100%); box-shadow:inset 0 2px 8px rgba(0,0,0,.3); }
+    .slider-correct-marker { position:absolute; top:50%; width:4px; background:var(--green); border-radius:2px; height:48px; transform:translate(-50%,-50%); box-shadow:0 0 16px rgba(106,165,23,.8),0 0 32px rgba(106,165,23,.4); transition:left .8s cubic-bezier(.2,1,.3,1); }
+    .slider-correct-marker::after { content:'✓'; position:absolute; bottom:calc(100% + 4px); left:50%; transform:translateX(-50%); color:var(--green); font-size:.75rem; font-weight:900; white-space:nowrap; }
+    .slider-avatar { position:absolute; bottom:calc(100% + 8px); width:48px; height:48px; border-radius:50%; transform:translateX(-50%); display:grid; place-items:center; font-size:1.5rem; transition:left 1s cubic-bezier(.34,1.56,.64,1); border:3px solid rgba(255,255,255,.4); box-shadow:0 4px 16px rgba(0,0,0,.4); opacity:0; }
+    .slider-avatar.visible { opacity:1; }
+    .slider-avatar.winner { border-color:var(--gold,#f4c84a); box-shadow:0 0 0 4px rgba(244,200,74,.4),0 8px 24px rgba(0,0,0,.5); transform:translateX(-50%) scale(1.2); z-index:10; }
+    .slider-label { position:absolute; top:calc(100% + 6px); transform:translateX(-50%); font-size:.7rem; font-weight:700; color:rgba(243,238,218,.8); white-space:nowrap; transition:left 1s cubic-bezier(.34,1.56,.64,1); opacity:0; }
+    .slider-label.visible { opacity:1; }
+    .slider-min-max { display:flex; justify-content:space-between; font-size:.85rem; font-weight:700; color:rgba(243,238,218,.4); padding:0 5%; margin-top:4px; }
+    .slider-podium { display:flex; flex-direction:column; gap:8px; }
+    .slider-rank-row { display:flex; align-items:center; gap:12px; background:rgba(255,255,255,.06); border-radius:14px; padding:10px 16px; animation:risein .3s ease-out backwards; }
+    .slider-rank-medal { font-size:1.4rem; width:2rem; text-align:center; flex:none; }
+    .slider-rank-name { flex:1; font-weight:700; color:var(--cream); }
+    .slider-rank-val { color:rgba(243,238,218,.6); font-size:.9rem; }
+    .slider-rank-pts { font-weight:900; color:var(--green); font-size:1rem; }
 
     /* Wordcloud */
     #screen-wordcloud { overflow-y:auto; padding:clamp(14px,2.2vw,32px); }
     .wc-wrap { width:min(1000px,100%); margin:auto; display:flex; flex-direction:column; gap:18px; }
-    #wc-canvas { border-radius:20px; background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.08); width:100%; max-height:380px; display:block; }
+    #wc-canvas { border-radius:20px; background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.08); width:100%; }
 
     /* Profile modal */
     .modal-overlay { position:fixed; inset:0; background:rgba(0,0,0,.75); z-index:300; display:flex; align-items:center; justify-content:center; backdrop-filter:blur(6px); padding:20px; }
@@ -649,20 +662,24 @@
   <!-- ══ SLIDER REVEAL ════════════════════════════════════════ -->
   <section class="screen" id="screen-slider-reveal">
     <div class="slider-wrap">
-      <div class="game-topbar">
-        <div class="q-badge">Résultats</div>
+      <div class="p4-topbar">
+        <span class="p4-badge" id="sr-badge">📊 Résultats Slider</span>
+        <h2 id="sr-title">Question</h2>
         <button class="btn sm ghost" onclick="goHome()">⌂</button>
       </div>
-      <div class="q-text-host" id="sr-text" style="font-size:clamp(1.1rem,2.5vw,1.8rem)"></div>
-      <div style="text-align:center;font-size:1rem;color:rgba(243,238,218,.75)">Bonne réponse : <strong id="sr-correct" style="color:var(--green);font-size:1.3em"></strong></div>
-      <div class="slider-line" id="sr-slider-line">
-        <div class="slider-track"></div>
-        <div class="slider-correct-marker" id="sr-correct-marker"></div>
-        <div id="sr-avatars"></div>
-        <div id="sr-labels"></div>
+      <div class="slider-reveal-hero">
+        <div style="font-size:.85rem;color:rgba(243,238,218,.5);margin-bottom:4px;">Bonne réponse</div>
+        <div class="correct-val" id="sr-correct-val">—</div>
+      </div>
+      <div class="slider-track-wrap">
+        <div class="slider-line" id="sr-slider-line">
+          <div class="slider-correct-marker" id="sr-correct-marker"></div>
+          <div id="sr-avatars" style="position:absolute;inset:0;pointer-events:none;"></div>
+          <div id="sr-labels" style="position:absolute;inset:0;pointer-events:none;"></div>
+        </div>
       </div>
       <div class="slider-min-max"><span id="sr-min"></span><span id="sr-max"></span></div>
-      <div id="sr-ranking" style="display:flex;flex-direction:column;gap:8px;max-height:280px;overflow-y:auto"></div>
+      <div class="slider-podium" id="sr-ranking"></div>
       <div class="game-actions">
         <button class="btn big" id="slider-continue-btn">→ Continuer</button>
       </div>
@@ -854,7 +871,7 @@
           <div class="p4-stat-lbl">votes reçus sur <span id="wc-total-players">0</span></div>
         </div>
       </div>
-      <canvas id="wc-canvas" width="900" height="360"></canvas>
+      <div id="wc-canvas" style="display:flex;flex-wrap:wrap;gap:4px 2px;align-items:center;justify-content:center;min-height:180px;padding:16px;background:rgba(0,0,0,.15);border-radius:20px;"></div>
       <div class="game-actions">
         <button class="btn gold" id="wc-render-btn">☁️ Afficher le nuage</button>
         <button class="btn big" id="wc-continue-btn" style="display:none">→ Continuer</button>
@@ -864,7 +881,6 @@
 
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/wordcloud@1.2.2/src/wordcloud2.min.js"></script>
 <script type="module">
 import { sb } from '../lib/supabase.js'
 import QRCode from 'https://esm.sh/qrcode@1.5.3'
@@ -926,6 +942,7 @@ const initial = n => (n||'?').trim().charAt(0).toUpperCase()
 // ── Auth ────────────────────────────────────────────────────
 sb.auth.onAuthStateChange(async (event, session) => {
   currentUser = session?.user ?? null
+  console.log('[auth]', event, currentUser?.email)
   if (currentUser) {
     const { data: wl } = await sb.from('host_whitelist').select('email').eq('email', currentUser.email).maybeSingle()
     if (!wl) {
@@ -1039,9 +1056,24 @@ async function loadOpenSessions() {
   })
 }
 
-$('create-btn').addEventListener('click', () => {
-  renderMancheCheckboxes()
-  showScreen('screen-settings')
+$('create-btn').addEventListener('click', async () => {
+  const btn = $('create-btn'); btn.disabled = true; btn.textContent = '⏳ Création…'
+  try {
+    let session = null
+    for (let i = 0; i < 5; i++) {
+      const { data, error } = await sb.from('sessions').insert({
+        code: generateCode(), host_id: currentUser.id, status: 'lobby',
+        settings: { timer: 30, speedBonus: true, selectedManches: null },
+        quiz_id: QUIZ_DB_ID ?? null
+      }).select().single()
+      if (!error) { session = data; break }
+      if (error.code !== '23505') throw error
+    }
+    if (!session) throw new Error('Code unique impossible à générer')
+    activeSession = session
+    await openLobby(session)
+  } catch (err) { alert('Erreur : ' + err.message) }
+  finally { btn.disabled = false; btn.textContent = '▶ Démarrer une session' }
 })
 
 // ── Lobby ────────────────────────────────────────────────────
@@ -2017,34 +2049,51 @@ function doSliderReveal() {
   }})
   GS.log.push({ questionId:q.id, type:'slider', answers:answers.map(a=>({ tempId:a.tempId, name:a.name, value:a.value, pts:a.pts, isCorrect:a.delta===0 })) })
 
-  $('sr-text').textContent = q.text
-  $('sr-correct').textContent = correct + (q.unit ? ' '+q.unit : '')
-  $('sr-min').textContent = (q.min??0) + (q.unit?' '+q.unit:'')
-  $('sr-max').textContent = (q.max??100) + (q.unit?' '+q.unit:'')
+  if ($('sr-title')) $('sr-title').textContent = q.text
   showScreen('screen-slider-reveal')
   setTimeout(() => animateSliderReveal(q, answers, correct), 200)
 }
 
 function animateSliderReveal(q, answers, correct) {
   const min = q.min??0; const max = q.max??100; const range = max-min || 1
-  const pct = v => Math.max(5, Math.min(95, (v-min)/range*90+5))
-  const marker = $('sr-correct-marker'); if (marker) marker.style.left = pct(correct) + '%'
+  const pct = v => Math.max(5, Math.min(93, (v-min)/range*88+5))
+  const correctPct = pct(correct)
+  const marker = $('sr-correct-marker'); if (marker) marker.style.left = correctPct + '%'
+  const correctValEl = $('sr-correct-val'); if (correctValEl) correctValEl.textContent = correct + (q.unit ? ' ' + q.unit : '')
+  if ($('sr-min')) $('sr-min').textContent = min + (q.unit ? ' ' + q.unit : '')
+  if ($('sr-max')) $('sr-max').textContent = max + (q.unit ? ' ' + q.unit : '')
   const avatarsEl = $('sr-avatars'); const labelsEl = $('sr-labels')
   if (avatarsEl) avatarsEl.innerHTML = ''; if (labelsEl) labelsEl.innerHTML = ''
-  ;[...answers].reverse().forEach((ans, i) => {
-    const dot = document.createElement('div'); dot.className = 'slider-avatar'
-    dot.style.cssText = `left:50%;background:${colorFor(ans.name)};z-index:${answers.length-i};`
-    dot.textContent = ans.emoji; if (avatarsEl) avatarsEl.appendChild(dot)
-    const lbl = document.createElement('div'); lbl.className = 'slider-label'; lbl.style.left='50%'; lbl.textContent = ans.value
-    if (labelsEl) labelsEl.appendChild(lbl)
+  // Worst to best (last one = winner)
+  const ordered = [...answers].reverse()
+  ordered.forEach((ans, i) => {
+    const isWinner = i === ordered.length - 1
     const t = pct(ans.value)
-    setTimeout(() => { dot.style.left = t+'%'; lbl.style.left = t+'%' }, 100+i*350)
+    const dot = document.createElement('div')
+    dot.className = 'slider-avatar' + (isWinner ? ' winner' : '')
+    dot.style.cssText = `left:${correctPct}%;background:${colorFor(ans.name)};z-index:${i+1};`
+    dot.textContent = ans.emoji
+    if (avatarsEl) avatarsEl.appendChild(dot)
+    const lbl = document.createElement('div')
+    lbl.className = 'slider-label'
+    lbl.style.left = correctPct + '%'
+    lbl.textContent = ans.value + (q.unit ? ' ' + q.unit : '')
+    if (labelsEl) labelsEl.appendChild(lbl)
+    const delay = 400 + i * 500
+    setTimeout(() => {
+      dot.classList.add('visible'); dot.style.left = t + '%'
+      lbl.classList.add('visible'); lbl.style.left = t + '%'
+    }, delay)
   })
+  // Ranking list appears after all avatars
+  const rankDelay = 400 + ordered.length * 500 + 300
   const rankList = $('sr-ranking'); if (!rankList) return; rankList.innerHTML = ''
   answers.forEach((ans, i) => {
-    const row = document.createElement('div'); row.className = 'sb-line'; row.style.animationDelay=(i*.07)+'s'
-    const medal = i===0?'🥇':i===1?'🥈':i===2?'🥉':(i+1)
-    row.innerHTML = `<div class="sb-rank">${medal}</div><div class="sb-nm">${ans.emoji} ${ans.name}</div><div style="flex:1;text-align:center;color:rgba(243,238,218,.7);font-size:.9rem">${ans.value}${q.unit?' '+q.unit:''}</div><div class="sb-sc">+${ans.pts}</div>`
+    const row = document.createElement('div')
+    row.className = 'slider-rank-row'
+    row.style.animationDelay = (rankDelay/1000 + i * 0.08) + 's'
+    const medal = i===0?'🥇':i===1?'🥈':i===2?'🥉':`${i+1}.`
+    row.innerHTML = `<div class="slider-rank-medal">${medal}</div><div class="slider-rank-name">${ans.emoji} ${ans.name}</div><div class="slider-rank-val">${ans.value}${q.unit?' '+q.unit:''}</div><div class="slider-rank-pts">+${ans.pts} pts</div>`
     rankList.appendChild(row)
   })
 }
@@ -2060,7 +2109,7 @@ function startWordcloudManche(m) {
   $('wc-total-players').textContent = GS.players.size
   $('wc-render-btn').style.display = 'inline-flex'
   $('wc-continue-btn').style.display = 'none'
-  const canvas = $('wc-canvas'); if (canvas) { const ctx=canvas.getContext('2d'); ctx.clearRect(0,0,canvas.width,canvas.height) }
+  const canvas = $('wc-canvas'); if (canvas) { canvas.innerHTML = '' }
   activeChannel.send({ type:'broadcast', event:'round:wordcloud:prompt', payload:{
     prompt: m.prompt || m.challenge || 'Quel mot vous vient à l\'esprit ?', words: m.words || []
   }})
@@ -2079,15 +2128,21 @@ function receiveWordcloudVote(payload) {
 }
 
 function updateWordcloudCanvas() {
-  const canvas = $('wc-canvas'); if (!canvas || !window.WordCloud) return
+  const container = $('wc-canvas')
+  if (!container) return
   const entries = Object.entries(WCS.wordCounts).filter(([,c])=>c>0)
   if (!entries.length) return
   const maxC = Math.max(...entries.map(([,c])=>c))
-  const list = entries.map(([w,c])=>[w, Math.round(14+(c/maxC)*52)])
-  try {
-    window.WordCloud(canvas, { list, fontFamily:'Outfit,sans-serif', minSize:10, rotateRatio:0.2,
-      backgroundColor:'transparent', color:()=>['#6aa517','#86bfeb','#f4c84a','#8cc63f','#f1e9d2'][Math.floor(Math.random()*5)] })
-  } catch(_) {}
+  const sorted = [...entries].sort((a,b)=>b[1]-a[1]).slice(0,40)
+  const colors = ['#6aa517','#86bfeb','#f4c84a','#8cc63f','#f1e9d2','#6aa517','#86bfeb']
+  container.innerHTML = ''
+  sorted.forEach(([word, count], i) => {
+    const size = 0.75 + (count / maxC) * 2.5
+    const span = document.createElement('span')
+    span.textContent = word
+    span.style.cssText = `font-size:${size}rem;font-weight:${count===maxC?900:700};color:${colors[i%colors.length]};padding:4px 8px;display:inline-block;animation:risein ${0.15+i*0.04}s ease-out backwards;opacity:${0.5+0.5*(count/maxC)};`
+    container.appendChild(span)
+  })
 }
 
 $('wc-render-btn').addEventListener('click', () => {

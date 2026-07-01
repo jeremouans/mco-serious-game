@@ -375,6 +375,7 @@
     <button class="btn ghost sm" id="editor-back-btn">← Accueil</button>
     <input type="text" class="editor-quiz-title" id="editor-quiz-title" placeholder="Titre de la configuration…">
     <button class="btn sm" id="editor-save-btn">💾 Enregistrer</button>
+    <div class="err-msg" id="editor-save-err" style="margin-top:6px;"></div>
     <button class="btn ghost sm" id="editor-new-btn">＋ Nouveau</button>
     <button class="btn ghost sm" id="editor-export-btn">📤 Export JSON</button>
     <button class="btn ghost sm" id="editor-delete-btn" style="color:rgba(231,76,60,.7);">🗑️</button>
@@ -534,6 +535,7 @@ function showScreen(id) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'))
   $(id).classList.add('active')
 }
+window.showScreen = showScreen
 
 function spawnStars() {
   const box = $('stars'); if(!box) return; box.innerHTML = ''
@@ -1375,8 +1377,14 @@ async function saveCurrentQuiz() {
     result = await sb.from('quizzes').insert({ title, config: currentQuiz.config, owner_id: currentAdmin.id }).select().single()
     if (result.data) { currentQuiz.id = result.data.id }
   }
-  $('editor-save-btn').textContent = result.error ? '⚠️ Erreur' : '✅ Enregistré'
-  setTimeout(() => { $('editor-save-btn').textContent = '💾 Enregistrer'; $('editor-save-btn').disabled = false }, 1800)
+  if (result.error) {
+    console.error('Quiz save error:', result.error)
+    $('editor-save-btn').textContent = '⚠️ ' + (result.error.code || 'Erreur')
+    showErr('editor-save-err', 'Erreur sauvegarde : ' + (result.error.message || result.error.code || 'inconnue'))
+  } else {
+    $('editor-save-btn').textContent = '✅ Enregistré'
+  }
+  setTimeout(() => { $('editor-save-btn').textContent = '💾 Enregistrer'; $('editor-save-btn').disabled = false }, 2200)
   // Refresh quiz list
   const { data } = await sb.from('quizzes').select('id,title,created_at').order('created_at', { ascending: false })
   quizList = data || []
