@@ -1131,7 +1131,7 @@ function buildQRowHTML(q, mi, qi) {
   const typeLbl = { choice:'Choix', truefalse:'Vrai/Faux', slider:'Slider' }[q.type] || q.type
   const preview = q.text ? q.text.slice(0,60)+(q.text.length>60?'…':'') : '(question vide)'
   return `
-    <div class="q-row" id="qrow-${mi}-${qi}">
+    <div class="q-row open" id="qrow-${mi}-${qi}">
       <div class="q-row-head" onclick="toggleQ(${mi},${qi})">
         <span class="q-num">${qi+1}</span>
         <span class="q-type-badge">${typeLbl}</span>
@@ -1370,11 +1370,12 @@ async function saveCurrentQuiz() {
   $('editor-save-btn').textContent = '⏳…'; $('editor-save-btn').disabled = true
   const title = $('editor-quiz-title').value.trim() || 'Quiz sans titre'
   currentQuiz.title = title
+  const ownerId = currentAdmin?.id
   let result
   if (currentQuiz.id) {
     result = await sb.from('quizzes').update({ title, config: currentQuiz.config }).eq('id', currentQuiz.id).select().single()
   } else {
-    result = await sb.from('quizzes').insert({ title, config: currentQuiz.config, owner_id: currentAdmin.id }).select().single()
+    result = await sb.from('quizzes').insert({ title, config: currentQuiz.config, owner_id: ownerId }).select().single()
     if (result.data) { currentQuiz.id = result.data.id }
   }
   if (result.error) {

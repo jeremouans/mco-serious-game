@@ -939,97 +939,27 @@ function colorFor(name) {
 
 const initial = n => (n||'?').trim().charAt(0).toUpperCase()
 
-// ── Auth ────────────────────────────────────────────────────
-sb.auth.onAuthStateChange(async (event, session) => {
-  currentUser = session?.user ?? null
-  console.log('[auth]', event, currentUser?.email)
-  if (currentUser) {
-    const { data: wl } = await sb.from('host_whitelist').select('email').eq('email', currentUser.email).maybeSingle()
-    if (!wl) {
-      await sb.auth.signOut()
-      const e1 = $('login-err'); if (e1) { e1.textContent = 'Adresse non autorisée.'; e1.classList.add('show') }
-      const e2 = $('code-err');  if (e2) { e2.textContent = 'Accès non autorisé.'; e2.classList.add('show') }
-      return
-    }
-    const { data: prof } = await sb.from('host_profiles').select('*').eq('user_id', currentUser.id).maybeSingle()
-    hostProfile = prof
-    const displayName = prof?.first_name ? `${prof.first_name} ${prof.last_name || ''}`.trim() : currentUser.email
-    $('user-email').textContent = displayName
-    await loadAllQuizzes()
-    await loadOpenSessions()
-    await loadHistory()
-    showScreen('screen-home')
-    if (!prof?.first_name) $('profile-modal').style.display = 'flex'
-  } else {
-    showScreen('screen-login')
-  }
-})
+// ── DEMO MODE — accès direct sans auth ──────────────────────────
+// Mettre DEMO_MODE = false pour réactiver le vrai système auth
+const DEMO_MODE = true
+const DEMO_USER = { id: '029a5460-7dee-40e7-b8b7-5851e8de538d', email: 'animateur@mgen.fr' }
 
-const ANIMATEUR_EMAIL = 'animateur@mgen.fr'
-
-function switchLoginTab(active) {
-  ['magic','code','direct'].forEach(t => {
-    $(`tab-${t}`)?.classList.toggle('active', t === active)
-    $(`pane-${t}`)?.classList.toggle('active', t === active)
-  })
+async function startApp() {
+  currentUser = DEMO_USER
+  hostProfile = { first_name: 'Animateur', last_name: '' }
+  if ($('user-email')) $('user-email').textContent = 'Mode démo'
+  spawnStars()
+  await loadAllQuizzes()
+  await loadOpenSessions()
+  await loadHistory()
+  showScreen('screen-home')
 }
-$('tab-magic').addEventListener('click', () => switchLoginTab('magic'))
-$('tab-code').addEventListener('click', () => { switchLoginTab('code'); $('code-inp').focus() })
-$('tab-direct').addEventListener('click', () => switchLoginTab('direct'))
 
-$('direct-btn').addEventListener('click', async () => {
-  $('direct-btn').disabled = true; $('direct-btn').textContent = '⏳ Connexion…'
-  const { error } = await sb.auth.signInWithPassword({ email: 'animateur@mgen.fr', password: 'mcomgen' })
-  if (error) {
-    $('direct-err').textContent = error.message; $('direct-err').classList.add('show')
-    $('direct-btn').disabled = false; $('direct-btn').textContent = '⚡ Accéder directement'
-  }
-})
+startApp()
 
-$('login-form').addEventListener('submit', async e => {
-  e.preventDefault()
-  const email = $('email-inp').value.trim()
-  const btn = $('login-btn'); const errEl = $('login-err')
-  btn.disabled = true; btn.textContent = '⏳ Envoi…'; errEl.classList.remove('show')
-  const { error } = await sb.auth.signInWithOtp({ email, options: { emailRedirectTo: window.location.origin + '/host/' } })
-  if (error) { errEl.textContent = error.message; errEl.classList.add('show') }
-  else { $('email-sent').textContent = email; showScreen('screen-check-email') }
-  btn.disabled = false; btn.textContent = '✉️ Recevoir le lien magique'
-})
-$('back-login-btn').addEventListener('click', () => showScreen('screen-login'))
-
-$('code-form').addEventListener('submit', async e => {
-  e.preventDefault()
-  const code  = $('code-inp').value.trim()
-  const btn   = $('code-btn'); const errEl = $('code-err')
-  btn.disabled = true; btn.textContent = '⏳ Vérification…'; errEl.classList.remove('show')
-  const { error } = await sb.auth.signInWithPassword({ email: ANIMATEUR_EMAIL, password: code })
-  if (error) {
-    errEl.textContent = 'Code incorrect.'
-    errEl.classList.add('show')
-    $('code-inp').value = ''
-  }
-  btn.disabled = false; btn.textContent = '🔑 Accéder'
-})
-
-
-$('logout-btn').addEventListener('click', async () => { await cleanupChannel(); await sb.auth.signOut() })
-
-// ── Profile modal ─────────────────────────────────────────────
-$('profile-save-btn').addEventListener('click', async () => {
-  const firstName = $('profile-firstname').value.trim()
-  const errEl = $('profile-err')
-  if (!firstName) { errEl.textContent = 'Le prénom est obligatoire.'; errEl.classList.add('show'); return }
-  errEl.classList.remove('show')
-  const lastName = $('profile-lastname').value.trim()
-  const btn = $('profile-save-btn'); btn.disabled = true; btn.textContent = '⏳…'
-  try {
-    await sb.from('host_profiles').upsert({ user_id: currentUser.id, first_name: firstName, last_name: lastName, updated_at: new Date().toISOString() })
-    hostProfile = { first_name: firstName, last_name: lastName }
-    $('user-email').textContent = `${firstName} ${lastName}`.trim()
-    $('profile-modal').style.display = 'none'
-  } catch(e) { errEl.textContent = 'Erreur : ' + e.message; errEl.classList.add('show') }
-  btn.disabled = false; btn.textContent = '✓ Enregistrer'
+$('logout-btn').addEventListener('click', async () => {
+  await cleanupChannel()
+  window.location.href = '/'
 })
 
 // ── Home tabs ─────────────────────────────────────────────────
@@ -1106,7 +1036,7 @@ async function startPresence(code) {
     .on('broadcast', { event: 'vote:engage' },     ({ payload }) => receiveEngageVote(payload))
     .on('broadcast', { event: 'vote:wordcloud' },  ({ payload }) => receiveWordcloudVote(payload))
     .subscribe(async status => {
-      if (status === 'SUBSCRIBED') await activeChannel.track({ role: 'host', userId: currentUser.id, phase: 'lobby' })
+      if (status === 'SUBSCRIBED' && currentUser) await activeChannel.track({ role: 'host', userId: currentUser.id, phase: 'lobby' })
     })
 }
 
@@ -1960,7 +1890,7 @@ async function logEngageManche() {
       const voteRows = []
       P4S.votes.forEach(({ voterTempId, anonId, criteria }) => {
         const authorId = P4S.anonymousMap.get(anonId); const sub = subs.find(s => s.author_tempid === authorId); const voter = GS.players.get(voterTempId)
-        if (sub && voter) criteria.forEach(c => voteRows.push({ session_id:activeSession.id, submission_id:sub.id, voter_tempid:voterTempId, voter_name:voter.name, criterion:c }))
+        if (sub && voter) Object.entries(criteria).forEach(([crit, rating]) => voteRows.push({ session_id:activeSession.id, submission_id:sub.id, voter_tempid:voterTempId, voter_name:voter.name, criterion:crit, rating }))
       })
       if (voteRows.length) await sb.from('votes').insert(voteRows)
     }
@@ -2155,7 +2085,6 @@ $('wc-render-btn').addEventListener('click', () => {
 $('wc-continue-btn').addEventListener('click', () => { GS.qIdx++; showQuestion() })
 
 // ── Init ─────────────────────────────────────────────────────
-spawnStars()
 </script>
 </body>
 </html>
