@@ -1681,7 +1681,8 @@ $('idea-start-vote-btn').addEventListener('click', () => {
   const items = shuffled.map(([authorId, sub]) => {
     const anonId = uid(); P4S.anonymousMap.set(anonId, authorId); return { tempId: anonId, text: sub.text }
   })
-  activeChannel.send({ type:'broadcast', event:'round:idea:vote', payload:{ items }})
+  const ownerMap = Object.fromEntries([...P4S.anonymousMap.entries()].map(([anonId, authorId]) => [authorId, anonId]))
+  activeChannel.send({ type:'broadcast', event:'round:idea:vote', payload:{ items, ownerMap }})
   $('idea-vote-count').textContent = '0'; $('idea-vote-total').textContent = GS.players.size
   const list = $('idea-items-host'); list.innerHTML = ''
   items.forEach((item, i) => {

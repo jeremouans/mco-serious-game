@@ -937,14 +937,18 @@ $('idea-submit-btn').addEventListener('click', () => {
 function handleIdeaVotePhase(payload) {
   if (!payload.items?.length) { p4Wait('⏳', 'Vote en cours…', 'Pas assez d\'idées pour voter.'); return }
   P4J.selectedVoteId = null
+  const myAnonId = payload.ownerMap?.[PS.tempId]
   const list = $('idea-vote-list-p'); list.innerHTML = ''
   const btn = $('idea-vote-submit-btn'); btn.style.display = 'none'; btn.disabled = false; btn.textContent = '✅ Confirmer mon vote'
   $('idea-vote-err').classList.remove('show')
   payload.items.forEach((item, i) => {
+    const isMine = item.tempId === myAnonId
     const el = document.createElement('button'); el.className = 'idea-vote-btn'; el.dataset.anonId = item.tempId
-    el.textContent = `${i + 1}. ${item.text}`
+    el.disabled = isMine
+    el.style.opacity = isMine ? '0.45' : ''
+    el.innerHTML = `${i + 1}. ${item.text}${isMine ? ' <span style="font-size:.75em;color:var(--gold);font-weight:700;">(votre idée)</span>' : ''}`
     el.addEventListener('click', () => {
-      if (btn.disabled) return
+      if (btn.disabled || isMine) return
       list.querySelectorAll('.idea-vote-btn').forEach(b => b.classList.remove('selected'))
       el.classList.add('selected'); P4J.selectedVoteId = item.tempId; btn.style.display = 'block'
     })
@@ -1106,7 +1110,7 @@ $('slider-submit-btn').addEventListener('click', () => {
   $('slider-submit-btn').disabled = true; $('slider-submit-btn').textContent = '✓ Réponse envoyée !'
   activeChannel.send({ type: 'broadcast', event: 'answer', payload: {
     tempId:     PS.tempId,
-    questionId: currentQ?.id,
+    questionId: currentQ?.questionId,
     value,
     name:       PS.name,
     clientTs:   Date.now()
