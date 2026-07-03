@@ -1338,7 +1338,7 @@ async function endGame() {
         if (a.isCorrect) correct++
         totalTime += a.timeMs || 0
       })
-      mancheMap[sec].questions.push({ id:q.id, type:q.type, text:q.text, options:q.options, correct:q.correct, unit:q.unit, stats:{ answered, correct, perOption, avgTimeMs: answered ? Math.round(totalTime/answered) : 0, values } })
+      mancheMap[sec].questions.push({ id:q.id, type:q.type, text:q.text, options:q.options, correct:q.correct, unit:q.unit, stats:{ answered, correct, perOption, avgTimeMs: answered ? Math.round(totalTime/answered) : 0, values }, answers: logEntry?.answers || [] })
     })
     Object.values(mancheMap).forEach(ms => GAME_LOG.push({ type:'quiz', mancheName:ms.mancheName, questions:ms.questions }))
   }
@@ -1388,8 +1388,6 @@ function renderLiveBilan(code, date) {
   }).join('')
 
   let mancheHtml = ''
-  const OPT_COLORS_REP = ['#e74c3c','#3498db','#f39c12','#2ecc71']
-  const OPT_KEYS_REP = ['A','B','C','D']
 
   GAME_LOG.forEach(entry => {
     if (entry.type === 'quiz') {
@@ -1397,35 +1395,37 @@ function renderLiveBilan(code, date) {
       entry.questions.forEach(q => {
         const s = q.stats
         const rate = s.answered ? Math.round(s.correct/s.answered*100) : null
-        const rateStr = rate !== null ? `<span style="font-weight:900;color:${rate>=60?'#27ae60':rate>=35?'#e8a020':'#e74c3c'}">${rate}%</span>` : '<span style="color:#aaa">—</span>'
+        const rateStr = rate !== null ? `<span style="font-weight:900;color:${rate>=60?'#27ae60':rate>=35?'#e8a020':'#e74c3c'}">${rate}%</span>` : '<span style="color:#999">—</span>'
         if (q.type === 'slider') {
-          const vals = s.values.length ? s.values.map(v=>`<span style="background:rgba(106,165,23,.13);border-radius:12px;padding:.2em .55em;font-size:.82rem;font-weight:700">${v}</span>`).join(' ') : '<span style="color:#aaa">—</span>'
-          qHtml += `<div style="background:rgba(255,255,255,.04);border-radius:12px;padding:12px 16px;margin-bottom:8px;">
-            <div style="font-weight:700;color:var(--cream);margin-bottom:6px;">🎚️ ${escHtml(q.text)}</div>
-            <div style="font-size:.82rem;color:rgba(243,238,218,.5);margin-bottom:4px;">Bonne réponse : <strong style="color:var(--green)">${q.correct}${q.unit?' '+escHtml(q.unit):''}</strong></div>
-            <div style="font-size:.82rem;color:rgba(243,238,218,.5);">Réponses reçues (${s.answered}) : ${vals}</div>
+          const rows = (q.answers||[]).map(a => `<tr>
+            <td style="font-weight:700">${escHtml(a.name||'')}</td>
+            <td>${a.value !== null && a.value !== undefined ? escHtml(String(a.value))+(q.unit?' '+escHtml(q.unit):'') : '—'}</td>
+            <td style="font-weight:700;color:${a.isCorrect?'#27ae60':'#e74c3c'}">${a.isCorrect?'✓':'✗'}</td>
+            <td style="font-weight:700;color:#6aa517">+${a.points||0}</td>
+          </tr>`).join('')
+          qHtml += `<div style="background:#f4f8ee;border-radius:12px;padding:12px 16px;margin-bottom:8px;">
+            <div style="font-weight:700;color:#1a2b22;margin-bottom:4px;">🎚️ ${escHtml(q.text)}</div>
+            <div style="font-size:.82rem;color:#5a6b60;margin-bottom:8px;">Bonne réponse : <strong style="color:#6aa517">${q.correct}${q.unit?' '+escHtml(q.unit):''}</strong></div>
+            <table class="rep-table"><thead><tr><th>Joueur</th><th>Réponse</th><th></th><th>Points</th></tr></thead>
+            <tbody>${rows||'<tr><td colspan="4" style="text-align:center;color:#999">Aucune réponse</td></tr>'}</tbody></table>
           </div>`
         } else {
-          const maxCnt = Math.max(1, ...Object.values(s.perOption))
-          const optsHtml = (q.options||[]).map((opt,i) => {
-            const cnt = s.perOption[String(i)]||0
-            const pct = Math.round(cnt/Math.max(1,s.answered)*100)
-            const isCorrect = String(i) === String(q.correct)
-            return `<div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
-              <span style="background:${OPT_COLORS_REP[i]};color:#fff;font-weight:800;border-radius:6px;padding:.15em .45em;font-size:.78rem;flex:none">${OPT_KEYS_REP[i]}</span>
-              <span style="flex:1;font-size:.85rem;color:${isCorrect?'#2ecc71':'var(--cream)'};font-weight:${isCorrect?'800':'400'}">${escHtml(String(opt))}${isCorrect?' ✓':''}</span>
-              <div style="width:80px;background:rgba(255,255,255,.08);border-radius:4px;height:8px;overflow:hidden;flex:none">
-                <div style="width:${pct}%;height:100%;background:${isCorrect?'#27ae60':OPT_COLORS_REP[i]};opacity:.7;border-radius:4px;"></div>
-              </div>
-              <span style="font-size:.78rem;color:rgba(243,238,218,.5);width:28px;text-align:right">${cnt}</span>
-            </div>`
+          const rows = (q.answers||[]).map(a => {
+            const optText = (q.options && a.value !== null && a.value !== undefined) ? (q.options[parseInt(a.value)] ?? a.value) : '—'
+            return `<tr>
+              <td style="font-weight:700">${escHtml(a.name||'')}</td>
+              <td>${escHtml(String(optText))}</td>
+              <td style="font-weight:700;color:${a.isCorrect?'#27ae60':'#e74c3c'}">${a.isCorrect?'✓':'✗'}</td>
+              <td style="font-weight:700;color:#6aa517">+${a.points||0}</td>
+            </tr>`
           }).join('')
-          qHtml += `<div style="background:rgba(255,255,255,.04);border-radius:12px;padding:12px 16px;margin-bottom:8px;">
+          qHtml += `<div style="background:#f4f8ee;border-radius:12px;padding:12px 16px;margin-bottom:8px;">
             <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:8px;">
-              <div style="font-weight:700;color:var(--cream);font-size:.95rem;flex:1">${escHtml(q.text)}</div>
-              <div style="white-space:nowrap">${rateStr} <span style="font-size:.75rem;color:rgba(243,238,218,.4)">${s.answered} rép.</span></div>
+              <div style="font-weight:700;color:#1a2b22;font-size:.95rem;flex:1">${escHtml(q.text)}</div>
+              <div style="white-space:nowrap">${rateStr} <span style="font-size:.75rem;color:#888">${s.answered} rép.</span></div>
             </div>
-            ${optsHtml}
+            <table class="rep-table"><thead><tr><th>Joueur</th><th>Réponse</th><th></th><th>Points</th></tr></thead>
+            <tbody>${rows||'<tr><td colspan="4" style="text-align:center;color:#999">Aucune réponse</td></tr>'}</tbody></table>
           </div>`
         }
       })
@@ -1433,38 +1433,38 @@ function renderLiveBilan(code, date) {
 
     } else if (entry.type === 'idea') {
       const rows = entry.ranking.map(r => `<tr>
-        <td style="font-weight:700">${r.isGold?'🥇 ':''}<span style="color:var(--cream)">${escHtml(r.name)}</span></td>
+        <td style="font-weight:700">${r.isGold?'🥇 ':''}${escHtml(r.name)}</td>
         <td>${escHtml(r.text)}</td>
         <td style="text-align:center;font-weight:700;color:#6aa517">${r.votes}</td>
-        <td style="font-weight:900;color:var(--gold)">+${r.pts}</td>
+        <td style="font-weight:900;color:#c9a000">+${r.pts}</td>
       </tr>`).join('')
       mancheHtml += `<div><div class="rep-section-title">💡 ${escHtml(entry.mancheName)}</div>
         <table class="rep-table"><thead><tr><th>Auteur</th><th>Idée</th><th>Votes</th><th>Points</th></tr></thead>
-        <tbody>${rows||'<tr><td colspan="4" style="text-align:center;color:#aaa">Aucune soumission</td></tr>'}</tbody></table></div>`
+        <tbody>${rows||'<tr><td colspan="4" style="text-align:center;color:#999">Aucune soumission</td></tr>'}</tbody></table></div>`
 
     } else if (entry.type === 'engage') {
       const starDisp = v => v ? '★'.repeat(Math.round(v)) + ` (${v})` : '—'
       const rows = entry.results.map(r => `<tr>
         <td style="font-weight:700;white-space:nowrap">${escHtml(r.name)}</td>
-        <td style="font-size:.8em;white-space:nowrap;color:rgba(243,238,218,.6)">${escHtml(r.category)}</td>
+        <td style="font-size:.8em;white-space:nowrap;color:#5a6b60">${escHtml(r.category)}</td>
         <td style="font-size:.88rem">${escHtml(r.text)}</td>
-        <td style="font-size:.75rem;white-space:nowrap">🎯${starDisp(r.crit?.concret)} ✅${starDisp(r.crit?.aligne)}<br>✨${starDisp(r.crit?.inspirant)} 🚀${starDisp(r.crit?.impact)}</td>
-        <td style="font-weight:900;color:var(--gold)">+${(r.pts||0)+(r.bonus||0)}</td>
+        <td style="font-size:.75rem;white-space:nowrap;color:#444">🎯${starDisp(r.crit?.concret)} ✅${starDisp(r.crit?.aligne)}<br>✨${starDisp(r.crit?.inspirant)} 🚀${starDisp(r.crit?.impact)}</td>
+        <td style="font-weight:900;color:#c9a000">+${(r.pts||0)+(r.bonus||0)}</td>
       </tr>`).join('')
       mancheHtml += `<div><div class="rep-section-title">🤝 ${escHtml(entry.mancheName)}</div>
-        <div class="engage-rev-wrap"><table class="engage-rev-table" style="min-width:0;font-size:.82rem;">
+        <div style="overflow-x:auto"><table class="rep-table" style="min-width:0;font-size:.82rem;">
           <thead><tr><th>Auteur</th><th>Catégorie</th><th>Engagement</th><th>Critères</th><th>Points</th></tr></thead>
-          <tbody>${rows||'<tr><td colspan="5" style="text-align:center;color:#aaa">Aucune soumission</td></tr>'}</tbody>
+          <tbody>${rows||'<tr><td colspan="5" style="text-align:center;color:#999">Aucune soumission</td></tr>'}</tbody>
         </table></div></div>`
 
     } else if (entry.type === 'wordcloud') {
       const top = Object.entries(entry.wordCounts).sort((a,b)=>b[1]-a[1]).slice(0,25)
       const maxC = top[0]?.[1]||1
       const chips = top.map(([w,c]) =>
-        `<span style="background:rgba(106,165,23,${0.1+c/maxC*0.3});border-radius:20px;padding:.3em .75em;font-weight:700;font-size:${Math.min(1.5,.65+c/maxC*0.85)}rem;color:var(--green)">${escHtml(w)} <span style="font-size:.7em;opacity:.6">${c}</span></span>`
+        `<span style="background:rgba(106,165,23,${0.15+c/maxC*0.25});border-radius:20px;padding:.3em .75em;font-weight:700;font-size:${Math.min(1.5,.65+c/maxC*0.85)}rem;color:#124c15">${escHtml(w)} <span style="font-size:.7em;opacity:.6">${c}</span></span>`
       ).join('')
       mancheHtml += `<div><div class="rep-section-title">☁️ ${escHtml(entry.mancheName)}</div>
-        <div style="display:flex;flex-wrap:wrap;gap:8px;padding:8px 0;">${chips||'<span style="color:#aaa">Aucun vote reçu</span>'}</div></div>`
+        <div style="display:flex;flex-wrap:wrap;gap:8px;padding:8px 0;">${chips||'<span style="color:#999">Aucun vote reçu</span>'}</div></div>`
     }
   })
 
