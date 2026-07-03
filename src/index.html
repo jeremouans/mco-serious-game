@@ -39,9 +39,47 @@
     .lb-label { font-size: clamp(1.1rem,3vw,1.5rem); font-weight: 900; color: var(--cream); display: block; }
     .lb-desc  { font-size: clamp(.75rem,1.8vw,.9rem); color: rgba(243,238,218,.5); font-weight: 500; display: block; margin-top: 2px; }
     .lb-arr   { margin-left: auto; font-size: 1.3rem; color: rgba(243,238,218,.35); flex: none; }
+
+    /* ── Gate accès ── */
+    #gate {
+      position: fixed; inset: 0; z-index: 9999;
+      background: #0c2117;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      gap: 20px; padding: 24px;
+    }
+    #gate.hidden { display: none; }
+    #gate h1 { font-size: clamp(1.3rem,4vw,2rem); font-weight: 900; color: var(--cream); margin: 0; }
+    #gate p  { font-size: .9rem; color: rgba(243,238,218,.5); margin: 0; }
+    #gate-form { display: flex; flex-direction: column; gap: 12px; width: min(320px, 100%); }
+    #gate-login, #gate-pass {
+      font-family: inherit; font-size: 1rem; font-weight: 600; color: var(--cream);
+      background: rgba(255,255,255,.08); border: 2px solid rgba(255,255,255,.15);
+      border-radius: 14px; padding: .7em 1.1em; outline: none; transition: border-color .2s;
+    }
+    #gate-login:focus, #gate-pass:focus { border-color: var(--green); }
+    #gate-login::placeholder, #gate-pass::placeholder { color: rgba(243,238,218,.3); font-weight: 500; }
+    #gate-submit {
+      font-family: inherit; font-size: 1rem; font-weight: 900; cursor: pointer;
+      background: var(--green); color: #fff; border: none; border-radius: 14px;
+      padding: .8em; transition: background .2s, transform .15s;
+    }
+    #gate-submit:hover { background: var(--bright); transform: translateY(-2px); }
+    #gate-error { font-size: .85rem; color: #e74c3c; font-weight: 700; text-align: center; min-height: 1.2em; }
   </style>
 </head>
 <body>
+<div id="gate">
+  <img src="/assets/logo-mgen.png" alt="MGEN" style="width:72px;height:72px;border-radius:14px;">
+  <h1>Engagements 2030</h1>
+  <p>Accès réservé — identifiez-vous pour continuer.</p>
+  <div id="gate-form">
+    <input id="gate-login" type="text"     placeholder="Identifiant" autocomplete="username"     autocapitalize="none" spellcheck="false">
+    <input id="gate-pass"  type="password" placeholder="Mot de passe" autocomplete="current-password">
+    <div id="gate-error"></div>
+    <button id="gate-submit">Accéder →</button>
+  </div>
+</div>
+
 <div id="stars" aria-hidden="true"></div>
 <div class="landing">
   <div>
@@ -76,6 +114,31 @@
     </a>
   </div>
 </div>
+
+<script>
+;(function() {
+  const PASS_KEY = 'mco_gate_ok'
+  const gate = document.getElementById('gate')
+  if (sessionStorage.getItem(PASS_KEY) === '1') { gate.classList.add('hidden'); return }
+  document.getElementById('gate-submit').addEventListener('click', check)
+  document.getElementById('gate-pass').addEventListener('keydown', e => { if (e.key === 'Enter') check() })
+  document.getElementById('gate-login').addEventListener('keydown', e => { if (e.key === 'Enter') document.getElementById('gate-pass').focus() })
+  function check() {
+    const login = document.getElementById('gate-login').value.trim()
+    const pass  = document.getElementById('gate-pass').value
+    if (login === 'mcogames' && pass === 'mcogamesmgen') {
+      sessionStorage.setItem(PASS_KEY, '1')
+      gate.classList.add('hidden')
+    } else {
+      const err = document.getElementById('gate-error')
+      err.textContent = 'Identifiants incorrects.'
+      document.getElementById('gate-pass').value = ''
+      document.getElementById('gate-pass').focus()
+      setTimeout(() => { err.textContent = '' }, 3000)
+    }
+  }
+})()
+</script>
 
 <script type="module">
 function spawnStars() {
