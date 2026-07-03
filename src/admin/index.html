@@ -9,6 +9,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/lib/theme.css">
+  <script src="/lib/bilan.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/wordcloud@1.2.2/src/wordcloud2.min.js"></script>
   <style>
@@ -197,33 +198,32 @@
     .q-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:12px;padding-top:12px;border-top:1px solid rgba(255,255,255,.08);}
 
     /* ─── Report ─── */
-    #screen-report{background:#fff;color:#222;}
+    #screen-report{background:#f0f5ea;color:#222;}
     .report-topbar{
       display:flex;align-items:center;gap:12px;padding:14px 20px;
       background:var(--ever);border-bottom:3px solid var(--green);flex:none;
     }
     #report-content{
-      flex:1;overflow-y:auto;padding:28px;max-width:860px;margin:0 auto;width:100%;
+      flex:1;overflow-y:auto;padding:28px;max-width:900px;margin:0 auto;width:100%;
       font-family:Outfit,sans-serif;color:#1a1a1a;box-sizing:border-box;
     }
-    .report-h1{font-size:1.6rem;font-weight:900;color:var(--ever);margin:0 0 4px;}
-    .report-meta{font-size:.85rem;color:#666;margin-bottom:24px;}
-    .report-h2{font-size:1.1rem;font-weight:800;color:var(--ever);border-left:4px solid var(--green);padding-left:10px;margin:28px 0 12px;}
-    .report-kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:24px;}
-    .kpi-card{background:#f5f9f0;border:2px solid #dde8cc;border-radius:12px;padding:14px;text-align:center;}
-    .kpi-num{font-size:1.8rem;font-weight:900;color:var(--ever);}
-    .kpi-lbl{font-size:.78rem;color:#666;font-weight:600;}
-    .report-table{width:100%;border-collapse:collapse;font-size:.88rem;margin-bottom:20px;}
-    .report-table th{background:var(--ever);color:#fff;padding:8px 12px;text-align:left;font-size:.78rem;}
-    .report-table td{padding:8px 12px;border-bottom:1px solid #eee;}
-    .report-table tr:nth-child(even) td{background:#f9f9f9;}
-    .appro-bar-wrap{background:#e8e8e8;border-radius:4px;height:8px;width:100%;min-width:60px;}
-    .appro-bar{height:100%;border-radius:4px;background:var(--green);}
-    .star-display{color:#F4C84A;font-size:.9rem;letter-spacing:1px;}
-    .gold-badge{background:var(--gold);color:var(--ever);padding:2px 8px;border-radius:10px;font-size:.72rem;font-weight:800;}
-    #wc-canvas-report{max-width:100%;border-radius:12px;background:#f5f9f0;}
-    .idea-row{background:#fffdf0;border-left:3px solid var(--gold);padding:10px 14px;border-radius:0 8px 8px 0;margin-bottom:8px;}
-    .engage-row{background:#f5f9f0;border-left:3px solid var(--green);padding:10px 14px;border-radius:0 8px 8px 0;margin-bottom:8px;}
+    /* Shared bilan classes (mirrors host/index.html) */
+    .report-body{background:#fff;color:#1a2b22;border-radius:20px;box-shadow:0 4px 24px rgba(0,0,0,.08);padding:clamp(20px,3vw,44px);display:flex;flex-direction:column;gap:24px;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+    .rep-head{display:flex;align-items:center;gap:16px;border-bottom:2px solid #e8f0e0;padding-bottom:16px;}
+    .rep-head h2{font-size:clamp(1.2rem,2.5vw,1.7rem);font-weight:900;color:#113124;margin:0;}
+    .rep-sub{color:#5a6b60;font-size:.9rem;font-weight:600;margin-top:3px;}
+    .rep-kpis{display:flex;gap:12px;flex-wrap:wrap;}
+    .kpi{flex:1;min-width:110px;background:#f4f8ee;border-radius:14px;padding:14px;text-align:center;}
+    .kv{font-size:clamp(1.6rem,4vw,2.2rem);font-weight:900;color:#6aa517;}
+    .kl{font-size:.8rem;color:#5a6b60;font-weight:700;margin-top:2px;}
+    .rep-section-title{font-size:clamp(1rem,2vw,1.3rem);font-weight:900;color:#124c15;margin:0 0 10px;border-left:5px solid #6aa517;padding-left:.5em;}
+    .rep-table{width:100%;border-collapse:collapse;font-size:clamp(.82rem,1.5vw,1rem);}
+    .rep-table th,.rep-table td{padding:.5em .7em;text-align:left;border-bottom:1px solid #e6ecdf;}
+    .rep-table th{background:#113124;color:#fff;font-weight:800;}
+    .rep-table tr:nth-child(even) td{background:#fafcf6;}
+    .rep-table td:nth-child(2){max-width:320px;}
+    .rep-foot{font-size:.78rem;color:#7a8b80;border-top:1px solid #e6ecdf;padding-top:10px;}
+    .rep-empty{color:#5a6b60;font-style:italic;font-size:.95rem;}
 
     /* ─── Login screen ─── */
     .login-center{
@@ -449,7 +449,7 @@
     <button class="btn gold sm" id="export-pdf-btn">📥 Exporter PDF</button>
   </div>
   <div id="report-content">
-    <!-- Populated by renderReport() -->
+    <div class="report-body" id="report-body-admin"><!-- Populated by renderReport() --></div>
   </div>
 </section>
 
@@ -704,7 +704,7 @@ $('history-search').addEventListener('input', e => {
 
 // ─── Report ───────────────────────────────────────────────────
 async function openSessionReport(sessionId) {
-  $('report-content').innerHTML = '<div style="padding:40px;text-align:center;color:#666;">Chargement du bilan…</div>'
+  $('report-body-admin').innerHTML = '<p style="padding:40px;text-align:center;color:#666;">Chargement du bilan…</p>'
   showScreen('screen-report')
 
   const [sessRes, playRes, ansRes, resRes, subRes, voteRes, wcRes] = await Promise.all([
@@ -727,155 +727,37 @@ async function openSessionReport(sessionId) {
     wordcloudVotes: wcRes.data || []
   }
 
+  // Load quiz config
+  let config = null
+  const quizId = sessRes.data?.settings?.quiz_id
+  if (quizId) {
+    const { data: qz } = await sb.from('quizzes').select('config').eq('id', quizId).single()
+    if (qz?.config) config = typeof qz.config === 'string' ? JSON.parse(qz.config) : qz.config
+  }
+
   const hostProf = histProfiles[sessRes.data?.host_id] || null
-  renderReport(reportSession, hostProf)
+  renderReport(reportSession, hostProf, config)
 }
 
-function renderReport(data, hostProf) {
+function renderReport(data, hostProf, config = null) {
   const { session, players, answers, results, submissions, votes, wordcloudVotes } = data
   const hostName = hostProf ? `${hostProf.first_name} ${hostProf.last_name}`.trim() : '—'
   const dur = session.ended_at && session.started_at ? fmtDur(session.started_at, session.ended_at) : '—'
-  const avgScore = players.length ? Math.round(players.reduce((a,p)=>a+p.score,0)/players.length) : 0
+  const date = fmtDate(session.created_at)
 
-  // Question appropriation
-  const qMap = {}
-  for (const a of answers) {
-    if (!qMap[a.question_id]) qMap[a.question_id] = { total:0, correct:0, text: a.question_id }
-    qMap[a.question_id].total++
-    if (a.is_correct) qMap[a.question_id].correct++
-  }
+  // Build player name map for answers (answers.select('*') has no player join)
+  const playerById = {}
+  players.forEach(p => { playerById[p.id] = (p.first_name && p.last_name ? `${p.first_name} ${p.last_name}` : p.name) || '?' })
 
-  // Ideas
-  const ideas = submissions.filter(s => s.kind === 'idea')
-  const engages = submissions.filter(s => s.kind === 'engage')
+  // Scoreboard from results (ranked) or players
+  const scoreboard = results.length
+    ? results.map(r => ({ name: r.player_name, score: r.final_score }))
+    : players.map(p => ({ name: playerById[p.id] || p.name || '?', score: p.score || 0 }))
 
-  // Wordcloud
-  const wcFreq = {}
-  for (const v of wordcloudVotes) wcFreq[v.word] = (wcFreq[v.word]||0)+1
-  const topWords = Object.entries(wcFreq).sort((a,b)=>b[1]-a[1]).slice(0,40)
+  const mancheLog = buildMancheLogFromDB({ answers, submissions, wordcloudVotes, votes, config, playerById })
+  const extraMeta = `Animateur : ${escHtml(hostName)} · Durée : ${dur}`
 
-  $('report-content').innerHTML = `
-    <div class="report-h1">Bilan — Session ${escHtml(session.code)}</div>
-    <div class="report-meta">
-      Animateur : <strong>${escHtml(hostName)}</strong> ·
-      Date : <strong>${fmtDate(session.created_at)}</strong> ·
-      Durée : <strong>${dur}</strong>
-    </div>
-
-    <!-- KPIs -->
-    <div class="report-kpis">
-      <div class="kpi-card"><div class="kpi-num">${players.length}</div><div class="kpi-lbl">Participants</div></div>
-      <div class="kpi-card"><div class="kpi-num">${avgScore}</div><div class="kpi-lbl">Score moyen</div></div>
-      <div class="kpi-card"><div class="kpi-num">${Object.keys(qMap).length}</div><div class="kpi-lbl">Questions jouées</div></div>
-    </div>
-
-    <!-- Classement -->
-    <div class="report-h2">🏆 Classement final</div>
-    <table class="report-table">
-      <thead><tr><th>Rang</th><th>Participant</th><th>Score</th></tr></thead>
-      <tbody>
-        ${players.map((p,i) => `
-          <tr>
-            <td>${i===0?'🥇':i===1?'🥈':i===2?'🥉':'#'+(i+1)}</td>
-            <td>${escHtml(p.first_name&&p.last_name ? p.first_name+' '+p.last_name : p.name)}</td>
-            <td><strong>${p.score}</strong> pts</td>
-          </tr>`).join('')}
-      </tbody>
-    </table>
-
-    <!-- Niveau d'appropriation par question -->
-    ${Object.keys(qMap).length > 0 ? `
-    <div class="report-h2">📊 Niveau d'appropriation par question</div>
-    <table class="report-table">
-      <thead><tr><th>Question</th><th>Répondants</th><th>Taux de succès</th></tr></thead>
-      <tbody>
-        ${Object.entries(qMap).map(([id, q]) => {
-          const pct = q.total > 0 ? Math.round(q.correct/q.total*100) : 0
-          return `<tr>
-            <td style="max-width:300px;word-break:break-word;">${escHtml(id)}</td>
-            <td>${q.total}</td>
-            <td>
-              <div style="display:flex;align-items:center;gap:8px;">
-                <div class="appro-bar-wrap"><div class="appro-bar" style="width:${pct}%"></div></div>
-                <span style="font-weight:700;min-width:36px;">${pct}%</span>
-              </div>
-            </td>
-          </tr>`}).join('')}
-      </tbody>
-    </table>` : ''}
-
-    <!-- Idées -->
-    ${ideas.length > 0 ? `
-    <div class="report-h2">💡 Idées générées</div>
-    ${ideas.sort((a,b)=>b.points-a.points).map(s => {
-      const voteCount = votes.filter(v=>v.submission_id===s.id).length
-      return `<div class="idea-row">
-        ${s.is_gold ? '<span class="gold-badge">🥇 Idée en Or</span> ' : ''}
-        <strong>${escHtml(s.text)}</strong>
-        <div style="margin-top:4px;font-size:.82rem;color:#666;">
-          Auteur : ${escHtml(s.author_name||'?')} · ${voteCount} vote(s) · ${s.points} pts
-        </div>
-      </div>`}).join('')}` : ''}
-
-    <!-- Engagements -->
-    ${engages.length > 0 ? `
-    <div class="report-h2">🤝 Engagements pris</div>
-    ${engages.map(s => {
-      const sVotes = votes.filter(v=>v.submission_id===s.id)
-      const criteria = ['concret','aligne','inspirant','impact']
-      const cMap = {}
-      for (const v of sVotes) if(v.criterion) {
-        if(!cMap[v.criterion]) cMap[v.criterion]={sum:0,count:0}
-        cMap[v.criterion].sum += (v.rating||1)
-        cMap[v.criterion].count++
-      }
-      const starsHtml = (crit) => {
-        const avg = cMap[crit] ? Math.round(cMap[crit].sum/cMap[crit].count) : 0
-        return '★'.repeat(avg)+'☆'.repeat(5-avg)
-      }
-      return `<div class="engage-row">
-        <strong>${escHtml(s.category||'—')}</strong> — ${escHtml(s.text)}
-        <div style="margin-top:6px;font-size:.8rem;color:#666;">
-          Auteur : ${escHtml(s.author_name||'?')} · ${s.points} pts
-        </div>
-        <div style="margin-top:6px;font-size:.82rem;display:flex;gap:14px;flex-wrap:wrap;">
-          ${criteria.map(c=>`<span>
-            <span style="color:#666;text-transform:capitalize;">${c}</span>
-            <span class="star-display">${starsHtml(c)}</span>
-          </span>`).join('')}
-        </div>
-      </div>`}).join('')}` : ''}
-
-    <!-- Nuage de mots -->
-    ${topWords.length > 0 ? `
-    <div class="report-h2">🌥️ Nuage de mots</div>
-    <canvas id="wc-canvas-report" width="700" height="350"></canvas>
-    <div style="margin-top:10px;">
-      <table class="report-table">
-        <thead><tr><th>Mot</th><th>Votes</th></tr></thead>
-        <tbody>
-          ${topWords.slice(0,15).map(([w,c])=>`<tr><td>${escHtml(w)}</td><td>${c}</td></tr>`).join('')}
-        </tbody>
-      </table>
-    </div>` : ''}
-  `
-
-  // Render wordcloud if present
-  if (topWords.length > 0 && typeof WordCloud !== 'undefined') {
-    setTimeout(() => {
-      const canvas = $('wc-canvas-report')
-      if (canvas) {
-        WordCloud(canvas, {
-          list: topWords,
-          gridSize: 8, weightFactor: w => Math.max(14, w*6),
-          fontFamily: 'Outfit, sans-serif',
-          color: (w, weight) => ['#113124','#6AA517','#86BFEB','#F4C84A'][Math.floor(Math.random()*4)],
-          rotateRatio: 0.3, backgroundColor: '#f5f9f0',
-          shrinkToFit: true
-        })
-      }
-    }, 100)
-  }
+  $('report-body-admin').innerHTML = buildBilanHtml({ code: session.code, date, scoreboard, mancheLog, extraMeta })
 }
 
 $('report-back-btn').addEventListener('click', () => showScreen('screen-history'))
@@ -894,7 +776,7 @@ $('export-pdf-btn').addEventListener('click', async () => {
       html2canvas: { scale:2, useCORS:true, logging:false },
       jsPDF: { unit:'mm', format:'a4', orientation:'portrait' }
     })
-    .from($('report-content'))
+    .from($('report-body-admin'))
     .save()
     .then(() => {
       $('export-pdf-btn').textContent = '📥 Exporter PDF'

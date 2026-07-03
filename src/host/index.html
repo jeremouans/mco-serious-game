@@ -8,6 +8,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../lib/theme.css">
+  <script src="../lib/bilan.js"></script>
   <style>
     body { overflow: auto; }
 
@@ -1378,135 +1379,17 @@ $('back-report-btn').addEventListener('click', () => {
 // ── Bilan live (depuis mémoire) ───────────────────────────────
 function renderLiveBilan(code, date) {
   if (!GS) { $('report-body').innerHTML = '<p class="rep-empty">Aucune donnée de partie.</p>'; return }
-  const players = [...GS.players.values()]
-  const scoreboard = players.map(p => ({ ...p })).sort((a,b) => b.score-a.score)
-  const avgScore = scoreboard.length ? Math.round(scoreboard.reduce((s,p)=>s+p.score,0)/scoreboard.length) : 0
-
-  const rankRows = scoreboard.map((p,i) => {
-    const medal = i===0?'🥇':i===1?'🥈':i===2?'🥉':(i+1)
-    return `<tr><td>${medal}</td><td>${escHtml(p.name)} ${escHtml(p.emoji||'')}</td><td style="font-weight:900;color:#6aa517">${p.score} pts</td></tr>`
-  }).join('')
-
-  let mancheHtml = ''
-
-  GAME_LOG.filter(e => {
-    if (e.type === 'quiz')      return e.questions?.length > 0
-    if (e.type === 'idea')      return e.ranking?.length > 0
-    if (e.type === 'engage')    return e.results?.length > 0
-    if (e.type === 'wordcloud') return Object.keys(e.wordCounts||{}).length > 0
-    return true
-  }).forEach(entry => {
-    if (entry.type === 'quiz') {
-      let qHtml = ''
-      entry.questions.forEach(q => {
-        const s = q.stats
-        const rate = s.answered ? Math.round(s.correct/s.answered*100) : null
-        const rateStr = rate !== null ? `<span style="font-weight:900;color:${rate>=60?'#27ae60':rate>=35?'#e8a020':'#e74c3c'}">${rate}%</span>` : '<span style="color:#999">—</span>'
-        if (q.type === 'slider') {
-          const rows = (q.answers||[]).map(a => `<tr>
-            <td style="font-weight:700">${escHtml(a.name||'')}</td>
-            <td>${a.value !== null && a.value !== undefined ? escHtml(String(a.value))+(q.unit?' '+escHtml(q.unit):'') : '—'}</td>
-            <td style="font-weight:700;color:${a.isCorrect?'#27ae60':'#e74c3c'}">${a.isCorrect?'✓':'✗'}</td>
-            <td style="font-weight:700;color:#6aa517">+${a.points||0}</td>
-          </tr>`).join('')
-          qHtml += `<div style="background:#f4f8ee;border-radius:12px;padding:12px 16px;margin-bottom:8px;">
-            <div style="font-weight:700;color:#1a2b22;margin-bottom:4px;">🎚️ ${escHtml(q.text)}</div>
-            <div style="font-size:.82rem;color:#5a6b60;margin-bottom:8px;">Bonne réponse : <strong style="color:#6aa517">${q.correct}${q.unit?' '+escHtml(q.unit):''}</strong></div>
-            <table class="rep-table"><thead><tr><th>Joueur</th><th>Réponse</th><th></th><th>Points</th></tr></thead>
-            <tbody>${rows||'<tr><td colspan="4" style="text-align:center;color:#999">Aucune réponse</td></tr>'}</tbody></table>
-          </div>`
-        } else {
-          const rows = (q.answers||[]).map(a => {
-            const optText = (q.options && a.value !== null && a.value !== undefined) ? (q.options[parseInt(a.value)] ?? a.value) : '—'
-            return `<tr>
-              <td style="font-weight:700">${escHtml(a.name||'')}</td>
-              <td>${escHtml(String(optText))}</td>
-              <td style="font-weight:700;color:${a.isCorrect?'#27ae60':'#e74c3c'}">${a.isCorrect?'✓':'✗'}</td>
-              <td style="font-weight:700;color:#6aa517">+${a.points||0}</td>
-            </tr>`
-          }).join('')
-          qHtml += `<div style="background:#f4f8ee;border-radius:12px;padding:12px 16px;margin-bottom:8px;">
-            <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:8px;">
-              <div style="font-weight:700;color:#1a2b22;font-size:.95rem;flex:1">${escHtml(q.text)}</div>
-              <div style="white-space:nowrap">${rateStr} <span style="font-size:.75rem;color:#888">${s.answered} rép.</span></div>
-            </div>
-            <table class="rep-table"><thead><tr><th>Joueur</th><th>Réponse</th><th></th><th>Points</th></tr></thead>
-            <tbody>${rows||'<tr><td colspan="4" style="text-align:center;color:#999">Aucune réponse</td></tr>'}</tbody></table>
-          </div>`
-        }
-      })
-      mancheHtml += `<div><div class="rep-section-title">🎯 ${escHtml(entry.mancheName)}</div>${qHtml}</div>`
-
-    } else if (entry.type === 'idea') {
-      const rows = entry.ranking.map(r => `<tr>
-        <td style="font-weight:700">${r.isGold?'🥇 ':''}${escHtml(r.name)}</td>
-        <td>${escHtml(r.text)}</td>
-        <td style="text-align:center;font-weight:700;color:#6aa517">${r.votes}</td>
-        <td style="font-weight:900;color:#c9a000">+${r.pts}</td>
-      </tr>`).join('')
-      mancheHtml += `<div><div class="rep-section-title">💡 ${escHtml(entry.mancheName)}</div>
-        <table class="rep-table"><thead><tr><th>Auteur</th><th>Idée</th><th>Votes</th><th>Points</th></tr></thead>
-        <tbody>${rows||'<tr><td colspan="4" style="text-align:center;color:#999">Aucune soumission</td></tr>'}</tbody></table></div>`
-
-    } else if (entry.type === 'engage') {
-      const starDisp = v => v ? '★'.repeat(Math.round(v)) + ` (${v})` : '—'
-      const rows = entry.results.map(r => `<tr>
-        <td style="font-weight:700;white-space:nowrap">${escHtml(r.name)}</td>
-        <td style="font-size:.8em;white-space:nowrap;color:#5a6b60">${escHtml(r.category)}</td>
-        <td style="font-size:.88rem">${escHtml(r.text)}</td>
-        <td style="font-size:.75rem;white-space:nowrap;color:#444">🎯${starDisp(r.crit?.concret)} ✅${starDisp(r.crit?.aligne)}<br>✨${starDisp(r.crit?.inspirant)} 🚀${starDisp(r.crit?.impact)}</td>
-        <td style="font-weight:900;color:#c9a000">+${(r.pts||0)+(r.bonus||0)}</td>
-      </tr>`).join('')
-      mancheHtml += `<div><div class="rep-section-title">🤝 ${escHtml(entry.mancheName)}</div>
-        <div style="overflow-x:auto"><table class="rep-table" style="min-width:0;font-size:.82rem;">
-          <thead><tr><th>Auteur</th><th>Catégorie</th><th>Engagement</th><th>Critères</th><th>Points</th></tr></thead>
-          <tbody>${rows||'<tr><td colspan="5" style="text-align:center;color:#999">Aucune soumission</td></tr>'}</tbody>
-        </table></div></div>`
-
-    } else if (entry.type === 'wordcloud') {
-      const top = Object.entries(entry.wordCounts).sort((a,b)=>b[1]-a[1]).slice(0,25)
-      const maxC = top[0]?.[1]||1
-      const chips = top.map(([w,c]) =>
-        `<span style="background:rgba(106,165,23,${0.15+c/maxC*0.25});border-radius:20px;padding:.3em .75em;font-weight:700;font-size:${Math.min(1.5,.65+c/maxC*0.85)}rem;color:#124c15">${escHtml(w)} <span style="font-size:.7em;opacity:.6">${c}</span></span>`
-      ).join('')
-      mancheHtml += `<div><div class="rep-section-title">☁️ ${escHtml(entry.mancheName)}</div>
-        <div style="display:flex;flex-wrap:wrap;gap:8px;padding:8px 0;">${chips||'<span style="color:#999">Aucun vote reçu</span>'}</div></div>`
-    }
-  })
-
-  const totalQPlayed = GAME_LOG.filter(e=>e.type==='quiz').reduce((s,e)=>s+e.questions.length,0)
-  const totalAnswered = GAME_LOG.filter(e=>e.type==='quiz').reduce((s,e)=>s+e.questions.reduce((ss,q)=>ss+q.stats.answered,0),0)
-  const totalCorrect  = GAME_LOG.filter(e=>e.type==='quiz').reduce((s,e)=>s+e.questions.reduce((ss,q)=>ss+q.stats.correct,0),0)
-  const correctRate = totalAnswered ? Math.round(totalCorrect/totalAnswered*100) : 0
-
-  $('report-body').innerHTML = `
-    <div class="rep-head">
-      <div id="logo-rep" style="width:64px;height:64px;flex:none;border-radius:12px;overflow:hidden;"></div>
-      <div><h2>Engagements 2030 — le Quizz</h2><p class="rep-sub">Session <strong>${escHtml(code)}</strong> · ${escHtml(date)}</p></div>
-    </div>
-    <div class="rep-kpis">
-      <div class="kpi"><div class="kv">${scoreboard.length}</div><div class="kl">Participants</div></div>
-      <div class="kpi"><div class="kv">${totalQPlayed}</div><div class="kl">Questions jouées</div></div>
-      <div class="kpi"><div class="kv">${avgScore}</div><div class="kl">Score moyen</div></div>
-      <div class="kpi"><div class="kv">${correctRate}%</div><div class="kl">Taux de réussite</div></div>
-    </div>
-    ${scoreboard.length ? `<div><div class="rep-section-title">🏆 Classement final</div>
-      <table class="rep-table"><thead><tr><th>Rang</th><th>Joueur</th><th>Score</th></tr></thead><tbody>${rankRows}</tbody></table></div>`
-      : ''}
-    ${mancheHtml || '<p class="rep-empty">Aucune manche enregistrée.</p>'}
-    <div class="rep-foot">Engagements 2030, le Quizz · MGEN · Session ${escHtml(code)} · ${escHtml(date)}</div>
-  `
-  const logoEl = document.getElementById('logo-rep')
-  if (logoEl) logoEl.innerHTML = LOGO_SVG
+  const scoreboard = [...GS.players.values()].sort((a,b) => b.score-a.score)
+  $('report-body').innerHTML = buildBilanHtml({ code, date, scoreboard, mancheLog: GAME_LOG, logoHtml: LOGO_SVG })
 }
 
 // ── Historique ────────────────────────────────────────────────
 async function loadHistory() {
   const { data } = await sb.from('sessions')
-    .select('id, code, created_at, ended_at')
+    .select('id, code, created_at, ended_at, settings')
     .eq('status', 'ended')
     .order('created_at', { ascending: false })
-    .limit(10)
+    .limit(20)
 
   const list = $('history-list')
   if (!data || data.length === 0) { list.innerHTML = '<p class="empty-msg" style="font-size:.88rem;">Aucune partie jouée.</p>'; return }
@@ -1516,148 +1399,42 @@ async function loadHistory() {
     const row = document.createElement('div'); row.className = 'history-row'
     row.innerHTML = `<span class="history-code">${s.code}</span><span class="history-date">${date}</span>`
     const btn = document.createElement('button'); btn.className = 'btn sm'; btn.textContent = '📊 Bilan'
-    btn.addEventListener('click', () => openReport(s.id, s.code, date))
-    row.appendChild(btn); list.appendChild(row)
+    btn.addEventListener('click', () => openReport(s.id, s.code, date, s.settings))
+    const delBtn = document.createElement('button'); delBtn.className = 'btn sm'; delBtn.textContent = '🗑️'
+    delBtn.title = 'Supprimer cette session'
+    delBtn.style.cssText = 'background:rgba(231,76,60,.15);border-color:rgba(231,76,60,.35);color:#e74c3c;margin-left:4px;'
+    delBtn.addEventListener('click', async () => {
+      if (!confirm(`Supprimer la session ${s.code} ? Cette action est irréversible.`)) return
+      await sb.from('sessions').delete().eq('id', s.id)
+      row.remove()
+      if (!list.children.length) list.innerHTML = '<p class="empty-msg" style="font-size:.88rem;">Aucune partie jouée.</p>'
+    })
+    row.appendChild(btn); row.appendChild(delBtn); list.appendChild(row)
   })
 }
 
-// ── Rapport ───────────────────────────────────────────────────
-async function openReport(sessionId, code, date) {
+// ── Rapport depuis historique ──────────────────────────────────
+async function openReport(sessionId, code, date, settings) {
   showScreen('screen-report')
   $('report-body').innerHTML = '<p class="rep-empty" style="text-align:center;padding:40px;">Chargement…</p>'
   try {
-    const [{ data: results }, { data: answers }, { data: submissions }, { data: wcVotes }, { data: sessionRow }] = await Promise.all([
+    const [{ data: results }, { data: answers }, { data: submissions }, { data: wcVotes }, { data: votes }] = await Promise.all([
       sb.from('results').select('*').eq('session_id', sessionId).order('rank'),
       sb.from('answers').select('question_id, value, is_correct, time_ms, points, players(name)').eq('session_id', sessionId),
       sb.from('submissions').select('*').eq('session_id', sessionId).order('points', { ascending: false }),
       sb.from('wordcloud_votes').select('round_key, word').eq('session_id', sessionId),
-      sb.from('sessions').select('settings').eq('id', sessionId).single()
+      sb.from('votes').select('*').eq('session_id', sessionId)
     ])
-    // Load quiz config for this session if not already loaded
     let config = QUIZ_CONFIG
-    if (!config && sessionRow?.settings?.quiz_id) {
-      const { data: qz } = await sb.from('quizzes').select('config').eq('id', sessionRow.settings.quiz_id).single()
+    const quizId = settings?.quiz_id
+    if (!config && quizId) {
+      const { data: qz } = await sb.from('quizzes').select('config').eq('id', quizId).single()
       if (qz?.config) config = typeof qz.config === 'string' ? JSON.parse(qz.config) : qz.config
     }
-    renderReport({ code, date, results: results??[], answers: answers??[], submissions: submissions??[], wcVotes: wcVotes??[], config })
+    const scoreboard = (results ?? []).map(r => ({ name: r.player_name, score: r.final_score }))
+    const mancheLog = buildMancheLogFromDB({ answers: answers??[], submissions: submissions??[], wordcloudVotes: wcVotes??[], votes: votes??[], config })
+    $('report-body').innerHTML = buildBilanHtml({ code, date, scoreboard, mancheLog, logoHtml: LOGO_SVG })
   } catch(e) { $('report-body').innerHTML = `<p style="color:#e74c3c;padding:20px;">Erreur : ${e.message}</p>` }
-}
-
-function renderReport({ code, date, results, answers, submissions=[], wcVotes=[], config }) {
-  const playerCount = results.length
-  const avgScore    = playerCount > 0 ? Math.round(results.reduce((s,r)=>s+r.final_score,0)/playerCount) : 0
-  const totalAnswered = answers.filter(a => a.value !== null).length
-  const totalCorrect  = answers.filter(a => a.is_correct).length
-  const correctRate   = totalAnswered > 0 ? Math.round(totalCorrect/totalAnswered*100) : 0
-
-  // Index answers by question_id
-  const qStats = {}
-  answers.forEach(a => {
-    if (!qStats[a.question_id]) qStats[a.question_id] = { correct:0, answered:0, optCounts:{}, totalTime:0 }
-    const s = qStats[a.question_id]
-    if (a.value !== null) { s.answered++; s.optCounts[a.value]=(s.optCounts[a.value]||0)+1 }
-    if (a.is_correct) s.correct++
-    s.totalTime += a.time_ms||0
-  })
-
-  // Wordcloud by round_key
-  const wcByRound = {}
-  wcVotes.forEach(v => { if(!wcByRound[v.round_key])wcByRound[v.round_key]={}; wcByRound[v.round_key][v.word]=(wcByRound[v.round_key][v.word]||0)+1 })
-
-  const rankRows = results.map(r => {
-    const medal = r.rank===1?'🥇':r.rank===2?'🥈':r.rank===3?'🥉':r.rank
-    return `<tr><td>${medal}</td><td>${escHtml(r.player_name)}</td><td style="font-weight:900;color:#6aa517">${r.final_score} pts</td></tr>`
-  }).join('')
-
-  // Per-manche sections
-  let mancheHtml = ''
-  if (config?.manches?.length) {
-    config.manches.forEach(manche => {
-      const mtype = manche.type || 'quiz'
-      if (mtype === 'quiz') {
-        const qs = (manche.questions||[]).filter(q => q.type !== 'slider')
-        const sliders = (manche.questions||[]).filter(q => q.type === 'slider')
-        const qRows = qs.map(q => {
-          const qId = q.id || q._id; const s = qStats[qId]
-          if (!s || !s.answered) return ''
-          const rate = Math.round(s.correct/s.answered*100)
-          const top = Object.entries(s.optCounts).sort((a,b)=>b[1]-a[1])[0]
-          const topTxt = top ? (q.options?.[+top[0]] ?? top[0]) : '—'
-          const avgT = (Math.round(s.totalTime/s.answered/100)/10).toFixed(1)
-          const color = rate>=60?'#27ae60':rate>=35?'#e8a020':'#e74c3c'
-          return `<tr><td style="max-width:260px;font-size:.85em">${escHtml(q.text)}</td><td><strong style="color:${color}">${rate}%</strong></td><td style="font-size:.82em;color:#4a5a4f">${escHtml(String(topTxt))}</td><td>${avgT}s</td></tr>`
-        }).filter(Boolean).join('')
-        const sliderRows = sliders.map(q => {
-          const qId = q.id || q._id; const s = qStats[qId]; if (!s||!s.answered) return ''
-          const vals = Object.entries(s.optCounts).map(([v,n])=>`${v} (×${n})`).join(', ')
-          return `<tr><td style="max-width:260px;font-size:.85em">${escHtml(q.text)}</td><td colspan="2" style="font-size:.82em;color:#4a5a4f">${vals||'—'}</td><td>Correct : ${q.correct}${q.unit?' '+q.unit:''}</td></tr>`
-        }).filter(Boolean).join('')
-        if (qRows || sliderRows) {
-          mancheHtml += `<div><div class="rep-section-title">🎯 ${escHtml(manche.name)}</div>
-            <table class="rep-table"><thead><tr><th>Question</th><th>Réussite</th><th>Réponse majoritaire</th><th>Temps / Info</th></tr></thead>
-            <tbody>${qRows}${sliderRows}</tbody></table></div>`
-        }
-      } else if (mtype === 'wordcloud') {
-        const words = wcByRound[manche.id]
-        if (words) {
-          const top = Object.entries(words).sort((a,b)=>b[1]-a[1]).slice(0,20)
-          mancheHtml += `<div><div class="rep-section-title">☁️ ${escHtml(manche.name)}</div>
-            <div style="display:flex;flex-wrap:wrap;gap:8px;padding:8px 0;">${top.map(([w,c])=>`<span style="background:rgba(106,165,23,.13);border-radius:20px;padding:.3em .8em;font-weight:700;font-size:${Math.min(1.4,.65+c*.18)}rem;color:var(--green,#6aa517)">${escHtml(w)} <span style="font-size:.7em;opacity:.55;">${c}</span></span>`).join('')}</div></div>`
-        }
-      } else if (mtype === 'idea') {
-        const ideas = submissions.filter(s=>s.kind==='idea')
-        if (ideas.length) {
-          mancheHtml += `<div><div class="rep-section-title">💡 ${escHtml(manche.name)}</div>
-            <table class="rep-table"><thead><tr><th>Auteur</th><th>Idée</th><th>Points</th></tr></thead>
-            <tbody>${ideas.map(s=>`<tr><td style="font-weight:700;white-space:nowrap">${escHtml(s.author_name)}${s.is_gold?' 🥇':''}</td><td>${escHtml(s.text)}</td><td style="font-weight:900;color:#6aa517">${s.points} pts</td></tr>`).join('')}</tbody></table></div>`
-        }
-      } else if (mtype === 'engage') {
-        const eng = submissions.filter(s=>s.kind==='engage')
-        if (eng.length) {
-          mancheHtml += `<div><div class="rep-section-title">🤝 ${escHtml(manche.name)}</div>
-            <table class="rep-table"><thead><tr><th>Auteur</th><th>Catégorie</th><th>Engagement</th><th>Points</th></tr></thead>
-            <tbody>${eng.map(s=>`<tr><td style="font-weight:700;white-space:nowrap">${escHtml(s.author_name)}</td><td style="font-size:.82em;white-space:nowrap">${escHtml(s.category||'—')}</td><td>${escHtml(s.text)}</td><td style="font-weight:900;color:#6aa517">${s.points} pts</td></tr>`).join('')}</tbody></table></div>`
-        }
-      }
-    })
-  } else {
-    // Fallback: no config, show raw question stats
-    const qIds = [...new Set(answers.map(a=>a.question_id))]
-    const qRows = qIds.map(qId => {
-      const s = qStats[qId]; if (!s||!s.answered) return ''
-      const rate = Math.round(s.correct/s.answered*100)
-      const color = rate>=60?'#27ae60':rate>=35?'#e8a020':'#e74c3c'
-      return `<tr><td style="font-size:.82em;color:#666">${qId}</td><td><strong style="color:${color}">${rate}%</strong></td><td>—</td><td>—</td></tr>`
-    }).filter(Boolean).join('')
-    if (qRows) mancheHtml += `<div><div class="rep-section-title">📊 Questions</div>
-      <table class="rep-table"><thead><tr><th>Question</th><th>Réussite</th><th>Réponse majoritaire</th><th>Temps moy.</th></tr></thead>
-      <tbody>${qRows}</tbody></table></div>`
-    // Fallback idea/engage sections
-    const ideas = submissions.filter(s=>s.kind==='idea')
-    const eng   = submissions.filter(s=>s.kind==='engage')
-    if (ideas.length) mancheHtml += `<div><div class="rep-section-title">💡 Idées</div><table class="rep-table"><thead><tr><th>Auteur</th><th>Idée</th><th>Points</th></tr></thead><tbody>${ideas.map(s=>`<tr><td>${escHtml(s.author_name)}</td><td>${escHtml(s.text)}</td><td>${s.points} pts</td></tr>`).join('')}</tbody></table></div>`
-    if (eng.length) mancheHtml += `<div><div class="rep-section-title">🤝 Engagements</div><table class="rep-table"><thead><tr><th>Auteur</th><th>Catégorie</th><th>Engagement</th><th>Points</th></tr></thead><tbody>${eng.map(s=>`<tr><td>${escHtml(s.author_name)}</td><td>${escHtml(s.category||'—')}</td><td>${escHtml(s.text)}</td><td>${s.points} pts</td></tr>`).join('')}</tbody></table></div>`
-  }
-
-  $('report-body').innerHTML = `
-    <div class="rep-head">
-      <div id="logo-rep" style="width:64px;height:64px;flex:none;border-radius:12px;overflow:hidden;"></div>
-      <div><h2>Engagements 2030 — le Quizz</h2><p class="rep-sub">Session <strong>${escHtml(code)}</strong> · ${escHtml(date)}</p></div>
-    </div>
-    <div class="rep-kpis">
-      <div class="kpi"><div class="kv">${playerCount}</div><div class="kl">Participants</div></div>
-      <div class="kpi"><div class="kv">${[...new Set(answers.map(a=>a.question_id))].length}</div><div class="kl">Questions jouées</div></div>
-      <div class="kpi"><div class="kv">${avgScore}</div><div class="kl">Score moyen</div></div>
-      <div class="kpi"><div class="kv">${correctRate}%</div><div class="kl">Taux de réussite</div></div>
-    </div>
-    ${playerCount>0?`<div><div class="rep-section-title">🏆 Classement final</div>
-      <table class="rep-table"><thead><tr><th>Rang</th><th>Joueur</th><th>Score</th></tr></thead><tbody>${rankRows}</tbody></table></div>`
-      :'<p class="rep-empty">Aucun joueur enregistré.</p>'}
-    ${mancheHtml}
-    <div class="rep-foot">Engagements 2030, le Quizz · MGEN · Session ${escHtml(code)} · ${escHtml(date)}</div>
-  `
-  const logoEl = document.getElementById('logo-rep')
-  if (logoEl) logoEl.innerHTML = LOGO_SVG
 }
 
 // ── Fullscreen ────────────────────────────────────────────────
