@@ -1389,7 +1389,13 @@ function renderLiveBilan(code, date) {
 
   let mancheHtml = ''
 
-  GAME_LOG.forEach(entry => {
+  GAME_LOG.filter(e => {
+    if (e.type === 'quiz')      return e.questions?.length > 0
+    if (e.type === 'idea')      return e.ranking?.length > 0
+    if (e.type === 'engage')    return e.results?.length > 0
+    if (e.type === 'wordcloud') return Object.keys(e.wordCounts||{}).length > 0
+    return true
+  }).forEach(entry => {
     if (entry.type === 'quiz') {
       let qHtml = ''
       entry.questions.forEach(q => {
