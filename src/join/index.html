@@ -631,6 +631,9 @@ let activeChannel   = null
 let hostCheckTimer  = null
 
 const $ = id => document.getElementById(id)
+function escHtml(s) {
+  return String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')
+}
 
 // ── Charte MGEN (miroir du host) — body reste theme-admin, seul le masque change ──
 const JOIN_THEMES = ['yellow','terracotta','maya','evergreen']
