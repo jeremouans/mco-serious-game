@@ -360,6 +360,94 @@
     .opts-host.revealed .opt-bar-wrap,
     .opts-host.revealed .opt-cnt { visibility: visible; }
 
+    /* ── Bouton "Revoir" (consultation d'une question passée) ── */
+    #review-btn {
+      position: fixed; bottom: 18px; right: 18px; z-index: 240;
+      background: rgba(17,49,36,.92); border: 1.5px solid rgba(241,233,210,.20);
+      color: var(--cream); font-family: inherit; font-weight: 700; font-size: .88rem;
+      border-radius: 999px; padding: .55em 1.1em; cursor: pointer;
+      backdrop-filter: blur(8px);
+      display: none;
+      transition: background .15s, transform .1s;
+    }
+    #review-btn.visible { display: inline-flex; align-items: center; gap: .4em; }
+    #review-btn:hover { background: rgba(17,49,36,1); transform: translateY(-1px); }
+
+    /* Modal consultation */
+    #review-modal {
+      position: fixed; inset: 0; z-index: 500;
+      background: rgba(17,49,36,.85); backdrop-filter: blur(8px);
+      display: none; align-items: center; justify-content: center; padding: 20px;
+      animation: fadeIn .2s ease-out;
+    }
+    #review-modal.open { display: flex; }
+    .review-card {
+      background: #fff; color: var(--ever);
+      border-radius: 20px; padding: clamp(20px, 3vw, 32px);
+      width: min(720px, 100%); max-height: 90vh; overflow-y: auto;
+      box-shadow: 0 24px 60px rgba(0,0,0,.5);
+      display: flex; flex-direction: column; gap: 14px;
+    }
+    .review-topbar { display: flex; align-items: center; gap: 12px; }
+    .review-topbar h3 { flex: 1; font-size: 1.1rem; font-weight: 800; color: var(--ever); margin: 0; }
+    .review-close-btn {
+      background: none; border: 2px solid rgba(17,49,36,.2);
+      border-radius: 999px; padding: .35em .9em;
+      font-family: inherit; font-weight: 700; font-size: .85rem; cursor: pointer;
+      color: var(--ever);
+    }
+    .review-close-btn:hover { background: rgba(17,49,36,.08); }
+    .review-nav { display: flex; align-items: center; gap: 10px; justify-content: center; }
+    .review-nav button {
+      background: rgba(17,49,36,.08); border: none; color: var(--ever);
+      font-family: inherit; font-weight: 700; font-size: .9rem;
+      padding: .5em 1em; border-radius: 999px; cursor: pointer;
+    }
+    .review-nav button:disabled { opacity: .35; cursor: not-allowed; }
+    .review-nav button:hover:not(:disabled) { background: rgba(17,49,36,.14); }
+    .review-nav-pos { font-weight: 700; font-size: .9rem; color: var(--ever); min-width: 5em; text-align: center; }
+    .review-qtext { font-size: clamp(1rem, 2vw, 1.2rem); font-weight: 700; color: var(--ever); line-height: 1.35; }
+    .review-badge {
+      display: inline-block; font-size: .72rem; font-weight: 800; text-transform: uppercase;
+      letter-spacing: 1.5px; color: #6aa517; background: rgba(106,165,23,.15);
+      border-radius: 999px; padding: .28em .8em;
+    }
+    .review-opts { display: grid; gap: 6px; }
+    .review-opt {
+      display: flex; align-items: center; gap: 10px; padding: .5em .8em;
+      background: #f4f8ee; border-radius: 10px; font-size: .92rem;
+    }
+    .review-opt.correct { background: #eaf5d6; border-left: 5px solid #6aa517; font-weight: 700; }
+    .review-opt-key { font-weight: 900; color: #4a5a4f; width: 1.4em; }
+    .review-answers-title { font-size: .78rem; font-weight: 800; color: #4a5a4f; text-transform: uppercase; letter-spacing: 1.5px; margin-top: 6px; }
+    .review-table { width: 100%; border-collapse: collapse; font-size: .88rem; }
+    .review-table th { text-align: left; padding: 6px 8px; background: var(--ever); color: #fff; font-weight: 800; }
+    .review-table td { padding: 6px 8px; border-bottom: 1px solid #e6ecdf; }
+    .review-table tr:last-child td { border-bottom: none; }
+    .review-empty { color: #7a8b80; font-style: italic; font-size: .9rem; text-align: center; padding: 12px; }
+
+    /* ── Barre navigation OFFLINE (précédent / suivant) ── */
+    #offline-nav {
+      position: fixed; bottom: 18px; left: 50%; transform: translateX(-50%);
+      z-index: 250; display: none;
+      background: rgba(17,49,36,.92); border: 1.5px solid rgba(241,233,210,.20);
+      border-radius: 999px; padding: 6px;
+      backdrop-filter: blur(8px);
+      box-shadow: 0 6px 24px rgba(0,0,0,.35);
+    }
+    body.offline #offline-nav { display: inline-flex; align-items: center; }
+    .offline-nav-btn {
+      font-family: inherit; font-weight: 700; font-size: .92rem;
+      background: transparent; color: var(--cream);
+      border: none; border-radius: 999px;
+      padding: .55em 1.15em; cursor: pointer;
+      display: inline-flex; align-items: center; gap: .4em;
+      transition: background .15s, opacity .15s;
+    }
+    .offline-nav-btn:hover:not(:disabled) { background: rgba(255,255,255,.10); }
+    .offline-nav-btn:disabled { opacity: .35; cursor: not-allowed; }
+    .offline-nav-sep { font-size: .78rem; color: rgba(241,233,210,.55); font-weight: 700; padding: 0 .5em; }
+
     /* ── Mode OFFLINE : masquer scoring, joueurs, timer, bouton reveal ── */
     body.offline .timer-wrap,
     body.offline .ans-badge,
@@ -547,13 +635,20 @@
     .quiz-pick-item.selected { border-color:var(--green); background:rgba(106,165,23,.15); }
 
     /* Guide animateur */
-    .guide-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(210px,1fr)); gap:14px; }
-    .guide-card { background:rgba(255,255,255,.5); border:1px solid rgba(255,255,255,.09); border-radius:18px; padding:clamp(14px,2vw,22px); display:flex; flex-direction:column; gap:10px; }
+    .guide-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(230px,1fr)); gap:14px; }
+    .guide-card {
+      background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.14);
+      border-radius: 18px; padding: clamp(16px,2vw,22px);
+      display: flex; flex-direction: column; gap: 10px;
+      backdrop-filter: blur(6px);
+    }
     .guide-icon { font-size:2rem; line-height:1; }
-    .guide-card h4 { font-size:.95rem; font-weight:900; color:var(--green); margin:0; }
-    .guide-card p, .guide-card li { font-size:.85rem; color:var(--fg-soft); line-height:1.55; margin:0; }
-    .guide-card ol, .guide-card ul { padding-left:1.3em; margin:0; display:flex; flex-direction:column; gap:4px; }
-    .guide-tip { font-size:.78rem; color:var(--fg-soft); font-style:italic; }
+    .guide-card h4 { font-size: 1rem; font-weight: 800; color: var(--green-b); margin: 0; }
+    .guide-card p, .guide-card li {
+      font-size: .9rem; color: var(--cream); line-height: 1.5; margin: 0;
+    }
+    .guide-card ol, .guide-card ul { padding-left: 1.3em; margin: 0; display: flex; flex-direction: column; gap: 5px; }
+    .guide-tip { font-size: .82rem; color: rgba(241,233,210,.72); font-style: italic; padding-top: 4px; border-top: 1px solid rgba(255,255,255,.10); }
 
     /* Slider screens */
     #screen-slider, #screen-slider-reveal { overflow-y:auto; padding:clamp(14px,2.2vw,32px); }
@@ -601,6 +696,35 @@
 <body class="theme-admin with-mask">
 <img id="e2030-brand" src="/assets/logo-beige.svg" alt="Engagements 2030">
 <img id="manche-picto" alt="" style="display:none;">
+<!-- Bouton "Revoir" une question passée (mode online) -->
+<button id="review-btn" title="Consulter une question précédente">📖 Revoir</button>
+<!-- Modal consultation (superposé, ne change pas la position courante) -->
+<div id="review-modal" role="dialog" aria-modal="true">
+  <div class="review-card">
+    <div class="review-topbar">
+      <span class="review-badge">📖 Consultation</span>
+      <h3 id="review-title">Question</h3>
+      <button class="review-close-btn" id="review-close-btn">✕ Fermer</button>
+    </div>
+    <div class="review-qtext" id="review-qtext">–</div>
+    <div class="review-opts" id="review-opts"></div>
+    <div class="review-answers-title">Réponses reçues</div>
+    <div id="review-answers-wrap"></div>
+    <div class="review-nav">
+      <button id="review-prev-btn">← Question précédente</button>
+      <span class="review-nav-pos" id="review-pos">–</span>
+      <button id="review-next-btn">Question suivante →</button>
+    </div>
+  </div>
+</div>
+<!-- Barre navigation mode offline (visible uniquement en OFFLINE_MODE) -->
+<nav id="offline-nav" aria-label="Navigation mode offline">
+  <button class="offline-nav-btn" id="offline-prev-btn" title="Précédent">← Préc.</button>
+  <span class="offline-nav-sep" id="offline-pos">–</span>
+  <button class="offline-nav-btn" id="offline-next-btn" title="Suivant">Suiv. →</button>
+  <span class="offline-nav-sep">|</span>
+  <button class="offline-nav-btn" id="offline-quit-btn" title="Quitter le mode offline">✕ Quitter</button>
+</nav>
 <button id="fullscreen-btn" title="Plein écran">⛶ Plein écran</button>
 
 <!-- Profile modal -->
@@ -629,7 +753,7 @@
     <div class="card-center">
       <div class="card">
         <div style="display:flex;align-items:center;gap:14px;">
-          <img src="/assets/logo-beige.svg" alt="MGEN" style="width:72px;height:72px;border-radius:14px;flex:none;">
+          <img src="/assets/logo-beige.svg" alt="MGEN" style="width:auto;height:56px;flex:none;">
           <div>
             <div style="font-size:.75rem;font-weight:800;text-transform:uppercase;letter-spacing:2.5px;color:var(--green);">Espace animateur</div>
             <h2 style="margin-top:2px;">Connexion</h2>
@@ -695,7 +819,7 @@
   <section class="screen" id="screen-home">
     <div class="home-wrap">
       <div class="home-header">
-        <img src="/assets/logo-beige.svg" alt="MGEN" style="width:72px;height:72px;border-radius:14px;flex:none;">
+        <img src="/assets/logo-beige.svg" alt="MGEN" style="width:auto;height:56px;flex:none;">
         <div style="flex:1;">
           <h1>Engagements 2030, le Quizz</h1>
           <div class="home-sub" id="user-email"></div>
@@ -1193,6 +1317,10 @@ function showScreen(id) {
   document.body.classList.add('with-mask')
   // Écrans hors-jeu → revient au masque shell (kaki)
   if (!GAME_SCREENS.has(id)) document.body.dataset.manche = 'default'
+  // Barre navigation offline : rafraîchie sur chaque écran de jeu
+  if (OFFLINE_MODE && GAME_SCREENS.has(id)) updateOfflineNav()
+  // Bouton "Revoir" visible dès qu'il y a de l'historique et qu'on est en jeu (mode online)
+  if (typeof updateReviewBtnVisibility === 'function') updateReviewBtnVisibility()
 
   // Écrans à thème complet → body swap vers la charte de la manche courante
   const b = document.body
@@ -1569,6 +1697,98 @@ ${body}
 $('offline-export-answers-btn').addEventListener('click', offlineExportQuestionnaire)
 $('offline-export-form-btn').addEventListener('click', offlineExportForm)
 
+// ── Modal Consultation (revoir une question passée sans changer la position courante) ──
+let REVIEW_IDX = 0
+function updateReviewBtnVisibility() {
+  const btn = $('review-btn')
+  if (!btn) return
+  const hasHistory = GS && (GS.log?.length > 0)
+  const currentScreen = document.querySelector('.screen.active')?.id
+  const inGame = GAME_SCREENS.has(currentScreen)
+  btn.classList.toggle('visible', !OFFLINE_MODE && hasHistory && inGame)
+}
+function openReview(idx) {
+  if (!GS?.log?.length) return
+  REVIEW_IDX = Math.max(0, Math.min(GS.log.length - 1, idx ?? GS.log.length - 1))
+  renderReview()
+  $('review-modal').classList.add('open')
+}
+function closeReview() { $('review-modal').classList.remove('open') }
+function renderReview() {
+  const entry = GS.log[REVIEW_IDX]; if (!entry) return
+  const q = GS.questions.find(x => x.id === entry.questionId) || { text:'(question inconnue)', options:[], correct:null, type:entry.type }
+  $('review-title').textContent = `Question ${REVIEW_IDX + 1} / ${GS.log.length}`
+  $('review-pos').textContent = `${REVIEW_IDX + 1} / ${GS.log.length}`
+  $('review-qtext').textContent = q.text || '—'
+  const optsEl = $('review-opts')
+  if (q.type === 'slider') {
+    optsEl.innerHTML = `<div class="review-opt correct"><span class="review-opt-key">🎯</span>
+      <span>Bonne réponse : <strong>${q.correct}${q.unit ? ' ' + escHtml(q.unit) : ''}</strong> (min ${q.min ?? 0} · max ${q.max ?? 1000})</span></div>`
+  } else {
+    optsEl.innerHTML = (q.options || []).map((o, i) => `
+      <div class="review-opt${i === q.correct ? ' correct' : ''}">
+        <span class="review-opt-key">${String.fromCharCode(65 + i)}</span>
+        <span>${escHtml(typeof o === 'string' ? o : (o.text || ''))}${i === q.correct ? ' ✓' : ''}</span>
+      </div>`).join('') || '<div class="review-empty">(aucune option)</div>'
+  }
+  const rows = (entry.answers || []).filter(a => a.value !== null && a.value !== undefined).map(a => {
+    let val = '—'
+    if (q.type === 'slider') val = `${a.value}${q.unit ? ' ' + escHtml(q.unit) : ''}`
+    else if (q.options && a.value != null) val = escHtml(String(q.options[parseInt(a.value)] ?? a.value))
+    return `<tr>
+      <td style="font-weight:700">${escHtml(a.name || '?')}</td>
+      <td>${val}</td>
+      <td style="font-weight:700;color:${a.isCorrect ? '#27ae60' : '#e74c3c'}">${a.isCorrect ? '✓' : '✗'}</td>
+      <td style="font-weight:700;color:#6aa517">+${a.points || 0}</td>
+    </tr>`
+  }).join('')
+  $('review-answers-wrap').innerHTML = rows
+    ? `<table class="review-table"><thead><tr><th>Joueur</th><th>Réponse</th><th></th><th>Points</th></tr></thead><tbody>${rows}</tbody></table>`
+    : '<div class="review-empty">Aucune réponse enregistrée pour cette question.</div>'
+  $('review-prev-btn').disabled = REVIEW_IDX <= 0
+  $('review-next-btn').disabled = REVIEW_IDX >= GS.log.length - 1
+}
+$('review-btn').addEventListener('click', () => openReview())
+$('review-close-btn').addEventListener('click', closeReview)
+$('review-prev-btn').addEventListener('click', () => { REVIEW_IDX = Math.max(0, REVIEW_IDX - 1); renderReview() })
+$('review-next-btn').addEventListener('click', () => { REVIEW_IDX = Math.min(GS.log.length - 1, REVIEW_IDX + 1); renderReview() })
+$('review-modal').addEventListener('click', e => { if (e.target.id === 'review-modal') closeReview() })
+document.addEventListener('keydown', e => {
+  if (!$('review-modal').classList.contains('open')) return
+  if (e.key === 'Escape') closeReview()
+  else if (e.key === 'ArrowLeft') { REVIEW_IDX = Math.max(0, REVIEW_IDX - 1); renderReview() }
+  else if (e.key === 'ArrowRight') { REVIEW_IDX = Math.min(GS.log.length - 1, REVIEW_IDX + 1); renderReview() }
+})
+
+// Met à jour la barre nav offline (position + activation des boutons)
+function updateOfflineNav() {
+  if (!GS) return
+  const n = GS.questions.length
+  const i = GS.qIdx
+  const pos = $('offline-pos'); if (pos) pos.textContent = `${i + 1} / ${n}`
+  const prev = $('offline-prev-btn'); if (prev) prev.disabled = i <= 0
+  const next = $('offline-next-btn'); if (next) next.disabled = i >= n - 1
+}
+
+$('offline-prev-btn').addEventListener('click', () => {
+  if (!OFFLINE_MODE || !GS || GS.qIdx <= 0) return
+  GS.qIdx--
+  showQuestion(true)   // skipIntro pour ne pas re-afficher l'intro en revenant
+  updateOfflineNav()
+})
+$('offline-next-btn').addEventListener('click', () => {
+  if (!OFFLINE_MODE || !GS) return
+  if (GS.qIdx + 1 >= GS.questions.length) { offlineEnd(); return }
+  GS.qIdx++
+  showQuestion()
+  updateOfflineNav()
+})
+$('offline-quit-btn').addEventListener('click', () => {
+  if (!OFFLINE_MODE) return
+  if (!confirm('Quitter le mode offline et revenir à l\'accueil ?')) return
+  offlineEnd()
+})
+
 $('offline-run-btn').addEventListener('click', () => {
   if (!QUIZ_CONFIG) { alert('Sélectionnez un quiz.'); return }
   OFFLINE_MODE = true
@@ -1684,16 +1904,18 @@ function showQuestion(skipIntro = false) {
   // Applique la charte + picto de la manche
   applyMancheTheme(q._theme, q._picto)
 
+  // Intro de manche AVANT tout routing : affichée dès le 1er item d'une nouvelle
+  // section (y compris si c'est un intercalaire, un slider, une manche P4…)
+  if (!skipIntro && q.section) {
+    const prev = GS.qIdx > 0 ? GS.questions[GS.qIdx - 1] : null
+    if (!prev || prev.section !== q.section) { showRoundIntro(q.section); return }
+  }
+
   if (q.type === 'idea')      { startIdeaManche(q.mancheConfig); return }
   if (q.type === 'engage')    { startEngageManche(q.mancheConfig); return }
   if (q.type === 'wordcloud') { startWordcloudManche(q.mancheConfig); return }
   if (q.type === 'slider')    { showSliderQuestion(); return }
   if (q.type === 'slide')     { showSlide(q); return }
-
-  if (!skipIntro && q.section) {
-    const prev = GS.qIdx > 0 ? GS.questions[GS.qIdx - 1] : null
-    if (!prev || prev.section !== q.section) { showRoundIntro(q.section); return }
-  }
 
   showScreen('screen-game')
   const useTimer = q.timer === true && !OFFLINE_MODE
@@ -1835,6 +2057,12 @@ $('reveal-btn').addEventListener('click', doReveal)
 
 function doReveal() {
   if (!GS || GS.revealed) return
+  // Confirm si tous les joueurs n'ont pas encore répondu (mode connecté)
+  if (!OFFLINE_MODE && GS.players.size > 0 && GS.currentAnswers.size < GS.players.size) {
+    const missing = GS.players.size - GS.currentAnswers.size
+    const ok = confirm(`${missing} joueur${missing>1?'s':''} n'${missing>1?'ont':'a'} pas encore répondu.\nRévéler la bonne réponse maintenant ?`)
+    if (!ok) return
+  }
   GS.revealed = true
   clearInterval(GS.timerInterval)
   $('timer-fill').style.width = '0%'; $('timer-secs').textContent = '0'
@@ -2576,6 +2804,11 @@ $('slider-reveal-btn').addEventListener('click', doSliderReveal)
 
 function doSliderReveal() {
   if (!GS || GS.revealed) return
+  if (!OFFLINE_MODE && GS.players.size > 0 && GS.currentAnswers.size < GS.players.size) {
+    const missing = GS.players.size - GS.currentAnswers.size
+    const ok = confirm(`${missing} joueur${missing>1?'s':''} n'${missing>1?'ont':'a'} pas encore répondu.\nRévéler les résultats maintenant ?`)
+    if (!ok) return
+  }
   GS.revealed = true
   if (GS.timerInterval) clearInterval(GS.timerInterval)
   const q = GS.questions[GS.qIdx]
