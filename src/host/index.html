@@ -1517,49 +1517,114 @@ function sliderToChoices(q) {
   return { options, correctIdx, correctValue: correct }
 }
 
+// Construit la liste complète des items à exporter — TOUTES les manches (quiz +
+// wordcloud + idea + engage) et leurs items internes (questions + intercalaires).
+// Chaque item porte { section, sectionType } pour le regroupement.
+function buildOfflineExportItems() {
+  if (!QUIZ_CONFIG) return []
+  const items = []
+  ;(QUIZ_CONFIG.manches || []).forEach(m => {
+    const mtype = m.type || 'quiz'
+    const meta = { section: m.name, sectionType: mtype, mancheConfig: m }
+    if (mtype === 'quiz') {
+      ;(m.questions || []).forEach(q => {
+        if (['choice','truefalse','slider','slide'].includes(q.type))
+          items.push({ ...q, id: q.id || uid(), ...meta })
+      })
+    } else if (mtype === 'wordcloud') {
+      items.push({ type: 'wordcloud', id: m.id, prompt: m.prompt || '', words: m.words || [], ...meta })
+    } else if (mtype === 'idea') {
+      items.push({ type: 'idea', id: m.id, challenge: m.challenge || '', ...meta })
+    } else if (mtype === 'engage') {
+      items.push({ type: 'engage', id: m.id, categories: m.categories || [], ...meta })
+    }
+  })
+  return items
+}
+
+// Puce colorée par type de manche pour les intitulés de section
+function sectionKicker(sectionType) {
+  const map = {
+    quiz:      { icon: '🎯', label: 'Manche quiz' },
+    wordcloud: { icon: '☁️', label: 'Nuage de mots' },
+    idea:      { icon: '💡', label: 'L\'idée en Or' },
+    engage:    { icon: '🤝', label: 'Mes engagements' }
+  }
+  const k = map[sectionType] || { icon: '📄', label: 'Manche' }
+  return `<span class="section-kicker">${k.icon} ${k.label}</span>`
+}
+
 // ─ Génère et imprime le questionnaire (avec réponses) ─────────────
 function offlineExportQuestionnaire() {
   if (!QUIZ_CONFIG) { alert('Sélectionnez un quiz.'); return }
   const title = escHtml(QUIZ_LIST.find(q => q.id === QUIZ_DB_ID)?.title || 'Quiz')
-  const questions = buildOfflineQuestions()
+  const items = buildOfflineExportItems()
   const dateStr = new Date().toLocaleDateString('fr-FR', { day:'2-digit', month:'long', year:'numeric' })
 
   let body = ''
   let qNum = 0
   let currentSection = null
-  questions.forEach(q => {
-    if (q.section && q.section !== currentSection) {
-      currentSection = q.section
-      body += `<h2 class="section">${escHtml(q.section)}</h2>`
+  items.forEach(it => {
+    if (it.section && it.section !== currentSection) {
+      currentSection = it.section
+      body += `<h2 class="section">${sectionKicker(it.sectionType)}${escHtml(it.section)}</h2>`
     }
-    if (q.type === 'slide') {
+    // Manche non-quiz : bloc contextuel
+    if (it.type === 'wordcloud') {
+      const wl = (it.words || []).map(w => `<span class="wc-chip">${escHtml(w)}</span>`).join('')
+      body += `<div class="freeform-block">
+        <div class="ff-label">☁️ Nuage de mots</div>
+        ${it.prompt ? `<div class="ff-prompt">${escHtml(it.prompt)}</div>` : ''}
+        <div class="ff-note"><em>Manche interactive — chaque participant choisit ses mots.</em></div>
+        ${wl ? `<div class="wc-chips">${wl}</div>` : ''}
+      </div>`
+      return
+    }
+    if (it.type === 'idea') {
+      body += `<div class="freeform-block">
+        <div class="ff-label">💡 L'idée en Or</div>
+        ${it.challenge ? `<div class="ff-prompt">${escHtml(it.challenge)}</div>` : ''}
+        <div class="ff-note"><em>Manche participative — chaque participant propose une idée, le groupe vote pour la meilleure.</em></div>
+      </div>`
+      return
+    }
+    if (it.type === 'engage') {
+      const cats = (it.categories || []).map(c => `<span class="wc-chip">${escHtml(c)}</span>`).join('')
+      body += `<div class="freeform-block">
+        <div class="ff-label">🤝 Mes engagements</div>
+        <div class="ff-note"><em>Manche participative — chaque participant formule un engagement dans une catégorie ; le groupe évalue sur 4 critères.</em></div>
+        ${cats ? `<div class="wc-chips"><strong>Catégories&nbsp;:</strong> ${cats}</div>` : ''}
+      </div>`
+      return
+    }
+    if (it.type === 'slide') {
       body += `<div class="slide-block">
         <div class="slide-label">Intercalaire</div>
-        ${q.title ? `<div class="slide-t">${escHtml(q.title)}</div>` : ''}
-        <div class="slide-body">${escHtml(q.text || '')}</div>
+        ${it.title ? `<div class="slide-t">${escHtml(it.title)}</div>` : ''}
+        <div class="slide-body">${escHtml(it.text || '')}</div>
       </div>`
       return
     }
     qNum++
-    const points = q.points ? ` <span class="pts">${q.points} pts</span>` : ''
-    body += `<div class="q-block"><div class="q-head"><span class="q-num">Q${qNum}</span> ${escHtml(q.text || '')}${points}</div>`
-    if (q.type === 'choice' || q.type === 'truefalse') {
-      const opts = q.options || []
+    const points = it.points ? ` <span class="pts">${it.points} pts</span>` : ''
+    body += `<div class="q-block"><div class="q-head"><span class="q-num">Q${qNum}</span> ${escHtml(it.text || '')}${points}</div>`
+    if (it.type === 'choice' || it.type === 'truefalse') {
+      const opts = it.options || []
       body += `<ol class="opts" type="A">` + opts.map((o, i) => {
-        const isCorrect = i === q.correct
+        const isCorrect = i === it.correct
         return `<li class="${isCorrect ? 'correct' : ''}">${escHtml(o)}${isCorrect ? ' <span class="tick">✓ bonne réponse</span>' : ''}</li>`
       }).join('') + `</ol>`
-    } else if (q.type === 'slider') {
-      const unit = q.unit ? ' ' + escHtml(q.unit) : ''
+    } else if (it.type === 'slider') {
+      const unit = it.unit ? ' ' + escHtml(it.unit) : ''
       body += `<div class="slider-info">
-        <div>Question chiffrée · min <b>${q.min ?? 0}${unit}</b> · max <b>${q.max ?? 1000}${unit}</b></div>
-        <div class="answer">Réponse : <b>${q.correct ?? '?'}${unit}</b></div>
+        <div>Question chiffrée · min <b>${it.min ?? 0}${unit}</b> · max <b>${it.max ?? 1000}${unit}</b></div>
+        <div class="answer">Réponse : <b>${it.correct ?? '?'}${unit}</b></div>
         <div class="paper-alt"><em>Version papier (4 choix) — bonne case cochée :</em>
-          <ol type="A" class="opts">${sliderToChoices(q).options.map((o, i) => `<li class="${i === sliderToChoices(q).correctIdx ? 'correct' : ''}">${escHtml(o)}${i === sliderToChoices(q).correctIdx ? ' <span class="tick">✓</span>' : ''}</li>`).join('')}</ol>
+          <ol type="A" class="opts">${sliderToChoices(it).options.map((o, i) => `<li class="${i === sliderToChoices(it).correctIdx ? 'correct' : ''}">${escHtml(o)}${i === sliderToChoices(it).correctIdx ? ' <span class="tick">✓</span>' : ''}</li>`).join('')}</ol>
         </div>
       </div>`
     }
-    if (q.explain) body += `<div class="explain">💡 ${escHtml(q.explain)}</div>`
+    if (it.explain) body += `<div class="explain">💡 ${escHtml(it.explain)}</div>`
     body += `</div>`
   })
 
@@ -1578,7 +1643,7 @@ function offlineExportQuestionnaire() {
 function offlineExportForm() {
   if (!QUIZ_CONFIG) { alert('Sélectionnez un quiz.'); return }
   const title = escHtml(QUIZ_LIST.find(q => q.id === QUIZ_DB_ID)?.title || 'Quiz')
-  const questions = buildOfflineQuestions()
+  const items = buildOfflineExportItems()
   const dateStr = new Date().toLocaleDateString('fr-FR', { day:'2-digit', month:'long', year:'numeric' })
 
   const identityBlock = `<div class="identity">
@@ -1590,28 +1655,62 @@ function offlineExportForm() {
   let body = ''
   let qNum = 0
   let currentSection = null
-  questions.forEach(q => {
-    if (q.section && q.section !== currentSection) {
-      currentSection = q.section
-      body += `<h2 class="section">${escHtml(q.section)}</h2>`
+  items.forEach(it => {
+    if (it.section && it.section !== currentSection) {
+      currentSection = it.section
+      body += `<h2 class="section">${sectionKicker(it.sectionType)}${escHtml(it.section)}</h2>`
     }
-    if (q.type === 'slide') {
+    // Manches non-quiz : cases à cocher OU zones libres selon le type
+    if (it.type === 'wordcloud') {
+      const wl = (it.words || []).map(w => `
+        <li><span class="cbx"></span> <span class="cbx-lbl">${escHtml(w)}</span></li>
+      `).join('')
+      body += `<div class="freeform-block avoid-break">
+        <div class="ff-label">☁️ Nuage de mots</div>
+        ${it.prompt ? `<div class="ff-prompt">${escHtml(it.prompt)}</div>` : ''}
+        <div class="ff-instr">Cochez les mots qui vous parlent le plus (plusieurs choix possibles).</div>
+        <ul class="cbx-list wc-cbx">${wl || '<li><em>Aucun mot proposé.</em></li>'}</ul>
+      </div>`
+      return
+    }
+    if (it.type === 'idea') {
+      body += `<div class="freeform-block avoid-break">
+        <div class="ff-label">💡 L'idée en Or</div>
+        ${it.challenge ? `<div class="ff-prompt">${escHtml(it.challenge)}</div>` : ''}
+        <div class="ff-instr">Notez votre idée sur les lignes ci-dessous.</div>
+        <div class="write-area"></div>
+      </div>`
+      return
+    }
+    if (it.type === 'engage') {
+      const cats = (it.categories || []).map(c =>
+        `<li><span class="cbx"></span> <span class="cbx-lbl">${escHtml(c)}</span></li>`
+      ).join('')
+      body += `<div class="freeform-block avoid-break">
+        <div class="ff-label">🤝 Mes engagements</div>
+        <div class="ff-instr">Choisissez une catégorie puis formulez votre engagement.</div>
+        ${cats ? `<div style="margin-bottom:8px;"><strong>Catégorie&nbsp;:</strong><ul class="cbx-list" style="display:grid;grid-template-columns:1fr 1fr;gap:2px 12px;">${cats}</ul></div>` : ''}
+        <div class="write-area"></div>
+      </div>`
+      return
+    }
+    if (it.type === 'slide') {
       body += `<div class="slide-block">
         <div class="slide-label">Introduction</div>
-        ${q.title ? `<div class="slide-t">${escHtml(q.title)}</div>` : ''}
-        <div class="slide-body">${escHtml(q.text || '')}</div>
+        ${it.title ? `<div class="slide-t">${escHtml(it.title)}</div>` : ''}
+        <div class="slide-body">${escHtml(it.text || '')}</div>
       </div>`
       return
     }
     qNum++
-    body += `<div class="q-block avoid-break"><div class="q-head"><span class="q-num">Q${qNum}</span> ${escHtml(q.text || '')}</div>`
-    if (q.type === 'choice' || q.type === 'truefalse') {
-      const opts = q.options || []
+    body += `<div class="q-block avoid-break"><div class="q-head"><span class="q-num">Q${qNum}</span> ${escHtml(it.text || '')}</div>`
+    if (it.type === 'choice' || it.type === 'truefalse') {
+      const opts = it.options || []
       body += `<ul class="cbx-list">` + opts.map((o, i) => `
         <li><span class="cbx"></span> <span class="cbx-lbl"><b>${String.fromCharCode(65+i)}.</b> ${escHtml(o)}</span></li>
       `).join('') + `</ul>`
-    } else if (q.type === 'slider') {
-      const { options } = sliderToChoices(q)
+    } else if (it.type === 'slider') {
+      const { options } = sliderToChoices(it)
       body += `<div class="slider-paper-note">Chiffre ? Cochez la fourchette correspondante.</div>`
       body += `<ul class="cbx-list">` + options.map((o, i) => `
         <li><span class="cbx"></span> <span class="cbx-lbl"><b>${String.fromCharCode(65+i)}.</b> ${escHtml(o)}</span></li>
@@ -1676,6 +1775,36 @@ function openPrintWindow({ title, header, body, filename, variant }) {
   .slide-t { font-weight: 800; font-size: 1.05em; color: #113124; margin-bottom: 6px; }
   .slide-body { font-size: .92em; color: #333; white-space: pre-wrap; }
   .slider-info { font-size: .9em; color: #333; }
+  h2.section .section-kicker {
+    display: inline-block; font-size: .62rem; font-weight: 800; letter-spacing: 1.2px;
+    text-transform: uppercase; background: #e8f0e0; color: #124c15;
+    padding: 2px 8px; border-radius: 999px; margin-right: 10px; vertical-align: middle;
+  }
+  .freeform-block {
+    margin: 12px 0 16px; padding: 14px 16px;
+    background: #fdf5ec; border: 1.5px dashed #d9a55a; border-radius: 10px;
+    page-break-inside: avoid;
+  }
+  .ff-label {
+    font-size: .68rem; font-weight: 800; text-transform: uppercase; letter-spacing: 1.5px;
+    color: #b06c14; margin-bottom: 6px;
+  }
+  .ff-prompt { font-weight: 700; font-size: 1rem; color: #113124; margin-bottom: 8px; line-height: 1.35; }
+  .ff-note   { font-size: .82em; color: #6a5024; font-style: italic; margin-bottom: 6px; }
+  .ff-instr  { font-size: .85em; color: #333; margin-bottom: 8px; }
+  .wc-chips  { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+  .wc-chip   {
+    display: inline-block; font-size: .78em; padding: 3px 10px;
+    background: #fff; border: 1px solid #d9a55a; border-radius: 999px; color: #113124;
+  }
+  .wc-cbx    { display: grid; grid-template-columns: 1fr 1fr; gap: 2px 12px; }
+  .write-area {
+    background:
+      repeating-linear-gradient(to bottom,
+        transparent 0, transparent 26px,
+        #d9a55a 26px, #d9a55a 27px);
+    min-height: 120px; border-radius: 6px; margin-top: 6px;
+  }
   ${answersCss}
   ${formCss}
   @page { margin: 12mm; size: A4; }
