@@ -193,6 +193,25 @@ body.theme-terracotta.with-mask::before  { background-image: url('/assets/masque
 body.theme-maya.with-mask::before        { background-image: url('/assets/masques/maya.png'); }
 body.theme-evergreen.with-mask::before   { background-image: url('/assets/masques/kaki.png'); }
 body.theme-admin.with-mask::before       { background-image: url('/assets/masques/kaki.png'); }
+
+/* ── Manche courante : le masque change même si le body reste theme-admin ── */
+body[data-manche="yellow"].with-mask::before      { background-image: url('/assets/masques/creme.png'); }
+body[data-manche="terracotta"].with-mask::before  { background-image: url('/assets/masques/terracotta.png'); }
+body[data-manche="maya"].with-mask::before        { background-image: url('/assets/masques/maya.png'); }
+body[data-manche="evergreen"].with-mask::before   { background-image: url('/assets/masques/vert-mgen.png'); }
+body[data-manche="default"].with-mask::before     { background-image: url('/assets/masques/kaki.png'); }
+
+/* ── Accent-color de manche (--manche-accent set en JS) — utilisée dans les boutons/badges ── */
+body[data-manche]:not([data-manche="default"]) .btn.green {
+  background: var(--manche-accent, var(--green));
+  color: var(--manche-accent-fg, #fff);
+}
+body[data-manche]:not([data-manche="default"]) .q-badge,
+body[data-manche]:not([data-manche="default"]) .p4-badge,
+body[data-manche]:not([data-manche="default"]) .qp-badge {
+  background: var(--manche-accent) !important;
+  color: var(--manche-accent-fg) !important;
+}
 /* Le contenu passe au-dessus du masque */
 body.with-mask > * { position: relative; z-index: 1; }
 
