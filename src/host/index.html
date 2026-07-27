@@ -294,10 +294,10 @@
     }
     #fullscreen-btn:hover { background: rgba(17,49,36,.95); color: var(--fg); }
 
-    /* ── Logo Engagements 2030 (bandeau fixe, écrans de jeu) ── */
+    /* ── Logo Engagements 2030 (badge carré fixe, écrans de jeu) ── */
     #e2030-brand {
       position: fixed; top: 14px; left: 16px; z-index: 200;
-      height: clamp(30px, 4vw, 46px); width: auto;
+      width: clamp(44px, 5vw, 62px); height: auto;
       opacity: .95; pointer-events: none;
       transition: opacity .25s;
     }
@@ -554,7 +554,7 @@
   </style>
 </head>
 <body class="theme-admin with-mask">
-<img id="e2030-brand" src="/assets/logo-e2030-creme.png" alt="Engagements 2030">
+<img id="e2030-brand" src="/assets/logo-beige.svg" alt="Engagements 2030">
 <img id="manche-picto" alt="" style="display:none;">
 <button id="fullscreen-btn" title="Plein écran">⛶ Plein écran</button>
 
@@ -584,7 +584,7 @@
     <div class="card-center">
       <div class="card">
         <div style="display:flex;align-items:center;gap:14px;">
-          <img src="/assets/logo-e2030-vert.png" alt="MGEN" style="width:72px;height:72px;border-radius:14px;flex:none;">
+          <img src="/assets/logo-beige.svg" alt="MGEN" style="width:72px;height:72px;border-radius:14px;flex:none;">
           <div>
             <div style="font-size:.75rem;font-weight:800;text-transform:uppercase;letter-spacing:2.5px;color:var(--green);">Espace animateur</div>
             <h2 style="margin-top:2px;">Connexion</h2>
@@ -650,7 +650,7 @@
   <section class="screen" id="screen-home">
     <div class="home-wrap">
       <div class="home-header">
-        <img src="/assets/logo-e2030-vert.png" alt="MGEN" style="width:72px;height:72px;border-radius:14px;flex:none;">
+        <img src="/assets/logo-beige.svg" alt="MGEN" style="width:72px;height:72px;border-radius:14px;flex:none;">
         <div style="flex:1;">
           <h1>Engagements 2030, le Quizz</h1>
           <div class="home-sub" id="user-email"></div>
@@ -1476,7 +1476,7 @@ function openPrintWindow({ title, header, body, filename, variant }) {
   .doc-kicker { font-size: .72rem; font-weight: 800; text-transform: uppercase; letter-spacing: 2px; color: #6aa517; margin-bottom: 4px; }
   .doc-meta { color: #666; font-size: .85rem; margin-top: 4px; }
   header.print-head { display: flex; align-items: center; gap: 16px; border-bottom: 2px solid #6aa517; padding-bottom: 12px; margin-bottom: 18px; }
-  header.print-head img { height: 40px; width: auto; }
+  header.print-head img { height: 56px; width: auto; }
   header.print-head .head-txt { flex: 1; }
   .q-block { margin: 12px 0 16px; padding: 12px 14px; background: #fbf7ec; border-radius: 8px; page-break-inside: avoid; }
   .q-head { font-weight: 700; margin-bottom: 8px; font-size: .98em; }
@@ -1497,7 +1497,7 @@ function openPrintWindow({ title, header, body, filename, variant }) {
 </style></head><body>
 <div class="toolbar no-print">Aperçu · ${title}<button onclick="window.print()">🖨️ Imprimer / PDF</button></div>
 <header class="print-head">
-  <img src="${window.location.origin}/assets/logo-engagement2030.svg" alt="Engagements 2030" onerror="this.style.display='none'">
+  <img src="${window.location.origin}/assets/logo-mgen.svg" alt="Engagements 2030" onerror="this.style.display='none'">
   <div class="head-txt">${header}</div>
 </header>
 ${body}
