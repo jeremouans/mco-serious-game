@@ -448,10 +448,10 @@
     .offline-nav-btn:disabled { opacity: .35; cursor: not-allowed; }
     .offline-nav-sep { font-size: .78rem; color: rgba(241,233,210,.55); font-weight: 700; padding: 0 .5em; }
 
-    /* ── Mode OFFLINE : masquer scoring, joueurs, timer, bouton reveal ── */
+    /* ── Mode OFFLINE : masquer scoring, joueurs, timer ── */
+    /* On garde reveal-btn visible pour que l'animateur révèle à son initiative */
     body.offline .timer-wrap,
     body.offline .ans-badge,
-    body.offline #reveal-btn,
     body.offline .opts-host .opt-bar-wrap,
     body.offline .opts-host .opt-cnt,
     body.offline #sq-ans-count,
@@ -1968,7 +1968,17 @@ function showQuestion(skipIntro = false) {
   }
 }
 
+// Comportement du bouton slide-next : action par défaut = avance,
+// remplaçable par slideNextAction pour intercaler une étape (ex: reveal slider offline)
+let slideNextAction = null
+
+function slideNextDefault() {
+  if (activeChannel && !OFFLINE_MODE) activeChannel.send({ type:'broadcast', event:'slide:end', payload:{} })
+  GS.qIdx++; showQuestion()
+}
+
 function showSlide(q) {
+  slideNextAction = null
   showScreen('screen-slide')
   const bg = $('slide-bg')
   if (bg) bg.style.backgroundImage = q.image ? `url("${q.image}")` : ''
@@ -1984,6 +1994,8 @@ function showSlide(q) {
     textEl.textContent = q.text || ''
     textEl.style.display = q.text ? 'block' : 'none'
   }
+  const nextBtn = $('slide-next-btn')
+  if (nextBtn) nextBtn.textContent = '→ Continuer'
   // Broadcast passif aux joueurs (mode connecté) — pas d'action attendue
   if (activeChannel && !OFFLINE_MODE) {
     activeChannel.send({ type:'broadcast', event:'slide:show', payload:{
@@ -1993,9 +2005,44 @@ function showSlide(q) {
 }
 
 $('slide-next-btn').addEventListener('click', () => {
-  if (activeChannel && !OFFLINE_MODE) activeChannel.send({ type:'broadcast', event:'slide:end', payload:{} })
-  GS.qIdx++; showQuestion()
+  if (typeof slideNextAction === 'function') slideNextAction()
+  else slideNextDefault()
 })
+
+// Slider en mode offline : question puis reveal manuel, en 2 clics sur slide-next
+function showOfflineSliderQuestion(q) {
+  showScreen('screen-slide')
+  const bg = $('slide-bg');       if (bg) bg.style.backgroundImage = ''
+  const kicker = $('slide-kicker'); const titleEl = $('slide-title'); const textEl = $('slide-text')
+  const nextBtn = $('slide-next-btn')
+  const unit = q.unit ? ' ' + q.unit : ''
+
+  // Étape 1 : question + fourchette (pas de réponse)
+  if (kicker)  { kicker.style.display  = 'inline-block'; kicker.textContent  = '🎚️ Question chiffrée' }
+  if (titleEl) { titleEl.style.display = 'block';        titleEl.textContent = q.text || '' }
+  if (textEl)  {
+    textEl.textContent = `Estimez une valeur entre ${q.min ?? 0}${unit} et ${q.max ?? 1000}${unit}.`
+    textEl.style.display = 'block'
+  }
+  if (nextBtn) nextBtn.textContent = '🔍 Révéler la réponse'
+
+  slideNextAction = () => {
+    // Étape 2 : reveal
+    if (kicker)  kicker.textContent  = '✅ Bonne réponse'
+    if (titleEl) titleEl.textContent = (q.correct ?? '?') + unit
+    const parts = []
+    if (q.text) parts.push(q.text)
+    if (q.explain) parts.push(q.explain)
+    if (textEl) textEl.textContent = parts.join('\n\n') || 'Bonne réponse révélée.'
+    if (nextBtn) nextBtn.textContent = 'Suivant →'
+
+    // Étape 3 : avance
+    slideNextAction = () => {
+      slideNextAction = null
+      GS.qIdx++; showQuestion()
+    }
+  }
+}
 
 function renderOptionsHost(q) {
   const grid = $('opts-host'); grid.innerHTML = ''
@@ -2755,13 +2802,12 @@ window.goHome = goHome
 function showSliderQuestion() {
   const q = GS.questions[GS.qIdx]
 
-  // Mode offline : traiter le slider comme un intercalaire (réponse affichée à l'écran)
+  // Mode offline : 2 étapes sur screen-slide
+  //   1. Question + fourchette min/max (pas de réponse visible)
+  //   2. Sur clic "Révéler la réponse" → affiche la bonne réponse + explication
+  //   3. Sur clic "Suivant →" → question suivante
   if (OFFLINE_MODE) {
-    const parts = []
-    if (q.text) parts.push(q.text)
-    parts.push('Réponse : ' + (q.correct ?? '?') + (q.unit ? ' ' + q.unit : ''))
-    if (q.explain) parts.push(q.explain)
-    showSlide({ id: q.id, title: 'Question chiffrée', text: parts.join('\n\n'), image: '' })
+    showOfflineSliderQuestion(q)
     return
   }
 
