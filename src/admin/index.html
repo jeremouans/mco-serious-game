@@ -1051,7 +1051,10 @@ function buildMancheEditorHTML(m, mi) {
         <input class="field-input" type="number" id="idea-dur-${mi}" value="${m.durationSecs||90}" style="width:120px;">
       </div>`
   } else if (m.type === 'engage') {
-    const cats = (m.categories || []).filter(c => c && typeof c === 'object')
+    // Migration douce : purger les anciennes catégories string pour que les indices
+    // de m.categories correspondent aux indices utilisés dans les onclick handlers.
+    m.categories = (m.categories || []).filter(c => c && typeof c === 'object')
+    const cats = m.categories
     const engageCatsHtml = cats.map((c, ci) => `
       <div class="engage-cat-card">
         <div class="engage-cat-head">
