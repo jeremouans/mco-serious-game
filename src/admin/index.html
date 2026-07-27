@@ -939,10 +939,11 @@ function buildMancheEditorHTML(m, mi) {
       <div class="q-section">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
           <span style="color:rgba(243,238,218,.6);font-size:.85rem;font-weight:700;">${qs.length} question(s)</span>
-          <div style="display:flex;gap:8px;">
+          <div style="display:flex;gap:8px;flex-wrap:wrap;">
             <button class="btn ghost sm" onclick="addQuestion(${mi},'choice')">＋ Choix</button>
             <button class="btn ghost sm" onclick="addQuestion(${mi},'truefalse')">＋ Vrai/Faux</button>
             <button class="btn ghost sm" onclick="addQuestion(${mi},'slider')">＋ Slider</button>
+            <button class="btn ghost sm" onclick="addQuestion(${mi},'slide')" title="Écran d'introduction ou de conclusion — pas de question">🖼️ ＋ Intercalaire</button>
           </div>
         </div>
         ${qs.map((q, qi) => buildQRowHTML(q, mi, qi)).join('')}
@@ -1010,8 +1011,9 @@ function buildMancheEditorHTML(m, mi) {
 }
 
 function buildQRowHTML(q, mi, qi) {
-  const typeLbl = { choice:'Choix', truefalse:'Vrai/Faux', slider:'Slider' }[q.type] || q.type
-  const preview = q.text ? q.text.slice(0,60)+(q.text.length>60?'…':'') : '(question vide)'
+  const typeLbl = { choice:'Choix', truefalse:'Vrai/Faux', slider:'Slider', slide:'🖼️ Intercalaire' }[q.type] || q.type
+  const previewSrc = q.type === 'slide' ? (q.title || q.text) : q.text
+  const preview = previewSrc ? previewSrc.slice(0,60)+(previewSrc.length>60?'…':'') : (q.type === 'slide' ? '(intercalaire vide)' : '(question vide)')
   return `
     <div class="q-row open" id="qrow-${mi}-${qi}">
       <div class="q-row-head" onclick="toggleQ(${mi},${qi})">
@@ -1030,6 +1032,25 @@ function buildQRowHTML(q, mi, qi) {
 
 function buildQEditorHTML(q, mi, qi) {
   const pid = `q-${mi}-${qi}`
+  if (q.type === 'slide') {
+    return `
+      <div style="background:rgba(134,191,235,.08);border:1px solid rgba(134,191,235,.25);border-radius:10px;padding:10px 12px;margin-bottom:12px;font-size:.82rem;color:rgba(243,238,218,.7);">
+        🖼️ <strong>Intercalaire</strong> — écran d'introduction ou de conclusion. Aucune action attendue des joueurs.
+      </div>
+      <div class="field-group">
+        <label class="field-lbl">Titre (optionnel)</label>
+        <input class="field-input" value="${escHtml(q.title||'')}" placeholder="ex : Mise en situation" oninput="updateQField(${mi},${qi},'title',this.value)">
+      </div>
+      <div class="field-group">
+        <label class="field-lbl">Texte d'explication</label>
+        <textarea class="field-input" rows="4" style="resize:vertical;" placeholder="Introduction, contexte, transition… (affiché à l'écran)" oninput="updateQField(${mi},${qi},'text',this.value)">${escHtml(q.text||'')}</textarea>
+      </div>
+      <div class="field-group">
+        <label class="field-lbl">Image de fond (URL, optionnel)</label>
+        <input class="field-input" value="${escHtml(q.image||'')}" placeholder="https://…" oninput="updateQField(${mi},${qi},'image',this.value)">
+        <div style="font-size:.75rem;color:rgba(243,238,218,.4);margin-top:4px;">Affichée en fond d'écran. Le texte reste lisible par-dessus.</div>
+      </div>`
+  }
   if (q.type === 'slider') {
     return `
       <div class="field-group">
@@ -1171,7 +1192,8 @@ window.addQuestion = (mi, type) => {
   const defaults = {
     choice: { type:'choice', text:'', options:['','','',''], correct:0, points:1000, timer:false, timerDuration:60, speedBonus:false, image:'', explain:'' },
     truefalse: { type:'truefalse', text:'', options:['Vrai','Faux'], correct:0, points:800, timer:false, timerDuration:60, speedBonus:false, image:'', explain:'' },
-    slider: { type:'slider', text:'', correct:0, unit:'', min:0, max:1000, points:1000, timer:false, timerDuration:60, explain:'' }
+    slider: { type:'slider', text:'', correct:0, unit:'', min:0, max:1000, points:1000, timer:false, timerDuration:60, explain:'' },
+    slide:  { type:'slide',  title:'', text:'', image:'' }
   }
   m.questions.push({ id: uid(), ...defaults[type] })
   renderMancheEditor()
