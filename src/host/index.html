@@ -415,11 +415,56 @@
     .slide-actions { display: flex; gap: 12px; margin-top: 8px; }
 
     /* ── Round Intro ── */
-    #screen-round-intro { justify-content: center; align-items: center; gap: clamp(14px,3vh,28px); padding: 28px; text-align: center; }
-    .round-intro-wrap { display: flex; flex-direction: column; align-items: center; gap: clamp(14px,3vh,28px); }
-    .ri-badge { display: inline-block; font-size: .82rem; font-weight: 900; text-transform: uppercase; letter-spacing: 3px; color: var(--green); background: rgba(106,165,23,.18); border-radius: 999px; padding: .35em 1.2em; animation: pop .3s ease-out; }
-    .ri-title { font-size: clamp(2rem,6vw,4rem); font-weight: 900; color: var(--fg); text-shadow: 0 6px 30px rgba(0,0,0,.35); animation: nameIn .4s ease-out; line-height: 1.05; }
-    .ri-count { font-size: clamp(1rem,2.5vw,1.4rem); color: var(--fg-soft); font-weight: 600; }
+    #screen-round-intro {
+      justify-content: center; align-items: center;
+      gap: clamp(14px,3vh,28px); padding: 28px; text-align: center;
+      background-color: var(--bg);
+      transition: background-color .3s ease;
+    }
+    .round-intro-wrap {
+      display: flex; flex-direction: column; align-items: center;
+      gap: clamp(18px, 3.5vh, 34px);
+      max-width: 720px;
+    }
+    .ri-picto {
+      display: grid; place-items: center; margin-bottom: 4px;
+      animation: popIn .5s cubic-bezier(.34,1.56,.64,1) both;
+    }
+    .ri-picto img {
+      width: clamp(180px, 26vw, 340px);
+      height: auto; display: block;
+      filter: drop-shadow(0 12px 32px rgba(0,0,0,.25));
+    }
+    .ri-badge {
+      display: inline-block; font-size: .82rem; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 3px;
+      color: var(--fg); background: rgba(17,49,36,.10);
+      border-radius: 999px; padding: .4em 1.3em;
+      animation: popIn .3s ease-out both;
+    }
+    .ri-title {
+      font-size: clamp(2rem, 6vw, 4rem); font-weight: 700; color: var(--fg);
+      line-height: 1.05; animation: riseIn .4s ease-out .12s both;
+    }
+    .ri-count {
+      font-size: clamp(1rem, 2.5vw, 1.4rem); color: var(--fg-soft);
+      font-weight: 500;
+      animation: riseIn .4s ease-out .18s both;
+    }
+    /* Sur les thèmes clairs, badges à fond ever avec texte cream (meilleur contraste) */
+    #screen-round-intro.active ~ *, /* no-op selector */
+    body[data-manche="terracotta"] #screen-round-intro .ri-badge {
+      background: rgba(241,233,210,.20); color: var(--cream);
+    }
+    /* Sur round-intro, le picto fixe top-right est caché (redondant) */
+    #screen-round-intro.active ~ #manche-picto,
+    body:has(#screen-round-intro.active) #manche-picto { display: none !important; }
+    /* Sur round-intro, le brand fixe est aussi masqué pour laisser toute la place au picto central */
+    body:has(#screen-round-intro.active) #e2030-brand { opacity: 0; }
+    /* Bouton "C'est parti" adapté à la charte */
+    #screen-round-intro #round-next-btn {
+      background: var(--btn-bg); color: var(--btn-fg);
+    }
 
     /* ── Confetti ── */
     @keyframes confettiFall {
@@ -778,6 +823,7 @@
   <!-- ══ ROUND INTRO ══════════════════════════════════════════ -->
   <section class="screen" id="screen-round-intro">
     <div class="round-intro-wrap">
+      <div class="ri-picto" id="ri-picto"><img id="ri-picto-img" src="" alt="" style="display:none;"></div>
       <div class="ri-badge" id="round-badge">Manche 1 / 4</div>
       <h2 class="ri-title" id="round-title"></h2>
       <p class="ri-count" id="round-count"></p>
@@ -1133,17 +1179,31 @@ const ALL_THEMES   = [...HOST_THEMES, 'admin']
 // Thèmes à fond sombre (logo crème) vs. fond clair (logo vert)
 const DARK_THEMES  = new Set(['admin','terracotta'])
 
+// Écrans qui prennent le thème COMPLET (fond + textes de la charte)
+const FULL_THEME_SCREENS = new Set(['screen-round-intro'])
+
 function showScreen(id) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'))
   $(id).classList.add('active')
   const brand = $('e2030-brand')
   if (brand) brand.classList.toggle('hidden', BRAND_HIDDEN_SCREENS.has(id))
   const picto = $('manche-picto')
-  if (picto) picto.style.display = (GAME_SCREENS.has(id) && picto.dataset.hasPicto === '1') ? 'block' : 'none'
+  if (picto) picto.style.display = (GAME_SCREENS.has(id) && !FULL_THEME_SCREENS.has(id) && picto.dataset.hasPicto === '1') ? 'block' : 'none'
   // Le masque MGEN suit toujours le thème → fullscreen permanent
   document.body.classList.add('with-mask')
   // Écrans hors-jeu → revient au masque shell (kaki)
   if (!GAME_SCREENS.has(id)) document.body.dataset.manche = 'default'
+
+  // Écrans à thème complet → body swap vers la charte de la manche courante
+  const b = document.body
+  ;['yellow','terracotta','maya','evergreen'].forEach(t => b.classList.remove('theme-' + t))
+  const wantedTheme = b.dataset.manche
+  if (FULL_THEME_SCREENS.has(id) && wantedTheme && wantedTheme !== 'default') {
+    b.classList.remove('theme-admin')
+    b.classList.add('theme-' + wantedTheme)
+  } else if (!b.classList.contains('theme-admin')) {
+    b.classList.add('theme-admin')
+  }
 }
 
 // Couleurs d'accent par charte
@@ -2157,9 +2217,23 @@ function showRoundIntro(sectionName) {
   $('round-badge').textContent = `Manche ${mancheNum} / ${totalManches}`
   $('round-title').textContent = sectionName || 'Questions'
   $('round-count').textContent = `${mancheQ} question${mancheQ > 1 ? 's' : ''}`
+
+  // Picto grand & central : récupéré depuis la question courante (déjà appliqué)
+  const q = GS.questions[GS.qIdx]
+  const pictoImg = $('ri-picto-img')
+  if (pictoImg) {
+    if (q?._picto) {
+      pictoImg.src = '/assets/pictos/' + q._picto + '.png'
+      pictoImg.style.display = 'block'
+    } else {
+      pictoImg.style.display = 'none'
+    }
+  }
+
   if (activeChannel && !OFFLINE_MODE) {
     activeChannel.send({ type: 'broadcast', event: 'round:intro', payload: {
-      name: sectionName, manche: mancheNum, total: totalManches
+      name: sectionName, manche: mancheNum, total: totalManches,
+      theme: q?._theme || '', picto: q?._picto || ''
     }})
   }
   $('round-next-btn').onclick = () => showQuestion(true)
