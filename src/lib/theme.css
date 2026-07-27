@@ -163,7 +163,11 @@ body.theme-admin, .theme-admin {
   -webkit-tap-highlight-color: transparent;
 }
 html, body { height: 100%; }
-img { max-width: 100%; display: block; }
+img { max-width: 100%; height: auto; display: block; }
+/* Logos → jamais étirés, la hauteur suit le ratio naturel */
+.logo, img.logo, #e2030-brand, .landing-logo {
+  max-width: none !important;
+}
 
 body {
   font-family: 'Aeonik MGEN', 'Outfit', system-ui, -apple-system, sans-serif;
@@ -175,17 +179,22 @@ body {
   transition: background-color .35s ease, color .3s ease;
 }
 
-/* Fond du body avec masque discret sur les thèmes de couleur */
-body.with-mask {
-  background-image: url('/assets/masques/creme.png');
+/* ── Fond masque MGEN en full-screen ── */
+body.with-mask::before {
+  content: ''; position: fixed; inset: 0; z-index: 0;
+  background-image: url('/assets/masques/kaki.png');
   background-repeat: no-repeat;
-  background-position: right top;
-  background-size: 55% auto;
-  background-attachment: fixed;
+  background-position: center;
+  background-size: cover;
+  pointer-events: none;
 }
-body.theme-terracotta.with-mask { background-image: url('/assets/masques/terracotta.png'); }
-body.theme-maya.with-mask       { background-image: url('/assets/masques/maya.png'); }
-body.theme-evergreen.with-mask  { background-image: url('/assets/masques/creme.png'); }
+body.theme-yellow.with-mask::before      { background-image: url('/assets/masques/creme.png'); }
+body.theme-terracotta.with-mask::before  { background-image: url('/assets/masques/terracotta.png'); }
+body.theme-maya.with-mask::before        { background-image: url('/assets/masques/maya.png'); }
+body.theme-evergreen.with-mask::before   { background-image: url('/assets/masques/kaki.png'); }
+body.theme-admin.with-mask::before       { background-image: url('/assets/masques/kaki.png'); }
+/* Le contenu passe au-dessus du masque */
+body.with-mask > * { position: relative; z-index: 1; }
 
 h1, h2, h3, h4 {
   font-family: 'Aeonik MGEN', 'Outfit', sans-serif;

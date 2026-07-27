@@ -162,7 +162,7 @@
     }
     .picto-item:hover{background:rgba(255,255,255,.09);}
     .picto-item.active{border-color:var(--green,#6aa517);background:rgba(106,165,23,.15);}
-    .picto-item img{width:56px;height:56px;object-fit:contain;background:#f1e9d2;border-radius:8px;padding:6px;}
+    .picto-item img{width:56px;height:56px;object-fit:contain;border-radius:50%;}
     .picto-item .picto-lbl{font-size:.68rem;color:rgba(243,238,218,.65);text-align:center;line-height:1.2;font-weight:600;}
     .picto-item.active .picto-lbl{color:var(--cream);}
     .picto-none{width:56px;height:56px;display:grid;place-items:center;background:rgba(255,255,255,.06);border-radius:8px;font-size:1.3rem;color:rgba(243,238,218,.4);}
@@ -526,20 +526,20 @@ const THEMES = [
   { id:'evergreen',  name:'Evergreen',    bg:'#f1e9d2', fg:'#113124', accent:'#113124' }
 ]
 
-// Pictos MGEN disponibles (fichiers PNG dans /assets/pictos/)
+// Pictos MGEN disponibles (badges ronds — fichiers PNG dans /assets/pictos/)
 const PICTOS = [
-  { id:'axe1-1',  label:'Axe 1 — L1' },
-  { id:'axe1-3',  label:'Axe 1 — L3' },
-  { id:'axe1-4',  label:'Axe 1 — L4' },
-  { id:'axe1-12', label:'Axe 1 — L12' },
-  { id:'axe2-1',  label:'Axe 2 — L1' },
-  { id:'axe2-2',  label:'Axe 2 — L2' },
-  { id:'axe2-3',  label:'Axe 2 — L3' },
-  { id:'axe2-4',  label:'Axe 2 — L4' },
-  { id:'axe2',    label:'Axe 2 (générique)' },
-  { id:'chapeau', label:'Chapeau' },
-  { id:'coeur',   label:'Cœur' },
-  { id:'socle',   label:'Socle' }
+  { id:'mouvement',        label:'Un mutualisme en mouvement' },
+  { id:'leader',           label:'Être leader autrement' },
+  { id:'axe1-engager',     label:'Axe 1 — S’engager' },
+  { id:'axe1-protection',  label:'Axe 1 — Protection' },
+  { id:'axe1-relationnel', label:'Axe 1 — Relationnel' },
+  { id:'axe1-proactivite', label:'Axe 1 — Proactivité' },
+  { id:'axe1-reference',   label:'Axe 1 — Référence' },
+  { id:'axe2-engager',     label:'Axe 2 — S’engager' },
+  { id:'axe2-conquete',    label:'Axe 2 — Conquête' },
+  { id:'axe2-performance', label:'Axe 2 — Performance' },
+  { id:'axe2-innovation',  label:'Axe 2 — Innovation' },
+  { id:'axe2-impact',      label:'Axe 2 — Impact' }
 ]
 
 const WORDCLOUD_DEFAULTS = [
