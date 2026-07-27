@@ -138,6 +138,29 @@
     /* Manche type cards */
     .mtype-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-bottom:20px;}
 
+    /* Cards catégorie d'engagement */
+    .engage-cat-card {
+      background:rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.10);
+      border-radius:14px; padding:14px; margin-bottom:10px;
+    }
+    .engage-cat-head { display:flex; gap:8px; align-items:center; margin-bottom:10px; }
+    .engage-cat-name { flex:1; font-weight:700; }
+    .engage-slots-grid {
+      display:grid; grid-template-columns:repeat(3,1fr); gap:10px;
+    }
+    @media (max-width:640px) { .engage-slots-grid { grid-template-columns:1fr; } }
+    .engage-slot-col {
+      background:rgba(0,0,0,.15); border:1px solid rgba(255,255,255,.07);
+      border-radius:10px; padding:10px;
+    }
+    .engage-slot-label {
+      font-size:.72rem; font-weight:800; text-transform:uppercase; letter-spacing:1.2px;
+      color:var(--green-b); margin-bottom:6px;
+    }
+    .engage-slot-list { display:flex; flex-direction:column; gap:4px; }
+    .engage-slot-opt { display:flex; gap:4px; align-items:center; }
+    .engage-slot-opt .field-input { padding:6px 10px; font-size:.85rem; }
+
     /* Theme picker (charte couleur par manche) */
     .theme-picker{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;}
     .theme-swatch{
@@ -1028,19 +1051,58 @@ function buildMancheEditorHTML(m, mi) {
         <input class="field-input" type="number" id="idea-dur-${mi}" value="${m.durationSecs||90}" style="width:120px;">
       </div>`
   } else if (m.type === 'engage') {
-    const cats = m.categories || ['Mon engagement']
+    const cats = (m.categories || []).filter(c => c && typeof c === 'object')
+    const engageCatsHtml = cats.map((c, ci) => `
+      <div class="engage-cat-card">
+        <div class="engage-cat-head">
+          <input class="field-input engage-cat-name" value="${escHtml(c.name || '')}"
+                 placeholder="Nom de la catégorie (ex : Je me déplace)"
+                 oninput="updateCat(${mi},${ci},'name',this.value)">
+          <button class="btn ghost sm" onclick="removeCat(${mi},${ci})">✕</button>
+        </div>
+        <div class="engage-slots-grid">
+          ${['action','moyen','echeance'].map(slotKey => {
+            const slot = c.slots?.[slotKey] || []
+            const label = { action:'Action (verbe)', moyen:'Moyen', echeance:'Échéance' }[slotKey]
+            return `<div class="engage-slot-col">
+              <div class="engage-slot-label">${label}</div>
+              <div class="engage-slot-list" id="engage-slot-${mi}-${ci}-${slotKey}">
+                ${slot.map((opt, oi) => `
+                  <div class="engage-slot-opt">
+                    <input class="field-input" value="${escHtml(opt)}"
+                           oninput="updateSlotOpt(${mi},${ci},'${slotKey}',${oi},this.value)"
+                           placeholder="Option ${oi+1}">
+                    <button class="chip-btn" title="Supprimer" onclick="removeSlotOpt(${mi},${ci},'${slotKey}',${oi})" style="color:rgba(231,76,60,.6);">✕</button>
+                  </div>`).join('')}
+              </div>
+              <button class="btn ghost sm" style="width:100%;font-size:.75rem;margin-top:4px;"
+                      onclick="addSlotOpt(${mi},${ci},'${slotKey}')">＋ Option</button>
+            </div>`
+          }).join('')}
+        </div>
+      </div>`).join('')
     specificFields = `
       <div class="field-group">
-        <label class="field-lbl">Catégories d'engagement</label>
-        <div id="engage-cats-${mi}">${cats.map((c,ci)=>`
-          <div style="display:flex;gap:8px;margin-bottom:6px;">
-            <input class="field-input" value="${escHtml(c)}" oninput="updateCat(${mi},${ci},this.value)" style="flex:1;">
-            <button class="btn ghost sm" onclick="removeCat(${mi},${ci})">✕</button>
-          </div>`).join('')}</div>
-        <button class="btn ghost sm" style="margin-top:6px;" onclick="addCat(${mi})">＋ Catégorie</button>
+        <label class="field-lbl">📝 Texte introductif (thème de la manche)</label>
+        <textarea class="field-input" id="engage-intro-${mi}" rows="3" style="resize:vertical;"
+                  placeholder="Ex : Prenons ensemble un engagement pour…">${escHtml(m.intro || '')}</textarea>
       </div>
       <div class="field-group">
-        <label class="field-lbl">Durée de saisie (secondes)</label>
+        <label class="field-lbl">🎯 Sujet d'engagement (affiché en grand à l'écran)</label>
+        <input class="field-input" id="engage-subject-${mi}" value="${escHtml(m.subject || '')}"
+               placeholder="Ex : Mes gestes pour la planète">
+      </div>
+      <div class="field-group">
+        <label class="field-lbl">🗂️ Catégories d'engagement
+          <span style="font-size:.72rem;color:rgba(243,238,218,.5);font-weight:600;margin-left:6px;">
+            Modèle : « Je m'engage à <b>action</b>, en <b>moyen</b>, d'ici <b>échéance</b> »
+          </span>
+        </label>
+        <div id="engage-cats-${mi}">${engageCatsHtml || '<div style="color:rgba(243,238,218,.4);font-size:.85rem;padding:8px;">Aucune catégorie — cliquez sur "＋ Ajouter" pour commencer.</div>'}</div>
+        <button class="btn ghost sm" style="margin-top:8px;" onclick="addCat(${mi})">＋ Ajouter une catégorie</button>
+      </div>
+      <div class="field-group">
+        <label class="field-lbl">⏱️ Durée de saisie (secondes)</label>
         <input class="field-input" type="number" id="engage-dur-${mi}" value="${m.durationSecs||90}" style="width:120px;">
       </div>`
   }
@@ -1249,6 +1311,8 @@ function attachMancheEditorListeners(m, mi) {
   $(`idea-challenge-${mi}`)?.addEventListener('input', e => { currentQuiz.config.manches[mi].challenge = e.target.value })
   $(`idea-dur-${mi}`)?.addEventListener('input', e => { currentQuiz.config.manches[mi].durationSecs = +e.target.value })
   $(`engage-dur-${mi}`)?.addEventListener('input', e => { currentQuiz.config.manches[mi].durationSecs = +e.target.value })
+  $(`engage-intro-${mi}`)?.addEventListener('input', e => { currentQuiz.config.manches[mi].intro = e.target.value })
+  $(`engage-subject-${mi}`)?.addEventListener('input', e => { currentQuiz.config.manches[mi].subject = e.target.value })
 }
 
 window.setMancheTheme = (mi, themeId) => {
@@ -1267,7 +1331,12 @@ window.setMancheType = (mi, type) => {
   if (type === 'quiz') currentQuiz.config.manches[mi].questions = []
   if (type === 'wordcloud') { currentQuiz.config.manches[mi].prompt = ''; currentQuiz.config.manches[mi].words = [...WORDCLOUD_DEFAULTS]; currentQuiz.config.manches[mi].durationSecs = 120 }
   if (type === 'idea') { currentQuiz.config.manches[mi].challenge = ''; currentQuiz.config.manches[mi].durationSecs = 90 }
-  if (type === 'engage') { currentQuiz.config.manches[mi].categories = ['Mon engagement']; currentQuiz.config.manches[mi].durationSecs = 90 }
+  if (type === 'engage') {
+    currentQuiz.config.manches[mi].intro = ''
+    currentQuiz.config.manches[mi].subject = 'Mes engagements'
+    currentQuiz.config.manches[mi].categories = []
+    currentQuiz.config.manches[mi].durationSecs = 90
+  }
   renderMancheList(); renderMancheEditor()
 }
 
@@ -1339,16 +1408,39 @@ window.resetWords = mi => {
   currentQuiz.config.manches[mi].words = [...WORDCLOUD_DEFAULTS]
   renderMancheEditor()
 }
-window.updateCat = (mi, ci, val) => {
-  currentQuiz.config.manches[mi].categories[ci] = val
+// Nouveau modèle catégorie : { name, slots: { action:[], moyen:[], echeance:[] } }
+window.updateCat = (mi, ci, field, val) => {
+  const cat = currentQuiz.config.manches[mi].categories[ci]
+  if (typeof cat !== 'object') return
+  cat[field] = val
 }
 window.addCat = mi => {
-  if (!currentQuiz.config.manches[mi].categories) currentQuiz.config.manches[mi].categories = []
-  currentQuiz.config.manches[mi].categories.push('Nouvelle catégorie')
+  const m = currentQuiz.config.manches[mi]
+  if (!m.categories) m.categories = []
+  m.categories.push({ name: 'Nouvelle catégorie', slots: { action: [''], moyen: [''], echeance: [''] } })
   renderMancheEditor()
 }
 window.removeCat = (mi, ci) => {
+  if (!confirm('Supprimer cette catégorie ?')) return
   currentQuiz.config.manches[mi].categories.splice(ci, 1)
+  renderMancheEditor()
+}
+window.addSlotOpt = (mi, ci, slotKey) => {
+  const cat = currentQuiz.config.manches[mi].categories[ci]
+  if (!cat.slots) cat.slots = { action: [], moyen: [], echeance: [] }
+  if (!Array.isArray(cat.slots[slotKey])) cat.slots[slotKey] = []
+  cat.slots[slotKey].push('')
+  renderMancheEditor()
+}
+window.updateSlotOpt = (mi, ci, slotKey, oi, val) => {
+  const cat = currentQuiz.config.manches[mi].categories[ci]
+  if (!cat?.slots?.[slotKey]) return
+  cat.slots[slotKey][oi] = val
+}
+window.removeSlotOpt = (mi, ci, slotKey, oi) => {
+  const cat = currentQuiz.config.manches[mi].categories[ci]
+  if (!cat?.slots?.[slotKey]) return
+  cat.slots[slotKey].splice(oi, 1)
   renderMancheEditor()
 }
 

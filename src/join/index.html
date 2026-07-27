@@ -488,9 +488,13 @@
     <button class="back-btn" id="engage-input-back-btn">⬅ Attente</button>
     <div class="p4j-badge">🤝 Mes engagements</div>
 
+    <!-- Écran commun : sujet + intro (au-dessus des étapes) -->
+    <div class="p4j-head" id="engage-subject-p" style="text-align:center;"></div>
+    <div class="p4j-sub" id="engage-intro-p" style="display:none;text-align:center;"></div>
+
     <!-- Étape 1 : choix catégorie -->
     <div id="engage-step1" style="display:flex;flex-direction:column;gap:12px;width:100%;">
-      <div class="p4j-head" style="font-size:clamp(1rem,3.8vw,1.3rem);margin:0;">Choisissez votre catégorie</div>
+      <div class="p4j-sub" style="text-align:center;">Choisissez votre catégorie&nbsp;:</div>
       <div class="engage-cat-grid" id="engage-cat-grid"></div>
     </div>
 
@@ -521,21 +525,12 @@
       <div class="engage-field-wrap">
         <div class="engage-field-label">③ Échéance</div>
         <div class="engage-chips" id="engage-echeance-chips"></div>
+        <input type="text" class="engage-other-inp" id="engage-echeance-inp" placeholder="Écrire ma propre échéance…" maxlength="100" style="display:none;">
       </div>
 
       <div id="engage-input-err" class="err"></div>
       <button class="btn big" id="engage-submit-btn" style="justify-content:center;">🤝 Soumettre mon engagement</button>
     </div>
-  </section>
-
-  <!-- ══ ENGAGE : VOTE ÉTOILES ════════════════════════════════════ -->
-  <section class="screen" id="screen-engage-vote-p">
-    <button class="back-btn" id="engage-vote-back-btn">⬅ Attente</button>
-    <div class="p4j-badge">🤝 Vote critères</div>
-    <div class="p4j-head">Évaluez les engagements</div>
-    <div class="p4j-sub">Notez chaque engagement de 1 à 5 étoiles. Pas le vôtre !</div>
-    <div id="engage-vote-items-p" style="display:flex;flex-direction:column;gap:12px;width:100%;"></div>
-    <button class="btn big" id="engage-vote-submit-btn" style="justify-content:center;margin-top:8px;">✅ Valider mes votes</button>
   </section>
 
   <!-- ══ RÉSULTAT P4 ════════════════════════════════════════════════ -->
@@ -744,7 +739,6 @@ async function joinLobby(code, firstName, lastName) {
     .on('broadcast', { event: 'round:idea:vote' },            ({ payload }) => handleIdeaVotePhase(payload))
     .on('broadcast', { event: 'round:idea:reveal' },          ({ payload }) => handleIdeaRevealPlayer(payload))
     .on('broadcast', { event: 'round:engage:prompt' },        ({ payload }) => handleEngagePrompt(payload))
-    .on('broadcast', { event: 'round:engage:vote' },          ({ payload }) => handleEngageVotePhase(payload))
     .on('broadcast', { event: 'round:engage:reveal' },        ({ payload }) => handleEngageRevealPlayer(payload))
     .on('broadcast', { event: 'round:wordcloud:prompt' },     ({ payload }) => handleWordcloudPrompt(payload))
     .on('broadcast', { event: 'round:wordcloud:reveal' },     () => { showScreen('screen-p4-waiting'); $('p4-waiting-msg').textContent = '🌥️ Voilà le nuage !' })
@@ -1116,104 +1110,84 @@ function handleIdeaRevealPlayer(payload) {
 }
 
 // ─ Engage ────────────────────────────────────────────────────
-const ENGAGE_BANKS = {
-  '🏆 Obsession qualité': { icon:'🏆', name:'Obsession qualité',
-    actions:['rappeler chaque client insatisfait','résoudre une réclamation du premier coup','simplifier un courrier client','réduire un délai','corriger une irritation récurrente'],
-    moyens:['en me mettant à la place du client','en écoutant avant de répondre','en mesurant la satisfaction (NPS)','en simplifiant mon vocabulaire','en osant décrocher le téléphone'] },
-  '🤖 Innovation & IA': { icon:'🤖', name:'Innovation & IA',
-    actions:["tester l'IA sur une tâche répétitive",'automatiser une étape chronophage',"me former à un outil",'supprimer une tâche à faible valeur','expérimenter le selfcare'],
-    moyens:['en y consacrant 1h/semaine',"en partant d'un problème concret","en mesurant le temps gagné","en gardant l'humain dans la boucle","en formant un collègue"] },
-  '🧭 Culture du conseil': { icon:'🧭', name:'Culture du conseil',
-    actions:['transformer une demande en conseil','proposer un service complémentaire pertinent','détecter un besoin non exprimé','faire un vrai diagnostic',"accompagner plutôt qu'exécuter"],
-    moyens:['en posant une question de plus','en écoutant le besoin réel','en osant proposer sans forcer','en connaissant nos offres','en valorisant la valeur, pas le produit'] },
-  '🤝 Coopération & décloisonnement': { icon:'🤝', name:'Coopération & décloisonnement',
-    actions:['co-construire avec une autre direction','partager une info au-delà de mon service','casser un silo','proposer un langage commun','faire remonter un irritant transverse'],
-    moyens:['en décidant ensemble',"en cherchant l'intérêt collectif","en écoutant les autres métiers","en clarifiant qui fait quoi","en tenant mes engagements inter-services"] },
-  '⚙️ Performance & efficacité': { icon:'⚙️', name:'Performance & efficacité',
-    actions:['supprimer une étape inutile','réduire un coût','alléger une réunion','fiabiliser un reporting','réduire les allers-retours sur un dossier'],
-    moyens:['en chassant le gaspillage de temps',"en simplifiant plutôt qu'en ajoutant","en mesurant l'impact","en automatisant ce qui peut l'être","en documentant le nouveau standard"] },
-  '🚀 Développement & conquête': { icon:'🚀', name:'Développement & conquête',
-    actions:['proposer un service complémentaire','repérer une opportunité de multi-équipement','fidéliser un client clé','faire vivre le réseau physique','sécuriser un renouvellement'],
-    moyens:['en écoutant les besoins','en proposant au bon moment','en incarnant un partenaire de confiance','en connaissant nos offres','en pensant « projet partagé »'] },
-  '💚 Engagement humain & entraide': { icon:'💚', name:'Engagement humain & entraide',
-    actions:['accompagner un collègue','intégrer un nouvel arrivant','soutenir un membre en difficulté','partager un savoir-faire',"célébrer une réussite d'équipe"],
-    moyens:['en prenant le temps d\'écouter','en partageant sans retenir l\'info','en faisant confiance','en montrant l\'exemple','en responsabilisant plutôt qu\'en contrôlant'] },
-  '🔥 Audace & initiative': { icon:'🔥', name:'Audace & initiative',
-    actions:['proposer une idée hors cadre','tester sans attendre la perfection','lancer un petit pilote','challenger une habitude',"sortir de l'urgence pour un sujet de fond"],
-    moyens:['en osant, tout simplement','en commençant petit',"en acceptant le droit à l'erreur","en sortant de ma zone de confort","en embarquant un allié"] }
-}
-const ENGAGE_ECHEANCES = ['dès demain',"d'ici la fin de la semaine","d'ici un mois","d'ici la fin du trimestre","avant l'été"]
-
-let engageState = { category:null, action:null, moyen:null, echeance:null }
+// Catégories reçues depuis le host (nouveau modèle : { name, slots:{action,moyen,echeance} })
+let engageCategories = []
+let engageState = { catIdx: null, action: null, moyen: null, echeance: null }
 
 function handleEngagePrompt(payload) {
   clearInterval(PS.timerInterval)
-  P4J.kind = 'engage'; P4J.hasSubmitted = false; P4J.engageRatings = new Map()
-  engageState = { category:null, action:null, moyen:null, echeance:null }
+  P4J.kind = 'engage'; P4J.hasSubmitted = false
+  engageState = { catIdx: null, action: null, moyen: null, echeance: null }
+
+  engageCategories = Array.isArray(payload.categories) ? payload.categories : []
+  $('engage-subject-p').textContent = payload.subject || 'Mes engagements'
+  const introEl = $('engage-intro-p')
+  if (introEl) {
+    if (payload.intro) { introEl.textContent = payload.intro; introEl.style.display = 'block' }
+    else introEl.style.display = 'none'
+  }
+
   const grid = $('engage-cat-grid'); grid.innerHTML = ''
-  Object.entries(ENGAGE_BANKS).forEach(([key, bank]) => {
-    const card = document.createElement('button'); card.className = 'engage-cat-card'; card.dataset.cat = key
-    card.innerHTML = `<span class="engage-cat-icon">${bank.icon}</span><span class="engage-cat-name">${bank.name}</span>`
-    card.addEventListener('click', () => selectEngageCategory(key))
-    grid.appendChild(card)
-  })
+  if (!engageCategories.length) {
+    grid.innerHTML = '<div style="color:var(--fg-mute);font-size:.9rem;padding:8px;">Aucune catégorie disponible.</div>'
+  } else {
+    engageCategories.forEach((cat, i) => {
+      const card = document.createElement('button')
+      card.className = 'engage-cat-card'; card.dataset.cat = i
+      card.innerHTML = `<span class="engage-cat-name">${escHtml(cat.name || '')}</span>`
+      card.addEventListener('click', () => selectEngageCategory(i))
+      grid.appendChild(card)
+    })
+  }
   $('engage-step1').style.display = 'flex'
   $('engage-step2').style.display = 'none'
-  $('engage-submit-btn').disabled = false; $('engage-submit-btn').textContent = '🤝 Soumettre mon engagement'
+  $('engage-submit-btn').disabled = false
+  $('engage-submit-btn').textContent = '🤝 Soumettre mon engagement'
   $('engage-input-err').classList.remove('show')
   showScreen('screen-engage-input')
 }
 
-function selectEngageCategory(key) {
-  engageState = { category:key, action:null, moyen:null, echeance:null }
-  $('engage-cat-grid').querySelectorAll('.engage-cat-card').forEach(c => c.classList.toggle('sel', c.dataset.cat === key))
+function selectEngageCategory(i) {
+  engageState = { catIdx: i, action: null, moyen: null, echeance: null }
+  $('engage-cat-grid').querySelectorAll('.engage-cat-card').forEach(c => c.classList.toggle('sel', +c.dataset.cat === i))
   $('engage-step1').style.display = 'none'
   $('engage-step2').style.display = 'flex'
-  const bank = ENGAGE_BANKS[key]
-  buildEngageChips('engage-action-chips','engage-action-inp', bank.actions, 'action')
-  buildEngageChips('engage-moyen-chips','engage-moyen-inp', bank.moyens, 'moyen')
-  buildEcheanceChips()
+  const cat = engageCategories[i]
+  const slots = cat?.slots || { action: [], moyen: [], echeance: [] }
+  buildEngageChips('engage-action-chips',   'engage-action-inp',   slots.action   || [], 'action')
+  buildEngageChips('engage-moyen-chips',    'engage-moyen-inp',    slots.moyen    || [], 'moyen')
+  buildEngageChips('engage-echeance-chips', 'engage-echeance-inp', slots.echeance || [], 'echeance')
   updateEngagePreview()
 }
 
 $('engage-change-cat-btn').addEventListener('click', () => {
   $('engage-step2').style.display = 'none'
   $('engage-step1').style.display = 'flex'
-  engageState = { ...engageState, action:null, moyen:null, echeance:null }
+  engageState = { catIdx: null, action: null, moyen: null, echeance: null }
 })
 
 function buildEngageChips(chipsId, inpId, options, field) {
   const wrap = $(chipsId); wrap.innerHTML = ''
-  const inp = $(inpId); inp.style.display = 'none'; inp.value = ''
-  options.forEach(opt => {
+  const inp = $(inpId); if (inp) { inp.style.display = 'none'; inp.value = '' }
+  ;(options || []).filter(o => o && o.trim()).forEach(opt => {
     const chip = document.createElement('button'); chip.className = 'engage-chip'; chip.textContent = opt
     chip.addEventListener('click', () => {
       wrap.querySelectorAll('.engage-chip').forEach(c => c.classList.remove('sel'))
-      chip.classList.add('sel'); inp.style.display = 'none'
+      chip.classList.add('sel'); if (inp) inp.style.display = 'none'
       engageState[field] = opt; updateEngagePreview()
     })
     wrap.appendChild(chip)
   })
-  const other = document.createElement('button'); other.className = 'engage-chip other'; other.textContent = '✏️ Écrire le mien'
-  other.addEventListener('click', () => {
-    wrap.querySelectorAll('.engage-chip').forEach(c => c.classList.remove('sel'))
-    other.classList.add('sel'); inp.style.display = 'block'; inp.focus()
-    engageState[field] = inp.value.trim() || null; updateEngagePreview()
-  })
-  wrap.appendChild(other)
-  inp.addEventListener('input', () => { engageState[field] = inp.value.trim() || null; updateEngagePreview() })
-}
-
-function buildEcheanceChips() {
-  const wrap = $('engage-echeance-chips'); wrap.innerHTML = ''
-  ENGAGE_ECHEANCES.forEach(ech => {
-    const chip = document.createElement('button'); chip.className = 'engage-chip'; chip.textContent = ech
-    chip.addEventListener('click', () => {
+  if (inp) {
+    const other = document.createElement('button'); other.className = 'engage-chip other'; other.textContent = '✏️ Écrire le mien'
+    other.addEventListener('click', () => {
       wrap.querySelectorAll('.engage-chip').forEach(c => c.classList.remove('sel'))
-      chip.classList.add('sel'); engageState.echeance = ech; updateEngagePreview()
+      other.classList.add('sel'); inp.style.display = 'block'; inp.focus()
+      engageState[field] = inp.value.trim() || null; updateEngagePreview()
     })
-    wrap.appendChild(chip)
-  })
+    wrap.appendChild(other)
+    inp.addEventListener('input', () => { engageState[field] = inp.value.trim() || null; updateEngagePreview() })
+  }
 }
 
 function updateEngagePreview() {
@@ -1221,100 +1195,41 @@ function updateEngagePreview() {
     const el = $(id); if (!el) return
     el.textContent = val || placeholder; el.className = 'engage-dyn' + (val ? '' : ' empty')
   }
-  upd('ep-action', engageState.action, 'action…')
-  upd('ep-moyen', engageState.moyen, 'en moyen…')
+  upd('ep-action',   engageState.action,   'action…')
+  upd('ep-moyen',    engageState.moyen,    'en moyen…')
   upd('ep-echeance', engageState.echeance, "d'ici…")
 }
 
 $('engage-submit-btn').addEventListener('click', () => {
   if (P4J.hasSubmitted) return
-  const { category, action, moyen, echeance } = engageState
+  const { catIdx, action, moyen, echeance } = engageState
   const err = $('engage-input-err')
-  if (!category) { err.textContent = 'Choisissez une catégorie.'; err.classList.add('show'); return }
+  if (catIdx === null || catIdx === undefined) { err.textContent = 'Choisissez une catégorie.'; err.classList.add('show'); return }
   if (!action)   { err.textContent = "Complétez l'action ①.";    err.classList.add('show'); return }
   if (!moyen)    { err.textContent = 'Complétez le moyen ②.';    err.classList.add('show'); return }
   if (!echeance) { err.textContent = "Choisissez une échéance ③."; err.classList.add('show'); return }
+  const category = engageCategories[catIdx]?.name || ''
   const text = `Je m'engage à ${action}, ${moyen}, ${echeance}.`
-  P4J.hasSubmitted = true; $('engage-submit-btn').disabled = true; $('engage-submit-btn').textContent = '⏳ Envoi…'
+  P4J.hasSubmitted = true
+  $('engage-submit-btn').disabled = true; $('engage-submit-btn').textContent = '⏳ Envoi…'
   err.classList.remove('show')
-  activeChannel.send({ type:'broadcast', event:'submit:engage', payload:{ tempId:PS.tempId, name:PS.name, text, category, action, moyen, echeance }})
-  p4Wait('✅', 'Engagement envoyé !', 'En attente du vote…')
+  activeChannel.send({ type:'broadcast', event:'submit:engage', payload:{
+    tempId: PS.tempId, name: PS.name, text, category, action, moyen, echeance
+  }})
+  p4Wait('✅', 'Engagement envoyé !', 'En attente de la révélation…')
 })
 
-// ─ Star rating builder ────────────────────────────────────────
-function buildStarInput(criterion, currentRatings) {
-  const div = document.createElement('div'); div.className = 'star-row'
-  const labels = { concret: '🎯 Concret', aligne: '✅ Aligné', inspirant: '✨ Inspirant', impact: '🚀 Impact' }
-  const labelSpan = document.createElement('span'); labelSpan.className = 'crit-label'; labelSpan.textContent = labels[criterion] || criterion
-  div.appendChild(labelSpan)
-  const starsDiv = document.createElement('div'); starsDiv.className = 'stars-input'
-  for (let i = 1; i <= 5; i++) {
-    const star = document.createElement('span'); star.className = 'star-btn'; star.textContent = '★'; star.dataset.val = i
-    starsDiv.appendChild(star)
-  }
-  function updateStars(val) {
-    currentRatings[criterion] = val
-    starsDiv.querySelectorAll('.star-btn').forEach(s => {
-      s.classList.toggle('active', +s.dataset.val <= val)
-    })
-  }
-  starsDiv.querySelectorAll('.star-btn').forEach(star => {
-    star.addEventListener('click', () => updateStars(+star.dataset.val))
-    star.addEventListener('mouseenter', () => {
-      starsDiv.querySelectorAll('.star-btn').forEach(s => s.classList.toggle('hover', +s.dataset.val <= +star.dataset.val))
-    })
-    star.addEventListener('mouseleave', () => {
-      starsDiv.querySelectorAll('.star-btn').forEach(s => s.classList.remove('hover'))
-    })
-  })
-  div.appendChild(starsDiv)
-  return div
-}
-
-function handleEngageVotePhase(payload) {
-  if (!payload.items?.length) { p4Wait('⏳', 'Vote en cours…', 'En attente des engagements.'); return }
-  P4J.engageRatings = new Map()
-  const wrap = $('engage-vote-items-p'); wrap.innerHTML = ''
-  payload.items.forEach(item => {
-    const ratings = { concret: 0, aligne: 0, inspirant: 0, impact: 0 }
-    P4J.engageRatings.set(item.tempId, ratings)
-    const card = document.createElement('div'); card.className = 'engage-item-card'
-    const catDiv  = document.createElement('div'); catDiv.className = 'engage-item-cat'; catDiv.textContent = item.category || 'Engagement'
-    const textDiv = document.createElement('div'); textDiv.className = 'engage-item-text'; textDiv.textContent = `"${item.text}"`
-    const starsWrap = document.createElement('div'); starsWrap.style.cssText = 'display:flex;flex-direction:column;gap:10px;margin-top:14px;'
-    CRITERIA_DEF.forEach(({ key }) => {
-      starsWrap.appendChild(buildStarInput(key, ratings))
-    })
-    card.appendChild(catDiv); card.appendChild(textDiv); card.appendChild(starsWrap)
-    wrap.appendChild(card)
-  })
-  const vBtn = $('engage-vote-submit-btn'); vBtn.disabled = false; vBtn.textContent = '✅ Valider mes votes'
-  showScreen('screen-engage-vote-p')
-}
-
-$('engage-vote-submit-btn').addEventListener('click', () => {
-  $('engage-vote-submit-btn').disabled = true; $('engage-vote-submit-btn').textContent = '⏳ Envoi…'
-  P4J.engageRatings.forEach((ratings, targetTempId) => {
-    activeChannel.send({ type: 'broadcast', event: 'vote:engage', payload: {
-      tempId:       PS.tempId,
-      targetTempId,
-      criteria:     { concret: ratings.concret || 0, aligne: ratings.aligne || 0, inspirant: ratings.inspirant || 0, impact: ratings.impact || 0 }
-    }})
-  })
-  p4Wait('🗳️', 'Votes envoyés !', 'En attente de la révélation…')
-})
-
+// Reveal côté joueur : simple confirmation, plus de scoring
 function handleEngageRevealPlayer(payload) {
-  const my = payload.perSubmission?.find(e => e.tempId === PS.tempId || e.name === PS.name)
-  const pts = my?.pts ?? 0
-  PS.score += pts
-  $('p4-result-icon').textContent  = pts > 0 ? '🤝' : '🎯'
-  $('p4-result-title').textContent = 'Votre engagement'
-  $('p4-result-pts').textContent   = pts > 0 ? `+${pts} pts` : '0 pt'
-  $('p4-result-pts').style.color   = pts > 0 ? 'var(--gold)' : 'rgba(243,238,218,.4)'
+  const my = payload.items?.find(e => e.name === PS.name)
+  $('p4-result-icon').textContent  = '🤝'
+  $('p4-result-title').textContent = my ? 'Votre engagement' : 'Engagements révélés'
+  $('p4-result-pts').textContent   = ''
+  $('p4-result-pts').style.color   = ''
   if (my) {
-    const c = my.criteriaCounts
-    $('p4-result-sub').textContent = `🎯${c?.concret ?? 0} ✅${c?.aligne ?? 0} ✨${c?.inspirant ?? 0} 🚀${c?.impact ?? 0}` + (my.bonus > 0 ? ` + bonus +${my.bonus}pts` : '')
+    $('p4-result-sub').textContent = `« ${my.text} »`
+  } else {
+    $('p4-result-sub').textContent = 'Regardez l\'écran pour voir tous les engagements.'
   }
   $('p4-result-total').textContent = `Total : ${PS.score} pts`
   showScreen('screen-p4-result')

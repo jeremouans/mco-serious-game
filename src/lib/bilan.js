@@ -79,15 +79,9 @@
         } else if (mt === 'engage') {
           const eng = submissions.filter(s => s.kind === 'engage')
           if (eng.length) {
-            const results = eng.map(s => {
-              const sv = votesBySub[s.id] || []
-              const crit = {}
-              ;['concret', 'aligne', 'inspirant', 'impact'].forEach(c => {
-                const cv = sv.filter(v => v.criterion === c)
-                crit[c] = cv.length ? Math.round(cv.reduce((sum, v) => sum + (v.rating || 1), 0) / cv.length) : 0
-              })
-              return { name: s.author_name || '?', category: s.category || '—', text: s.text, pts: s.points || 0, bonus: 0, crit }
-            })
+            const results = eng.map(s => ({
+              name: s.author_name || '?', category: s.category || '—', text: s.text
+            }))
             mancheLog.push({ type: 'engage', mancheName: m.name, results })
           }
         } else if (mt === 'wordcloud') {
@@ -107,7 +101,7 @@
       const ideas = submissions.filter(s => s.kind === 'idea')
       if (ideas.length) mancheLog.push({ type: 'idea', mancheName: 'Idée en Or', ranking: ideas.sort((a, b) => b.points - a.points).map(s => ({ name: s.author_name || '?', text: s.text, votes: (votesBySub[s.id] || []).length, pts: s.points || 0, isGold: s.is_gold })) })
       const eng = submissions.filter(s => s.kind === 'engage')
-      if (eng.length) mancheLog.push({ type: 'engage', mancheName: 'Engagements', results: eng.map(s => ({ name: s.author_name || '?', category: s.category || '—', text: s.text, pts: s.points || 0, bonus: 0, crit: {} })) })
+      if (eng.length) mancheLog.push({ type: 'engage', mancheName: 'Engagements', results: eng.map(s => ({ name: s.author_name || '?', category: s.category || '—', text: s.text })) })
       if (Object.keys(wcFreq).length) mancheLog.push({ type: 'wordcloud', mancheName: 'Nuage de mots', wordCounts: { ...wcFreq } })
     }
 
@@ -204,14 +198,12 @@
         const rows = entry.results.map(r => `<tr>
           <td style="font-weight:700;white-space:nowrap">${esc(r.name)}</td>
           <td style="font-size:.8em;white-space:nowrap;color:#5a6b60">${esc(r.category)}</td>
-          <td style="font-size:.88rem">${esc(r.text)}</td>
-          <td style="font-size:.75rem;white-space:nowrap;color:#444">🎯${starDisp(r.crit?.concret)} ✅${starDisp(r.crit?.aligne)}<br>✨${starDisp(r.crit?.inspirant)} 🚀${starDisp(r.crit?.impact)}</td>
-          <td style="font-weight:900;color:#c9a000">+${(r.pts || 0) + (r.bonus || 0)}</td>
+          <td style="font-size:.92rem">« ${esc(r.text)} »</td>
         </tr>`).join('')
         return `<div><div class="rep-section-title">🤝 ${esc(entry.mancheName)}</div>
-          <div style="overflow-x:auto"><table class="rep-table" style="font-size:.82rem;">
-            <thead><tr><th>Auteur</th><th>Catégorie</th><th>Engagement</th><th>Critères</th><th>Points</th></tr></thead>
-            <tbody>${rows}</tbody>
+          <div style="overflow-x:auto"><table class="rep-table" style="font-size:.88rem;">
+            <thead><tr><th>Auteur</th><th>Catégorie</th><th>Engagement</th></tr></thead>
+            <tbody>${rows || '<tr><td colspan="3" style="text-align:center;color:#999;font-style:italic;">Aucun engagement pris.</td></tr>'}</tbody>
           </table></div></div>`
       }
 
