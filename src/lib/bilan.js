@@ -41,8 +41,16 @@
     function pushQuizManche(name, questions) {
       const qs = (questions || []).map(q => {
         const qId = q.id || q._id
+        // Intercalaires (slides) → passés tels quels, sans réponses attendues
+        if (q.type === 'slide') {
+          return {
+            id: qId, type: 'slide',
+            title: q.title || '', text: q.text || '',
+            image: q.image || '',
+            answers: [], stats: { answered: 0, correct: 0 }
+          }
+        }
         const qAns = answersByQ[qId] || []
-        if (!qAns.length) return null
         return {
           id: qId, type: q.type || 'choice',
           text: q.text || qId, options: q.options || null,
@@ -50,7 +58,7 @@
           answers: qAns,
           stats: { answered: qAns.length, correct: qAns.filter(a => a.isCorrect).length }
         }
-      }).filter(Boolean)
+      })
       if (qs.length) mancheLog.push({ type: 'quiz', mancheName: name, questions: qs })
     }
 
@@ -140,6 +148,14 @@
     }).map(entry => {
       if (entry.type === 'quiz') {
         const qBlocks = entry.questions.map(q => {
+          // Intercalaire (slide) : affiché comme séparateur descriptif, pas de tableau de réponses
+          if (q.type === 'slide') {
+            return `<div style="background:#eef4fb;border-left:5px solid #86bfeb;border-radius:12px;padding:14px 16px;margin-bottom:8px;">
+              <div style="font-size:.72rem;font-weight:800;text-transform:uppercase;letter-spacing:1.5px;color:#2980b9;margin-bottom:4px;">🖼️ Intercalaire</div>
+              ${q.title ? `<div style="font-weight:800;color:#113124;font-size:1rem;margin-bottom:6px;">${esc(q.title)}</div>` : ''}
+              ${q.text ? `<div style="font-size:.9rem;color:#333;white-space:pre-wrap;">${esc(q.text)}</div>` : '<div style="font-size:.85rem;color:#888;font-style:italic;">(intercalaire vide)</div>'}
+            </div>`
+          }
           const s = q.stats
           const pct = s.answered ? Math.round(s.correct / s.answered * 100) : null
           const rateStr = pct !== null
@@ -166,7 +182,7 @@
             </div>
             ${correctLabel ? `<div style="font-size:.8rem;color:#5a6b60;margin-bottom:6px;">Bonne réponse : <strong style="color:#6aa517">${correctLabel}</strong></div>` : ''}
             <table class="rep-table"><thead><tr><th>Joueur</th><th>Réponse</th><th></th><th>Points</th></tr></thead>
-            <tbody>${rows || '<tr><td colspan="4" style="text-align:center;color:#999">Aucune réponse</td></tr>'}</tbody></table>
+            <tbody>${rows || '<tr><td colspan="4" style="text-align:center;color:#999;font-style:italic;">Aucune réponse reçue</td></tr>'}</tbody></table>
           </div>`
         }).join('')
         return `<div><div class="rep-section-title">🎯 ${esc(entry.mancheName)}</div>${qBlocks}</div>`

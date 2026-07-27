@@ -77,22 +77,65 @@
     .qp-opts.two  { grid-template-columns: 1fr 1fr; }
     .qp-opts.four { grid-template-columns: 1fr 1fr; }
     .opt-btn {
-      font-family: inherit; font-weight: 800; font-size: clamp(1rem,4vw,1.3rem);
+      font-family: inherit; font-weight: 800; font-size: clamp(1.15rem,4.6vw,1.5rem);
       color: #fff; border: none; border-radius: 16px;
-      padding: clamp(18px,4vw,28px) 12px; cursor: pointer; text-align: center;
-      display: flex; flex-direction: column; align-items: center; gap: 6px;
+      padding: clamp(22px,5vw,32px) 14px; cursor: pointer; text-align: center;
+      display: flex; flex-direction: column; align-items: center; gap: 8px;
       box-shadow: 0 6px 20px rgba(0,0,0,.3); transition: transform .1s, filter .1s;
       -webkit-tap-highlight-color: transparent; position: relative; overflow: hidden;
+      min-height: clamp(92px, 20vw, 132px);
     }
     .opt-btn:active { transform: scale(.96); }
     .opt-btn::after { content:''; position:absolute; inset:0; background: linear-gradient(180deg,rgba(255,255,255,.18),transparent); }
     .opt-btn-key  { font-size: 1.5em; font-weight: 900; line-height: 1; }
-    .opt-btn-text { font-size: .75em; font-weight: 700; opacity: .95; line-height: 1.2; }
+    .opt-btn-text { font-size: .95em; font-weight: 700; opacity: .98; line-height: 1.25; }
     .opt-btn.selected { box-shadow: 0 0 0 4px #fff, 0 6px 20px rgba(0,0,0,.3); transform: scale(1.04); }
     .opt-btn.correct  { box-shadow: 0 0 0 4px #fff, 0 0 30px rgba(39,174,96,.6); }
     .opt-btn.wrong    { opacity: .35; }
     .opt-btn:disabled { cursor: default; }
     .opt-btn.dim      { opacity: .35; cursor: default; }
+
+    /* ── Intercalaire (slide) reçu depuis l'animateur ── */
+    #screen-slide-p {
+      justify-content: center; align-items: center;
+      gap: clamp(16px, 3.5vh, 28px); padding: 28px 22px; text-align: center;
+    }
+    .slide-p-kicker {
+      display: inline-block; font-size: .74rem; font-weight: 800; text-transform: uppercase;
+      letter-spacing: 2.5px; color: var(--fg-soft);
+      background: rgba(255,255,255,.10); border-radius: 999px; padding: .35em 1.1em;
+    }
+    .slide-p-title { font-size: clamp(1.4rem, 5.5vw, 2rem); font-weight: 800; color: var(--fg); line-height: 1.15; }
+    .slide-p-text {
+      font-size: clamp(1.05rem, 3.8vw, 1.35rem); font-weight: 500; color: var(--fg-soft);
+      line-height: 1.55; white-space: pre-wrap; max-width: 32em;
+      background: rgba(255,255,255,.06); border-left: 4px solid var(--green-b);
+      border-radius: 14px; padding: 16px 20px;
+    }
+    .slide-p-hint {
+      margin-top: 10px; font-size: .95rem; font-weight: 700; color: var(--gold);
+    }
+
+    /* ── Intro de manche reçue (round-intro) ── */
+    #screen-round-intro-p {
+      justify-content: center; align-items: center;
+      gap: clamp(16px, 3.5vh, 32px); padding: 32px 22px; text-align: center;
+      background: var(--bg); transition: background-color .3s ease;
+    }
+    .rip-picto img {
+      width: clamp(140px, 42vw, 220px); height: auto;
+      filter: drop-shadow(0 10px 24px rgba(0,0,0,.28));
+      animation: popIn .5s cubic-bezier(.34,1.56,.64,1) both;
+    }
+    .rip-badge {
+      display: inline-block; font-size: .75rem; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 2.5px; color: var(--fg); background: rgba(17,49,36,.12);
+      border-radius: 999px; padding: .35em 1.2em;
+    }
+    body[data-manche="terracotta"] .rip-badge { background: rgba(241,233,210,.22); color: var(--cream); }
+    .rip-title { font-size: clamp(1.6rem, 6vw, 2.4rem); font-weight: 800; color: var(--fg); line-height: 1.1; }
+    .rip-count { font-size: clamp(.95rem, 3vw, 1.15rem); color: var(--fg-soft); font-weight: 500; }
+    .rip-hint  { margin-top: 6px; font-size: .9rem; font-weight: 700; color: var(--gold); }
 
     /* ── Answered ── */
     #screen-answered { justify-content: center; align-items: center; gap: clamp(14px,4vh,30px); padding: 24px; text-align: center; }
@@ -355,6 +398,23 @@
       <div class="qp-text" id="qp-text"></div>
       <div class="qp-opts four" id="qp-opts"></div>
     </div>
+  </section>
+
+  <!-- ══ INTRO DE MANCHE (round:intro) ═══════════════════════════ -->
+  <section class="screen" id="screen-round-intro-p">
+    <div class="rip-picto"><img id="rip-picto-img" src="" alt="" style="display:none;"></div>
+    <div class="rip-badge" id="rip-badge">Manche 1 / 4</div>
+    <h2 class="rip-title" id="rip-title"></h2>
+    <div class="rip-count" id="rip-count"></div>
+    <div class="rip-hint">👀 Attendez la première question…</div>
+  </section>
+
+  <!-- ══ INTERCALAIRE (slide reçu depuis l'animateur) ═══════════ -->
+  <section class="screen" id="screen-slide-p">
+    <div class="slide-p-kicker">🖼️ Intercalaire</div>
+    <h2 class="slide-p-title" id="slide-p-title" style="display:none;"></h2>
+    <div class="slide-p-text" id="slide-p-text"></div>
+    <div class="slide-p-hint">👉 Regardez l'écran</div>
   </section>
 
   <!-- ══ ANSWERED ═══════════════════════════════════════════ -->
@@ -675,6 +735,8 @@ async function joinLobby(code, firstName, lastName) {
     })
     .on('broadcast', { event: 'manche:theme' },               ({ payload }) => applyMancheTheme(payload.theme, payload.picto))
     .on('broadcast', { event: 'round:intro' },                ({ payload }) => showRoundIntroPlayer(payload))
+    .on('broadcast', { event: 'slide:show' },                 ({ payload }) => showSlidePlayer(payload))
+    .on('broadcast', { event: 'slide:end' },                  () => endSlidePlayer())
     .on('broadcast', { event: 'question:show' },              ({ payload }) => handleQuestionShow(payload))
     .on('broadcast', { event: 'question:reveal' },            ({ payload }) => handleReveal(payload))
     .on('broadcast', { event: 'game:ended' },                 ({ payload }) => handleGameEnded(payload))
@@ -788,13 +850,32 @@ $('play-again-btn').addEventListener('click', () => showScreen('screen-join'))
 
 // ── Round intro ───────────────────────────────────────────────
 function showRoundIntroPlayer(payload) {
-  const el = document.createElement('div')
-  el.style.cssText = 'position:fixed;inset:0;z-index:100;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;background:rgba(17,49,36,.96);backdrop-filter:blur(12px);animation:screenIn .3s ease-out;'
-  el.innerHTML = `
-    <div style="font-size:.78rem;font-weight:900;text-transform:uppercase;letter-spacing:3px;color:#6aa517;margin-bottom:10px">Manche ${payload.manche} / ${payload.total}</div>
-    <div style="font-size:clamp(1.6rem,6vw,2.6rem);font-weight:900;color:#f3eeda;line-height:1.1;max-width:320px;padding:0 16px">${payload.name}</div>`
-  document.body.appendChild(el)
-  setTimeout(() => { el.style.transition = 'opacity .4s'; el.style.opacity = '0'; setTimeout(() => el.remove(), 400) }, 2800)
+  // Applique la charte + affiche le picto de la manche (broadcasts inclus si présent)
+  if (payload.theme) applyMancheTheme(payload.theme, payload.picto || '')
+  const img = $('rip-picto-img')
+  if (img) {
+    if (payload.picto) { img.src = '/assets/pictos/' + payload.picto + '.png'; img.style.display = 'block' }
+    else img.style.display = 'none'
+  }
+  $('rip-badge').textContent = `Manche ${payload.manche} / ${payload.total}`
+  $('rip-title').textContent = payload.name || 'Nouvelle manche'
+  $('rip-count').textContent = '' // le count n'est pas transmis, l'écran d'intro suffit
+  showScreen('screen-round-intro-p')
+}
+
+// ── Intercalaire (slide) reçu de l'animateur ──
+function showSlidePlayer(payload) {
+  const t = $('slide-p-title')
+  if (t) {
+    if (payload.title) { t.textContent = payload.title; t.style.display = 'block' }
+    else t.style.display = 'none'
+  }
+  $('slide-p-text').textContent = payload.text || ''
+  showScreen('screen-slide-p')
+}
+function endSlidePlayer() {
+  // Retour à l'attente quand l'animateur avance
+  showScreen('screen-waiting')
 }
 
 // ── Question reçue ────────────────────────────────────────────
