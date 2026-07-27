@@ -1,98 +1,311 @@
 /* ============================================================
-   CHARTE MGEN — Evergreen #113124
+   MGEN — Engagements 2030 · Charte flat
+   Palette : Evergreen · Light Yellow · Fiery Terracotta · Maya Blue
    ============================================================ */
-:root {
-  --ever: #113124; --forest: #124c15; --green: #6aa517; --green-b: #8cc63f;
-  --blue: #86bfeb; --cream: #f1e9d2; --gold: #f4c84a; --white: #fff;
-  --on-dark: #f3eeda; --panel: #ffffff; --panel-2: #fbf7ec; --field: #fbf7ec;
-  --accent: #6aa517; --accent-text: #fff;
-  --shadow: 0 18px 46px rgba(0,0,0,.5); --shadow-sm: 0 8px 22px rgba(0,0,0,.4);
-  --r: 24px;
+
+/* ── Polices Aeonik MGEN (locales) ── */
+@font-face {
+  font-family: 'Aeonik MGEN'; font-style: normal; font-weight: 300;
+  font-display: swap;
+  src: url('/assets/fonts/AeonikMGEN-Light.ttf') format('truetype');
+}
+@font-face {
+  font-family: 'Aeonik MGEN'; font-style: normal; font-weight: 400;
+  font-display: swap;
+  src: url('/assets/fonts/AeonikMGEN-Regular.ttf') format('truetype');
+}
+@font-face {
+  font-family: 'Aeonik MGEN'; font-style: normal; font-weight: 500;
+  font-display: swap;
+  src: url('/assets/fonts/AeonikMGEN-Medium.ttf') format('truetype');
+}
+@font-face {
+  font-family: 'Aeonik MGEN'; font-style: normal; font-weight: 700;
+  font-display: swap;
+  src: url('/assets/fonts/AeonikMGEN-Bold.ttf') format('truetype');
 }
 
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+/* ── Couleurs de charte (constantes) ── */
+:root {
+  /* Palette MGEN */
+  --ever:       #113124;   /* Evergreen — texte principal */
+  --ever-2:     #1c4b36;   /* variante */
+  --green:      #6aa517;   /* MGEN Green — accents primaires */
+  --green-b:    #8cc63f;
+  --cream:      #f1e9d2;   /* Light Yellow — fond principal */
+  --cream-2:    #fbf7ec;
+  --white:      #ffffff;
+  --terra:      #cb5c43;   /* Fiery Terracotta */
+  --maya:       #86bfeb;   /* Maya Blue */
+  --gold:       #f4c84a;
+  --danger:     #b64029;
+  --muted:      #6a7a70;
+  --line:       rgba(17,49,36,.12);
+
+  /* Thème par défaut : Light Yellow */
+  --bg:         var(--cream);
+  --surface:    #ffffff;
+  --fg:         var(--ever);
+  --fg-soft:    rgba(17,49,36,.72);
+  --fg-mute:    rgba(17,49,36,.5);
+  --accent:     var(--green);
+  --accent-fg:  #ffffff;
+  --btn-bg:     var(--ever);
+  --btn-fg:     var(--cream);
+  --btn-alt-bg: var(--green);
+  --btn-alt-fg: #ffffff;
+  --card-bg:    #ffffff;
+  --card-fg:    var(--ever);
+
+  --radius:     18px;
+  --radius-sm:  10px;
+  --radius-lg:  28px;
+  --shadow:     0 8px 26px rgba(17,49,36,.10);
+  --shadow-sm:  0 3px 10px rgba(17,49,36,.08);
+  --shadow-lift:0 14px 40px rgba(17,49,36,.18);
+}
+
+/* ── Thème LIGHT YELLOW (défaut) ─────────────────────────── */
+body.theme-yellow, .theme-yellow {
+  --bg:        var(--cream);
+  --surface:   #ffffff;
+  --fg:        var(--ever);
+  --fg-soft:   rgba(17,49,36,.72);
+  --fg-mute:   rgba(17,49,36,.5);
+  --accent:    var(--green);
+  --accent-fg: #ffffff;
+  --btn-bg:    var(--ever);
+  --btn-fg:    var(--cream);
+  --btn-alt-bg:var(--green);
+  --btn-alt-fg:#ffffff;
+  --card-bg:   #ffffff;
+  --card-fg:   var(--ever);
+}
+
+/* ── Thème FIERY TERRACOTTA (main) ───────────────────────── */
+body.theme-terracotta, .theme-terracotta {
+  --bg:        var(--terra);
+  --surface:   #ffffff;
+  --fg:        var(--cream);
+  --fg-soft:   rgba(241,233,210,.85);
+  --fg-mute:   rgba(241,233,210,.65);
+  --accent:    var(--cream);
+  --accent-fg: var(--terra);
+  --btn-bg:    var(--cream);
+  --btn-fg:    var(--terra);
+  --btn-alt-bg:var(--ever);
+  --btn-alt-fg:var(--cream);
+  --card-bg:   #ffffff;
+  --card-fg:   var(--ever);
+  --shadow:    0 8px 26px rgba(93,32,17,.20);
+  --shadow-sm: 0 3px 10px rgba(93,32,17,.15);
+}
+
+/* ── Thème MAYA BLUE (main) ──────────────────────────────── */
+body.theme-maya, .theme-maya {
+  --bg:        var(--maya);
+  --surface:   #ffffff;
+  --fg:        var(--ever);
+  --fg-soft:   rgba(17,49,36,.75);
+  --fg-mute:   rgba(17,49,36,.55);
+  --accent:    var(--ever);
+  --accent-fg: var(--maya);
+  --btn-bg:    var(--ever);
+  --btn-fg:    var(--cream);
+  --btn-alt-bg:#ffffff;
+  --btn-alt-fg:var(--ever);
+  --card-bg:   #ffffff;
+  --card-fg:   var(--ever);
+  --shadow:    0 8px 26px rgba(20,62,90,.18);
+  --shadow-sm: 0 3px 10px rgba(20,62,90,.12);
+}
+
+/* ── Thème EVERGREEN ─────────────────────────────────────── */
+body.theme-evergreen, .theme-evergreen {
+  --bg:        var(--cream);
+  --surface:   #ffffff;
+  --fg:        var(--ever);
+  --fg-soft:   rgba(17,49,36,.72);
+  --fg-mute:   rgba(17,49,36,.5);
+  --accent:    var(--ever);
+  --accent-fg: var(--cream);
+  --btn-bg:    var(--ever);
+  --btn-fg:    var(--cream);
+  --btn-alt-bg:var(--green);
+  --btn-alt-fg:#ffffff;
+  --card-bg:   #ffffff;
+  --card-fg:   var(--ever);
+}
+
+/* ── Thème ADMIN (interne — evergreen surface sombre) ────── */
+body.theme-admin, .theme-admin {
+  --bg:        var(--ever);
+  --surface:   rgba(255,255,255,.06);
+  --fg:        var(--cream);
+  --fg-soft:   rgba(241,233,210,.72);
+  --fg-mute:   rgba(241,233,210,.5);
+  --accent:    var(--green-b);
+  --accent-fg: var(--ever);
+  --btn-bg:    var(--green);
+  --btn-fg:    #ffffff;
+  --btn-alt-bg:rgba(255,255,255,.10);
+  --btn-alt-fg:var(--cream);
+  --card-bg:   rgba(255,255,255,.06);
+  --card-fg:   var(--cream);
+  --line:      rgba(255,255,255,.10);
+  --shadow:    0 6px 22px rgba(0,0,0,.28);
+  --shadow-sm: 0 2px 8px rgba(0,0,0,.22);
+}
+
+/* ── Reset ── */
+*, *::before, *::after {
+  box-sizing: border-box; margin: 0; padding: 0;
+  -webkit-tap-highlight-color: transparent;
+}
 html, body { height: 100%; }
+img { max-width: 100%; display: block; }
 
 body {
-  font-family: 'Outfit', system-ui, sans-serif;
-  color: var(--on-dark);
+  font-family: 'Aeonik MGEN', 'Outfit', system-ui, -apple-system, sans-serif;
+  font-weight: 400;
+  color: var(--fg);
+  background: var(--bg);
   -webkit-font-smoothing: antialiased;
-  background:
-    radial-gradient(1200px 820px at 18% -12%, #1d4d34 0%, transparent 55%),
-    radial-gradient(1000px 760px at 116% 120%, #0f3a48 0%, transparent 52%),
-    radial-gradient(900px 900px at 50% 50%, #16402c 0%, transparent 70%),
-    #113124;
-}
-body::before, body::after {
-  content: ''; position: fixed; inset: -25%; z-index: 0; pointer-events: none;
-}
-body::before {
-  background:
-    radial-gradient(circle at 32% 30%, rgba(106,165,23,.22), transparent 42%),
-    radial-gradient(circle at 72% 70%, rgba(134,191,235,.16), transparent 44%);
-  animation: drift 30s ease-in-out infinite alternate;
-}
-body::after {
-  background:
-    radial-gradient(circle at 82% 18%, rgba(140,198,63,.14), transparent 40%),
-    radial-gradient(circle at 12% 82%, rgba(244,200,74,.10), transparent 40%);
-  animation: drift2 34s ease-in-out infinite alternate;
+  -moz-osx-font-smoothing: grayscale;
+  transition: background-color .35s ease, color .3s ease;
 }
 
-h1, h2, h3 { line-height: 1.02; letter-spacing: -.5px; }
+/* Fond du body avec masque discret sur les thèmes de couleur */
+body.with-mask {
+  background-image: url('/assets/masques/creme.png');
+  background-repeat: no-repeat;
+  background-position: right top;
+  background-size: 55% auto;
+  background-attachment: fixed;
+}
+body.theme-terracotta.with-mask { background-image: url('/assets/masques/terracotta.png'); }
+body.theme-maya.with-mask       { background-image: url('/assets/masques/maya.png'); }
+body.theme-evergreen.with-mask  { background-image: url('/assets/masques/creme.png'); }
 
-.app { height: 100dvh; width: 100vw; display: flex; flex-direction: column; position: relative; z-index: 1; overflow: hidden; }
+h1, h2, h3, h4 {
+  font-family: 'Aeonik MGEN', 'Outfit', sans-serif;
+  font-weight: 700; line-height: 1.08; letter-spacing: -.01em;
+  color: var(--fg);
+}
+
+/* ── Shell ── */
+.app {
+  height: 100dvh; width: 100vw;
+  display: flex; flex-direction: column;
+  position: relative; z-index: 1; overflow: hidden;
+}
 .screen { flex: 1; display: none; flex-direction: column; min-height: 0; }
-.screen.active { display: flex; animation: screenIn .26s ease-out; }
+.screen.active { display: flex; animation: screenIn .22s ease-out; }
 
-/* étoiles */
-#stars { position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
-.star {
-  position: absolute; color: rgba(241,233,210,.55);
-  text-shadow: 0 0 10px rgba(140,198,63,.6); will-change: transform, opacity;
-  animation: twinkle var(--d, 4.5s) ease-in-out infinite, floatY var(--f, 10s) ease-in-out infinite;
-}
+/* Compat : plus d'étoiles ni de dégradés animés */
+#stars, body::before, body::after { display: none !important; content: none !important; }
 
-/* keyframes */
-@keyframes drift    { 0% { transform: translate(0,0) scale(1) }       100% { transform: translate(4%,-3%) scale(1.08) } }
-@keyframes drift2   { 0% { transform: translate(0,0) }                100% { transform: translate(-5%,4%) } }
-@keyframes twinkle  { 0%,100% { opacity: .15 }  50% { opacity: .95 } }
-@keyframes floatY   { 0%,100% { transform: translateY(0) }            50% { transform: translateY(-16px) } }
-@keyframes screenIn { from { opacity: 0; transform: translateY(18px) scale(.985) } to { opacity: 1; transform: none } }
-@keyframes risein   { from { opacity: 0; transform: translateY(16px) }             to { opacity: 1; transform: none } }
-@keyframes nameIn   { from { opacity: 0; transform: translateY(12px) scale(.94) }  to { opacity: 1; transform: none } }
-@keyframes badgeIn  { from { opacity: 0; transform: translateY(-14px) }            to { opacity: 1; transform: none } }
-@keyframes floatLogo { 0%,100% { transform: translateY(0) rotate(-3deg) } 50% { transform: translateY(-9px) rotate(3deg) } }
-@keyframes spin     { to { transform: rotate(360deg) } }
-@keyframes pop      { from { opacity: 0; transform: scale(.88) } to { opacity: 1; transform: scale(1) } }
-@keyframes pulse-ring { 0% { box-shadow: 0 0 0 0 rgba(140,198,63,.55) } 100% { box-shadow: 0 0 0 18px rgba(140,198,63,0) } }
-
-/* boutons */
+/* ── Boutons flat ── */
 .btn {
-  font-family: inherit; font-weight: 800; font-size: clamp(1rem, 2vw, 1.4rem);
-  letter-spacing: .2px; position: relative; overflow: hidden;
-  background: var(--accent); color: var(--accent-text);
-  border: none; border-radius: 999px; padding: .7em 1.5em;
-  cursor: pointer; box-shadow: var(--shadow-sm);
-  transition: transform .1s, box-shadow .12s, filter .15s;
+  font-family: inherit; font-weight: 700; letter-spacing: .01em;
+  font-size: clamp(.95rem, 1.7vw, 1.15rem);
+  background: var(--btn-bg); color: var(--btn-fg);
+  border: 2px solid transparent; border-radius: 14px;
+  padding: .68em 1.35em; cursor: pointer;
+  display: inline-flex; align-items: center; gap: .55em;
+  transition: filter .15s, transform .1s, background .2s, color .2s, border-color .2s;
+  box-shadow: none;
+}
+.btn:hover { filter: brightness(1.05); }
+.btn:active { transform: translateY(1px); }
+.btn:disabled { opacity: .45; cursor: not-allowed; }
+.btn.big  { font-size: clamp(1.05rem, 2vw, 1.4rem); padding: .8em 1.75em; border-radius: 16px; }
+.btn.sm   { font-size: .85rem; padding: .45em .95em; border-radius: 12px; }
+
+/* Variantes */
+.btn.dark   { background: var(--ever);  color: var(--cream); }
+.btn.green  { background: var(--green); color: #fff; }
+.btn.cream  { background: var(--cream); color: var(--ever); }
+.btn.gold   { background: var(--gold);  color: var(--ever); }
+.btn.terra  { background: var(--terra); color: var(--cream); }
+.btn.maya   { background: var(--maya);  color: var(--ever); }
+.btn.ghost  {
+  background: transparent; color: var(--fg);
+  border-color: color-mix(in oklab, var(--fg) 25%, transparent);
+}
+.btn.ghost:hover { background: color-mix(in oklab, var(--fg) 8%, transparent); }
+.btn.outline {
+  background: transparent; color: var(--fg);
+  border-color: var(--fg);
+}
+.btn.outline:hover { background: var(--fg); color: var(--bg); }
+
+/* ── Cards & surfaces ── */
+.card, .surface {
+  background: var(--card-bg); color: var(--card-fg);
+  border-radius: var(--radius);
+  padding: clamp(16px, 2.5vw, 26px);
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--line);
+}
+
+/* ── Inputs ── */
+.inp, input[type=text], input[type=email], input[type=password],
+input[type=number], textarea, select {
+  font-family: inherit; font-weight: 500; color: var(--fg);
+  background: var(--surface);
+  border: 2px solid var(--line);
+  border-radius: 12px; padding: .6em 1em;
+  outline: none; transition: border-color .15s;
+  font-size: 1rem;
+}
+.inp:focus, input:focus, textarea:focus, select:focus {
+  border-color: var(--accent);
+}
+.inp::placeholder, input::placeholder, textarea::placeholder {
+  color: var(--fg-mute);
+}
+
+/* ── Chips & badges ── */
+.chip {
   display: inline-flex; align-items: center; gap: .5em;
+  background: var(--surface); color: var(--fg);
+  border: 1.5px solid var(--line); border-radius: 999px;
+  padding: .35em .95em; font-weight: 600; font-size: .9rem;
 }
-.btn::after {
-  content: ''; position: absolute; inset: 0; pointer-events: none;
-  background: linear-gradient(110deg, transparent 32%, rgba(255,255,255,.4) 50%, transparent 68%);
-  transform: translateX(-130%); transition: transform .6s;
+.badge {
+  display: inline-block; padding: .25em .7em;
+  border-radius: 999px; font-size: .78rem; font-weight: 700;
+  background: var(--accent); color: var(--accent-fg);
 }
-.btn:hover  { transform: translateY(-2px); box-shadow: 0 14px 32px rgba(106,165,23,.4); filter: brightness(1.04); }
-.btn:hover::after { transform: translateX(130%); }
-.btn:active { transform: translateY(0) scale(.98); }
-.btn:disabled { opacity: .4; cursor: not-allowed; transform: none; }
-.btn.big  { font-size: clamp(1.2rem, 2.8vw, 1.8rem); padding: .7em 1.9em; }
-.btn.sm   { font-size: .9rem; padding: .4em .9em; }
-.btn.dark { background: var(--forest); color: #fff; }
-.btn.gold { background: var(--gold); color: var(--ever); }
-.btn.ghost {
-  background: transparent; color: var(--on-dark);
-  box-shadow: inset 0 0 0 2px rgba(243,238,218,.3);
+
+/* ── Utilitaires ── */
+.stack { display: flex; flex-direction: column; gap: 14px; }
+.row   { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+.grow  { flex: 1; }
+.mute  { color: var(--fg-mute); }
+.center-x { display: flex; justify-content: center; }
+
+/* ── Animations minimales ── */
+@keyframes screenIn { from { opacity: 0; transform: translateY(10px) } to { opacity: 1; transform: none } }
+@keyframes fadeIn   { from { opacity: 0 } to { opacity: 1 } }
+@keyframes riseIn   { from { opacity: 0; transform: translateY(10px) } to { opacity: 1; transform: none } }
+@keyframes popIn    { from { opacity: 0; transform: scale(.94) } to { opacity: 1; transform: scale(1) } }
+
+/* Compat avec anciennes classes du code existant — mappings vers nouvelles variables */
+:root {
+  --panel:    var(--card-bg);
+  --panel-2:  var(--cream-2);
+  --field:    var(--surface);
+  --forest:   var(--ever-2);
+  --blue:     var(--maya);
+  --accent-text: var(--accent-fg);
+  --on-dark:  var(--cream);
 }
-.btn.ghost:hover { background: rgba(255,255,255,.08); }
-.btn.cream { background: var(--cream); color: var(--ever); }
+
+/* ── Impression ── */
+@media print {
+  @page { margin: 12mm; }
+  body { background: #fff !important; color: #000 !important; }
+  .no-print { display: none !important; }
+}

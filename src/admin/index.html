@@ -5,9 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
   <meta name="theme-color" content="#113124">
   <title>Administration — Engagements 2030</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/lib/theme.css">
   <script src="/lib/bilan.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
@@ -85,7 +82,7 @@
       border-radius:12px;padding:10px 16px;
     }
     .search-bar input{
-      background:none;border:none;outline:none;color:var(--cream);font-family:Outfit,sans-serif;
+      background:none;border:none;outline:none;color:var(--cream);font-family:inherit;
       font-size:.95rem;flex:1;
     }
     .search-bar input::placeholder{color:rgba(243,238,218,.35);}
@@ -115,7 +112,7 @@
     }
     .editor-quiz-title{
       flex:1;min-width:160px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);
-      border-radius:10px;padding:8px 14px;color:var(--cream);font-family:Outfit,sans-serif;
+      border-radius:10px;padding:8px 14px;color:var(--cream);font-family:inherit;
       font-size:.95rem;font-weight:700;outline:none;
     }
     .editor-quiz-title:focus{border-color:var(--green);}
@@ -140,6 +137,35 @@
 
     /* Manche type cards */
     .mtype-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-bottom:20px;}
+
+    /* Theme picker (charte couleur par manche) */
+    .theme-picker{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;}
+    .theme-swatch{
+      display:flex;align-items:center;gap:10px;padding:14px 16px;
+      border:2px solid transparent;border-radius:14px;cursor:pointer;
+      transition:transform .12s,border-color .15s;
+    }
+    .theme-swatch:hover{transform:translateY(-2px);}
+    .theme-swatch.active{border-width:3px;}
+
+    /* Picto picker */
+    .picto-picker{
+      display:grid;grid-template-columns:repeat(auto-fill,minmax(90px,1fr));gap:8px;
+      max-height:280px;overflow-y:auto;padding:4px;
+      background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:12px;
+    }
+    .picto-item{
+      display:flex;flex-direction:column;align-items:center;gap:4px;
+      padding:8px 6px;border:2px solid transparent;border-radius:10px;
+      cursor:pointer;transition:background .15s,border-color .15s;
+      background:rgba(255,255,255,.04);
+    }
+    .picto-item:hover{background:rgba(255,255,255,.09);}
+    .picto-item.active{border-color:var(--green,#6aa517);background:rgba(106,165,23,.15);}
+    .picto-item img{width:56px;height:56px;object-fit:contain;background:#f1e9d2;border-radius:8px;padding:6px;}
+    .picto-item .picto-lbl{font-size:.68rem;color:rgba(243,238,218,.65);text-align:center;line-height:1.2;font-weight:600;}
+    .picto-item.active .picto-lbl{color:var(--cream);}
+    .picto-none{width:56px;height:56px;display:grid;place-items:center;background:rgba(255,255,255,.06);border-radius:8px;font-size:1.3rem;color:rgba(243,238,218,.4);}
     .mtype-card{
       border:2px solid rgba(255,255,255,.1);border-radius:14px;padding:14px;cursor:pointer;
       transition:border-color .15s,background .15s;text-align:center;
@@ -177,7 +203,7 @@
     .field-lbl{font-size:.75rem;font-weight:700;color:rgba(243,238,218,.5);margin-bottom:5px;display:block;}
     .field-input{
       width:100%;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);
-      border-radius:10px;padding:9px 12px;color:var(--cream);font-family:Outfit,sans-serif;
+      border-radius:10px;padding:9px 12px;color:var(--cream);font-family:inherit;
       font-size:.9rem;outline:none;box-sizing:border-box;transition:border-color .2s;
     }
     .field-input:focus{border-color:var(--green);}
@@ -205,7 +231,7 @@
     }
     #report-content{
       flex:1;overflow-y:auto;padding:28px;max-width:900px;margin:0 auto;width:100%;
-      font-family:Outfit,sans-serif;color:#1a1a1a;box-sizing:border-box;
+      font-family:inherit;color:#1a1a1a;box-sizing:border-box;
     }
     /* Shared bilan classes (mirrors host/index.html) */
     .report-body{background:#fff;color:#1a2b22;border-radius:20px;box-shadow:0 4px 24px rgba(0,0,0,.08);padding:clamp(20px,3vw,44px);display:flex;flex-direction:column;gap:24px;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
@@ -251,7 +277,7 @@
     .input-group input{
       width:100%;box-sizing:border-box;
       background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.18);
-      border-radius:10px;padding:11px 14px;color:var(--cream);font-family:Outfit,sans-serif;
+      border-radius:10px;padding:11px 14px;color:var(--cream);font-family:inherit;
       font-size:.95rem;outline:none;transition:border-color .2s;
     }
     .input-group input:focus{border-color:var(--green);}
@@ -268,14 +294,13 @@
     .check-sub{color:rgba(243,238,218,.55);max-width:320px;}
   </style>
 </head>
-<body>
-<div id="stars" aria-hidden="true"></div>
+<body class="theme-admin">
 
 <!-- ═══════════════════════════════════════════════ LOGIN ══ -->
 <section class="screen active" id="screen-login">
   <div class="login-center">
     <div class="login-box">
-      <img src="/assets/logo-mgen.png" alt="MGEN" class="login-logo">
+      <img src="/assets/logo-e2030-creme.png" alt="MGEN" class="login-logo">
       <div class="login-title">Administration</div>
       <div class="login-sub">Accès réservé aux gestionnaires du quiz</div>
 
@@ -322,7 +347,7 @@
 <section class="screen" id="screen-home">
   <div class="admin-wrap" style="position:relative;z-index:1;">
     <div class="admin-header">
-      <img src="/assets/logo-mgen.png" alt="MGEN" class="admin-header-logo">
+      <img src="/assets/logo-e2030-creme.png" alt="MGEN" class="admin-header-logo">
       <div style="flex:1;">
         <div class="admin-header-title">Administration · Engagements 2030</div>
       </div>
@@ -491,6 +516,30 @@ const MANCHE_TYPES = [
   { type:'wordcloud', icon:'🌥️', name:'Nuage de mots',    desc:'Vote sur des mots-clés, nuage en direct' },
   { type:'idea',      icon:'💡', name:'L\'idée en Or',    desc:'Chacun propose, le groupe vote pour la meilleure' },
   { type:'engage',    icon:'🤝', name:'Mes Engagements',  desc:'Engagement individuel noté sur 4 critères étoiles' }
+]
+
+// Chartes MGEN — appliquées côté host lors de la manche
+const THEMES = [
+  { id:'yellow',     name:'Light Yellow', bg:'#f1e9d2', fg:'#113124', accent:'#6aa517' },
+  { id:'terracotta', name:'Terracotta',   bg:'#cb5c43', fg:'#f1e9d2', accent:'#f1e9d2' },
+  { id:'maya',       name:'Maya Blue',    bg:'#86bfeb', fg:'#113124', accent:'#113124' },
+  { id:'evergreen',  name:'Evergreen',    bg:'#f1e9d2', fg:'#113124', accent:'#113124' }
+]
+
+// Pictos MGEN disponibles (fichiers PNG dans /assets/pictos/)
+const PICTOS = [
+  { id:'axe1-1',  label:'Axe 1 — L1' },
+  { id:'axe1-3',  label:'Axe 1 — L3' },
+  { id:'axe1-4',  label:'Axe 1 — L4' },
+  { id:'axe1-12', label:'Axe 1 — L12' },
+  { id:'axe2-1',  label:'Axe 2 — L1' },
+  { id:'axe2-2',  label:'Axe 2 — L2' },
+  { id:'axe2-3',  label:'Axe 2 — L3' },
+  { id:'axe2-4',  label:'Axe 2 — L4' },
+  { id:'axe2',    label:'Axe 2 (générique)' },
+  { id:'chapeau', label:'Chapeau' },
+  { id:'coeur',   label:'Cœur' },
+  { id:'socle',   label:'Socle' }
 ]
 
 const WORDCLOUD_DEFAULTS = [
@@ -904,7 +953,7 @@ window.deleteManche = idx => {
 $('add-manche-btn').addEventListener('click', () => {
   // Add a default quiz manche
   if (!currentQuiz) return
-  currentQuiz.config.manches.push({ id: uid(), type:'quiz', name:'Nouvelle manche', questions:[] })
+  currentQuiz.config.manches.push({ id: uid(), type:'quiz', name:'Nouvelle manche', theme:'yellow', picto:'', questions:[] })
   selectedMancheIdx = currentQuiz.config.manches.length - 1
   renderMancheList(); renderMancheEditor()
 })
@@ -996,8 +1045,27 @@ function buildMancheEditorHTML(m, mi) {
       </div>`
   }
 
+  const currentTheme = m.theme || 'yellow'
+  const themePicker = THEMES.map(t => `
+    <div class="theme-swatch${currentTheme === t.id ? ' active' : ''}" onclick="setMancheTheme(${mi},'${t.id}')" title="${t.name}"
+         style="background:${t.bg};color:${t.fg};border-color:${currentTheme === t.id ? t.fg : 'transparent'};">
+      <span style="width:14px;height:14px;border-radius:50%;background:${t.accent};display:inline-block;border:2px solid ${t.fg};"></span>
+      <span style="font-weight:700;font-size:.82rem;">${t.name}</span>
+    </div>`).join('')
+
+  const currentPicto = m.picto || ''
+  const pictoGrid = `
+    <div class="picto-item${!currentPicto ? ' active' : ''}" onclick="setManchePicto(${mi},'')" title="Aucun">
+      <div class="picto-none">∅</div>
+      <div class="picto-lbl">Aucun</div>
+    </div>` + PICTOS.map(p => `
+    <div class="picto-item${currentPicto === p.id ? ' active' : ''}" onclick="setManchePicto(${mi},'${p.id}')" title="${p.label}">
+      <img src="/assets/pictos/${p.id}.png" alt="${p.label}" onerror="this.style.display='none'">
+      <div class="picto-lbl">${p.label}</div>
+    </div>`).join('')
+
   return `
-    <div style="max-width:680px;">
+    <div style="max-width:720px;">
       <div class="field-group">
         <label class="field-lbl">Type de manche</label>
         <div class="mtype-grid">${typeDefs}</div>
@@ -1005,6 +1073,14 @@ function buildMancheEditorHTML(m, mi) {
       <div class="field-group">
         <label class="field-lbl">Nom de la manche</label>
         <input class="field-input" id="manche-name-${mi}" value="${escHtml(m.name||'')}">
+      </div>
+      <div class="field-group">
+        <label class="field-lbl">🎨 Charte couleur (appliquée à l'écran pendant cette manche)</label>
+        <div class="theme-picker">${themePicker}</div>
+      </div>
+      <div class="field-group">
+        <label class="field-lbl">🖼️ Picto MGEN de la manche</label>
+        <div class="picto-picker">${pictoGrid}</div>
       </div>
       ${specificFields}
     </div>`
@@ -1175,10 +1251,19 @@ function attachMancheEditorListeners(m, mi) {
   $(`engage-dur-${mi}`)?.addEventListener('input', e => { currentQuiz.config.manches[mi].durationSecs = +e.target.value })
 }
 
+window.setMancheTheme = (mi, themeId) => {
+  currentQuiz.config.manches[mi].theme = themeId
+  renderMancheEditor()
+}
+window.setManchePicto = (mi, pictoId) => {
+  currentQuiz.config.manches[mi].picto = pictoId
+  renderMancheEditor()
+}
+
 window.setMancheType = (mi, type) => {
   const m = currentQuiz.config.manches[mi]
   const oldName = m.name
-  currentQuiz.config.manches[mi] = { id: m.id, type, name: oldName }
+  currentQuiz.config.manches[mi] = { id: m.id, type, name: oldName, theme: m.theme || 'yellow', picto: m.picto || '' }
   if (type === 'quiz') currentQuiz.config.manches[mi].questions = []
   if (type === 'wordcloud') { currentQuiz.config.manches[mi].prompt = ''; currentQuiz.config.manches[mi].words = [...WORDCLOUD_DEFAULTS]; currentQuiz.config.manches[mi].durationSecs = 120 }
   if (type === 'idea') { currentQuiz.config.manches[mi].challenge = ''; currentQuiz.config.manches[mi].durationSecs = 90 }

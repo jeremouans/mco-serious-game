@@ -3,73 +3,78 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-  <meta name="theme-color" content="#113124">
+  <meta name="theme-color" content="#f1e9d2">
   <title>Engagements 2030 — le Quizz</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/lib/theme.css">
   <style>
     html, body { overflow: hidden; }
+    body { background-image: url('/assets/masques/creme.png'); background-repeat: no-repeat;
+           background-position: right top; background-size: 55% auto; background-attachment: fixed; }
+
     .landing {
       height: 100dvh; display: flex; flex-direction: column;
       align-items: center; justify-content: center;
-      gap: clamp(20px,4vh,44px); padding: 20px;
+      gap: clamp(20px, 4vh, 40px); padding: 24px;
       position: relative; z-index: 1; text-align: center;
     }
-    .landing-logo { animation: floatLogo 5s ease-in-out infinite; filter: drop-shadow(0 8px 24px rgba(0,0,0,.4)); }
-    .landing-title { font-size: clamp(1.5rem,5vw,3rem); font-weight: 900; color: var(--cream); line-height: 1.08; }
-    .landing-sub { font-size: clamp(.85rem,2.2vw,1.1rem); color: rgba(243,238,218,.55); margin-top: 8px; }
-    .landing-btns { display: flex; flex-direction: column; gap: 12px; width: min(360px,100%); }
+    .landing-hero { max-width: 640px; }
+    .landing-logo { height: clamp(56px, 9vw, 92px); width: auto; margin: 0 auto 22px; display: block; }
+    .landing-sub  { font-size: clamp(.95rem, 2vw, 1.15rem); color: var(--fg-soft); font-weight: 500; }
+
+    .landing-btns { display: flex; flex-direction: column; gap: 14px; width: min(380px, 100%); }
     .landing-btn {
       display: flex; align-items: center; gap: 16px;
-      background: rgba(255,255,255,.06); border: 1.5px solid rgba(255,255,255,.13);
-      border-radius: 20px; padding: clamp(14px,2.5vw,22px) clamp(18px,3.5vw,28px);
-      cursor: pointer; text-decoration: none;
-      transition: background .2s, transform .15s, box-shadow .2s;
-      backdrop-filter: blur(12px); box-shadow: 0 10px 32px rgba(0,0,0,.3);
-      animation: risein .4s ease-out backwards;
+      background: var(--surface); color: var(--ever);
+      border: 2px solid var(--ever); border-radius: 16px;
+      padding: 18px 22px; cursor: pointer; text-decoration: none;
+      transition: background .2s, color .2s;
     }
-    .landing-btn:nth-child(1) { animation-delay: .08s; border-color: rgba(106,165,23,.45); }
-    .landing-btn:nth-child(2) { animation-delay: .16s; border-color: rgba(134,191,235,.35); }
-    .landing-btn:nth-child(3) { animation-delay: .24s; border-color: rgba(244,200,74,.3); }
-    .landing-btn:hover { background: rgba(255,255,255,.12); transform: translateY(-3px); box-shadow: 0 18px 48px rgba(0,0,0,.4); }
-    .landing-btn:active { transform: translateY(0) scale(.98); }
-    .lb-icon  { font-size: clamp(1.8rem,4.5vw,2.4rem); flex: none; }
-    .lb-label { font-size: clamp(1.1rem,3vw,1.5rem); font-weight: 900; color: var(--cream); display: block; }
-    .lb-desc  { font-size: clamp(.75rem,1.8vw,.9rem); color: rgba(243,238,218,.5); font-weight: 500; display: block; margin-top: 2px; }
-    .lb-arr   { margin-left: auto; font-size: 1.3rem; color: rgba(243,238,218,.35); flex: none; }
+    .landing-btn:hover { background: var(--ever); color: var(--cream); }
+    .landing-btn:hover .lb-arr { color: var(--cream); }
+    .lb-icon-wrap {
+      width: 52px; height: 52px; border-radius: 12px; flex: none;
+      display: grid; place-items: center;
+      background: var(--cream); color: var(--ever);
+      font-size: 1.5rem;
+    }
+    .landing-btn:hover .lb-icon-wrap { background: var(--green); color: #fff; }
+    .lb-txt   { flex: 1; text-align: left; }
+    .lb-label { font-size: 1.15rem; font-weight: 700; display: block; }
+    .lb-desc  { font-size: .82rem; color: var(--fg-mute); font-weight: 500; display: block; margin-top: 2px; }
+    .landing-btn:hover .lb-desc { color: rgba(241,233,210,.7); }
+    .lb-arr   { font-size: 1.4rem; color: var(--ever); font-weight: 700; }
 
     /* ── Gate accès ── */
     #gate {
       position: fixed; inset: 0; z-index: 9999;
-      background: #0c2117;
+      background: var(--cream);
       display: flex; flex-direction: column; align-items: center; justify-content: center;
-      gap: 20px; padding: 24px;
+      gap: 20px; padding: 28px;
     }
     #gate.hidden { display: none; }
-    #gate h1 { font-size: clamp(1.3rem,4vw,2rem); font-weight: 900; color: var(--cream); margin: 0; }
-    #gate p  { font-size: .9rem; color: rgba(243,238,218,.5); margin: 0; }
-    #gate-form { display: flex; flex-direction: column; gap: 12px; width: min(320px, 100%); }
+    #gate img { height: 60px; width: auto; margin-bottom: 6px; }
+    #gate h1 { font-size: clamp(1.3rem, 3.5vw, 1.8rem); font-weight: 700; color: var(--ever); text-align: center; }
+    #gate p  { font-size: .95rem; color: var(--fg-soft); text-align: center; max-width: 420px; }
+    #gate-form { display: flex; flex-direction: column; gap: 12px; width: min(340px, 100%); margin-top: 8px; }
     #gate-login, #gate-pass {
-      font-family: inherit; font-size: 1rem; font-weight: 600; color: var(--cream);
-      background: rgba(255,255,255,.08); border: 2px solid rgba(255,255,255,.15);
-      border-radius: 14px; padding: .7em 1.1em; outline: none; transition: border-color .2s;
+      font-family: inherit; font-size: 1rem; font-weight: 500; color: var(--ever);
+      background: #ffffff; border: 2px solid var(--line);
+      border-radius: 12px; padding: .75em 1.1em; outline: none; transition: border-color .15s;
     }
     #gate-login:focus, #gate-pass:focus { border-color: var(--green); }
-    #gate-login::placeholder, #gate-pass::placeholder { color: rgba(243,238,218,.3); font-weight: 500; }
+    #gate-login::placeholder, #gate-pass::placeholder { color: var(--fg-mute); }
     #gate-submit {
-      font-family: inherit; font-size: 1rem; font-weight: 900; cursor: pointer;
-      background: var(--green); color: #fff; border: none; border-radius: 14px;
-      padding: .8em; transition: background .2s, transform .15s;
+      font-family: inherit; font-size: 1rem; font-weight: 700; cursor: pointer;
+      background: var(--ever); color: var(--cream); border: none; border-radius: 12px;
+      padding: .85em; transition: filter .15s;
     }
-    #gate-submit:hover { background: var(--bright); transform: translateY(-2px); }
-    #gate-error { font-size: .85rem; color: #e74c3c; font-weight: 700; text-align: center; min-height: 1.2em; }
+    #gate-submit:hover { filter: brightness(1.1); }
+    #gate-error { font-size: .88rem; color: var(--danger); font-weight: 600; text-align: center; min-height: 1.2em; }
   </style>
 </head>
-<body>
+<body class="theme-yellow">
 <div id="gate">
-  <img src="/assets/logo-mgen.png" alt="MGEN" style="width:72px;height:72px;border-radius:14px;">
+  <img src="/assets/logo-e2030-vert.png" alt="Engagements 2030">
   <h1>Engagements 2030</h1>
   <p>Accès réservé — identifiez-vous pour continuer.</p>
   <div id="gate-form">
@@ -80,34 +85,31 @@
   </div>
 </div>
 
-<div id="stars" aria-hidden="true"></div>
 <div class="landing">
-  <div>
-    <img src="/assets/logo-mgen.png" alt="MGEN" class="landing-logo" style="width:72px;height:72px;border-radius:14px;margin:0 auto 14px;display:block;">
-    <img src="/assets/logo-engagement2030.svg" alt="Engagements 2030" style="display:block;margin:0 auto 10px;height:clamp(36px,7vw,56px);width:auto;max-width:92vw;filter:drop-shadow(0 4px 18px rgba(0,0,0,.35));">
-    <div class="landing-title" style="font-size:clamp(1.05rem,2.6vw,1.5rem);">le Quizz</div>
+  <div class="landing-hero">
+    <img src="/assets/logo-e2030-vert.png" alt="Engagements 2030" class="landing-logo">
     <div class="landing-sub">Serious game MGEN · Temps réel</div>
   </div>
   <div class="landing-btns">
     <a href="/host/" class="landing-btn">
-      <span class="lb-icon">🎯</span>
-      <span>
+      <span class="lb-icon-wrap">🎯</span>
+      <span class="lb-txt">
         <span class="lb-label">Animer</span>
         <span class="lb-desc">Démarrer et piloter une session</span>
       </span>
       <span class="lb-arr">›</span>
     </a>
     <a href="/join/" class="landing-btn">
-      <span class="lb-icon">🙋</span>
-      <span>
+      <span class="lb-icon-wrap">🙋</span>
+      <span class="lb-txt">
         <span class="lb-label">Rejoindre</span>
         <span class="lb-desc">Participer à une partie en cours</span>
       </span>
       <span class="lb-arr">›</span>
     </a>
     <a href="/admin/" class="landing-btn">
-      <span class="lb-icon">⚙️</span>
-      <span>
+      <span class="lb-icon-wrap">⚙️</span>
+      <span class="lb-txt">
         <span class="lb-label">Administration</span>
         <span class="lb-desc">Gérer les quiz, l'historique, les accès</span>
       </span>
@@ -139,22 +141,6 @@
     }
   }
 })()
-</script>
-
-<script type="module">
-function spawnStars() {
-  const box = document.getElementById('stars'); if (!box) return; box.innerHTML = ''
-  for (let i = 0; i < 12; i++) {
-    const s = document.createElement('span'); s.className = 'star'; s.textContent = '✦'
-    s.style.left = Math.random() * 100 + '%'; s.style.top = Math.random() * 100 + '%'
-    s.style.fontSize = (8 + Math.random() * 22) + 'px'
-    s.style.setProperty('--d', (3 + Math.random() * 4).toFixed(2) + 's')
-    s.style.setProperty('--f', (7 + Math.random() * 8).toFixed(2) + 's')
-    s.style.animationDelay = (Math.random()*-6).toFixed(2)+'s, '+(Math.random()*-8).toFixed(2)+'s'
-    box.appendChild(s)
-  }
-}
-spawnStars()
 </script>
 </body>
 </html>
