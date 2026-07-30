@@ -84,6 +84,14 @@
             }))
             mancheLog.push({ type: 'engage', mancheName: m.name, results })
           }
+        } else if (mt === 'engage-free') {
+          const eng = submissions.filter(s => s.kind === 'engage-free')
+          if (eng.length) {
+            const results = eng.map(s => ({
+              name: s.author_name || '?', kind: s.category || 'personnel', text: s.text
+            }))
+            mancheLog.push({ type: 'engage-free', mancheName: m.name, subject: m.subject || m.name, intro: m.intro || '', results })
+          }
         } else if (mt === 'wordcloud') {
           if (Object.keys(wcFreq).length) mancheLog.push({ type: 'wordcloud', mancheName: m.name, wordCounts: { ...wcFreq } })
         }
@@ -102,6 +110,8 @@
       if (ideas.length) mancheLog.push({ type: 'idea', mancheName: 'Idée en Or', ranking: ideas.sort((a, b) => b.points - a.points).map(s => ({ name: s.author_name || '?', text: s.text, votes: (votesBySub[s.id] || []).length, pts: s.points || 0, isGold: s.is_gold })) })
       const eng = submissions.filter(s => s.kind === 'engage')
       if (eng.length) mancheLog.push({ type: 'engage', mancheName: 'Engagements', results: eng.map(s => ({ name: s.author_name || '?', category: s.category || '—', text: s.text })) })
+      const engFree = submissions.filter(s => s.kind === 'engage-free')
+      if (engFree.length) mancheLog.push({ type: 'engage-free', mancheName: 'Engagements libres', subject: 'Engagements libres', intro: '', results: engFree.map(s => ({ name: s.author_name || '?', kind: s.category || 'personnel', text: s.text })) })
       if (Object.keys(wcFreq).length) mancheLog.push({ type: 'wordcloud', mancheName: 'Nuage de mots', wordCounts: { ...wcFreq } })
     }
 
@@ -137,6 +147,7 @@
       if (e.type === 'quiz')      return e.questions?.length > 0
       if (e.type === 'idea')      return e.ranking?.length > 0
       if (e.type === 'engage')    return e.results?.length > 0
+      if (e.type === 'engage-free') return e.results?.length > 0
       if (e.type === 'wordcloud') return Object.keys(e.wordCounts || {}).length > 0
       return true
     }).map(entry => {
@@ -203,6 +214,24 @@
         return `<div><div class="rep-section-title">🤝 ${esc(entry.mancheName)}</div>
           <div style="overflow-x:auto"><table class="rep-table" style="font-size:.88rem;">
             <thead><tr><th>Auteur</th><th>Catégorie</th><th>Engagement</th></tr></thead>
+            <tbody>${rows || '<tr><td colspan="3" style="text-align:center;color:#999;font-style:italic;">Aucun engagement pris.</td></tr>'}</tbody>
+          </table></div></div>`
+      }
+
+      if (entry.type === 'engage-free') {
+        const kindLbl = k => k === 'equipe' ? '👥 Équipe' : '🙋 Personnel'
+        const rows = entry.results.map(r => `<tr>
+          <td style="font-weight:700;white-space:nowrap">${esc(r.name)}</td>
+          <td style="font-size:.82em;white-space:nowrap;color:#5a6b60">${kindLbl(r.kind)}</td>
+          <td style="font-size:.92rem">« ${esc(r.text)} »</td>
+        </tr>`).join('')
+        const header = entry.subject && entry.subject !== entry.mancheName
+          ? `<div style="font-size:.85rem;color:#5a6b60;margin-bottom:8px;">Sujet : <strong style="color:#113124">${esc(entry.subject)}</strong></div>`
+          : ''
+        return `<div><div class="rep-section-title">✍️ ${esc(entry.mancheName)}</div>
+          ${header}
+          <div style="overflow-x:auto"><table class="rep-table" style="font-size:.88rem;">
+            <thead><tr><th>Auteur</th><th>Type</th><th>Engagement</th></tr></thead>
             <tbody>${rows || '<tr><td colspan="3" style="text-align:center;color:#999;font-style:italic;">Aucun engagement pris.</td></tr>'}</tbody>
           </table></div></div>`
       }
