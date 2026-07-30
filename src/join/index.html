@@ -68,8 +68,11 @@
       background: rgba(0,0,0,.25); flex: none;
     }
     .qp-badge { background: rgba(255,255,255,.12); border: 1px solid rgba(255,255,255,.12); border-radius: 999px; padding: .2em .75em; font-weight: 800; font-size: .85rem; color: var(--fg); }
-    .qp-timer-wrap { flex: 1; height: 8px; background: rgba(255,255,255,.15); border-radius: 999px; overflow: hidden; }
-    .qp-timer-fill { height: 100%; background: linear-gradient(90deg,var(--green),var(--green-b)); transition: width .2s linear; }
+    /* Timers retirés : la barre de progression est masquée */
+    .qp-timer-wrap { display: none; }
+    .qp-timer-fill { display: none; }
+    .qp-secs { display: none; }
+    .answered-timer { display: none; }
     .qp-secs { font-size: 1.3rem; font-weight: 900; color: var(--fg); min-width: 1.8em; text-align: right; }
     .qp-body { flex: 1; overflow-y: auto; padding: clamp(16px,4vw,28px); display: flex; flex-direction: column; gap: 16px; }
     .qp-text { font-size: clamp(1.2rem,4.5vw,1.9rem); font-weight: 900; color: var(--fg); line-height: 1.15; text-shadow: 0 3px 16px rgba(0,0,0,.3); }
@@ -94,6 +97,27 @@
     .opt-btn.wrong    { opacity: .35; }
     .opt-btn:disabled { cursor: default; }
     .opt-btn.dim      { opacity: .35; cursor: default; }
+
+    /* ── Engage-free : boutons personnel/équipe ── */
+    #screen-engage-free-input {
+      justify-content: flex-start; padding: 24px 22px; gap: 14px;
+      align-items: stretch;
+    }
+    .engagefree-kind-row {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 10px; width: 100%;
+    }
+    .engagefree-kind-btn {
+      font-family: inherit; font-weight: 800; font-size: clamp(.95rem, 3.5vw, 1.1rem);
+      color: var(--fg); background: rgba(255,255,255,.10);
+      border: 2px solid rgba(255,255,255,.20); border-radius: 14px;
+      padding: 16px 8px; cursor: pointer; text-align: center;
+      transition: background .15s, border-color .15s;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .engagefree-kind-btn:hover { background: rgba(255,255,255,.15); }
+    .engagefree-kind-btn.sel {
+      background: var(--green); border-color: var(--green); color: #fff;
+    }
 
     /* ── Intercalaire (slide) reçu depuis l'animateur ── */
     #screen-slide-p {
@@ -292,7 +316,8 @@
     /* Screens that need relative positioning for back-btn */
     #screen-answered, #screen-player-reveal, #screen-p4-waiting,
     #screen-idea-input, #screen-idea-vote-p, #screen-engage-input,
-    #screen-engage-vote-p, #screen-p4-result, #screen-slider-input,
+    #screen-engage-vote-p, #screen-engage-free-input,
+    #screen-p4-result, #screen-slider-input,
     #screen-wordcloud-vote { position: relative; }
   </style>
 </head>
@@ -316,11 +341,15 @@
         </div>
         <div>
           <div class="inp-label">Prénom *</div>
-          <input id="firstname-inp" class="inp" type="text" maxlength="24" placeholder="Votre prénom" autocomplete="given-name" required>
+          <input id="firstname-inp" class="inp" type="text" maxlength="32" placeholder="Votre prénom" autocomplete="given-name" required>
         </div>
         <div>
-          <div class="inp-label">Nom</div>
-          <input id="lastname-inp" class="inp" type="text" maxlength="32" placeholder="Votre nom (optionnel)" autocomplete="family-name">
+          <div class="inp-label">E-mail professionnel *</div>
+          <input id="email-inp" class="inp" type="email" maxlength="120" placeholder="prenom.nom@mgen.fr" autocomplete="email" required inputmode="email">
+        </div>
+        <div>
+          <div class="inp-label">Manager</div>
+          <input id="manager-inp" class="inp" type="text" maxlength="80" placeholder="Nom de votre manager (optionnel)" autocomplete="off">
         </div>
         <div class="emoji-section">
           <label>Ton avatar</label>
@@ -398,6 +427,28 @@
       <div class="qp-text" id="qp-text"></div>
       <div class="qp-opts four" id="qp-opts"></div>
     </div>
+  </section>
+
+  <!-- ══ ENGAGE-FREE : SAISIE (engagement libre) ══════════════════ -->
+  <section class="screen" id="screen-engage-free-input">
+    <button class="back-btn" id="engagefree-back-btn">⬅ Attente</button>
+    <div class="p4j-badge">✍️ Engagement libre</div>
+    <div class="p4j-head" id="engagefree-subject-p" style="text-align:center;"></div>
+    <div class="p4j-sub"  id="engagefree-intro-p" style="display:none;text-align:center;"></div>
+
+    <div class="engagefree-kind-row">
+      <button class="engagefree-kind-btn" data-kind="personnel">🙋 Engagement personnel</button>
+      <button class="engagefree-kind-btn" data-kind="equipe">👥 Engagement d'équipe</button>
+    </div>
+
+    <div style="width:100%;">
+      <div class="p4j-sub" style="margin-bottom:6px;">Votre engagement :</div>
+      <textarea class="p4j-textarea" id="engagefree-text-inp" rows="4" maxlength="500"
+                placeholder="Écrivez librement votre engagement…"></textarea>
+      <div class="char-count"><span id="engagefree-char-count">0</span> / 500</div>
+    </div>
+    <div id="engagefree-input-err" class="err"></div>
+    <button class="btn big" id="engagefree-submit-btn" style="justify-content:center;">✍️ Soumettre mon engagement</button>
   </section>
 
   <!-- ══ INTRO DE MANCHE (round:intro) ═══════════════════════════ -->
@@ -566,7 +617,8 @@ const EMOJIS     = ['🦁','🐼','🦊','🐸','🐨','🐯','🦋','🦄','�
 let PS = {
   tempId:            crypto.randomUUID(),
   firstName:         null,
-  lastName:          null,
+  email:             null,
+  manager:           null,
   name:              null,
   code:              null,
   emoji:             EMOJIS[0],
@@ -606,7 +658,8 @@ function restorePlayer(code, name) {
     if (stored?.tempId) {
       PS.tempId    = stored.tempId
       PS.firstName = stored.firstName || stored.name || name
-      PS.lastName  = stored.lastName  || ''
+      PS.email     = stored.email   || PS.email   || null
+      PS.manager   = stored.manager || PS.manager || null
       return stored.emoji || null
     }
   } catch (_) {}
@@ -618,7 +671,8 @@ function savePlayer(code) {
     localStorage.setItem(lsKey(code, PS.name), JSON.stringify({
       tempId:    PS.tempId,
       firstName: PS.firstName,
-      lastName:  PS.lastName,
+      email:     PS.email,
+      manager:   PS.manager,
       name:      PS.name,
       emoji:     PS.emoji,
       ts:        Date.now()
@@ -634,6 +688,20 @@ const $ = id => document.getElementById(id)
 function escHtml(s) {
   return String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')
 }
+
+// ── Wake Lock : empêche la mise en veille de l'écran pendant la partie ──
+let wakeLockSentinel = null
+async function requestWakeLock() {
+  if (!('wakeLock' in navigator)) return
+  try {
+    wakeLockSentinel = await navigator.wakeLock.request('screen')
+    wakeLockSentinel.addEventListener('release', () => { wakeLockSentinel = null })
+  } catch (_) { /* refusé par la plateforme (batterie faible, permission…) */ }
+}
+// Re-demande le lock quand l'onglet redevient visible (auto-release par le browser)
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'visible' && !wakeLockSentinel) requestWakeLock()
+})
 
 // ── Charte MGEN (miroir du host) — body reste theme-admin, seul le masque change ──
 const JOIN_THEMES = ['yellow','terracotta','maya','evergreen']
@@ -668,28 +736,35 @@ if (codeFromUrl) $('code-inp').value = codeFromUrl
 initEmojiGrid()
 
 // ── Formulaire join ───────────────────────────────────────────
+function isValidEmail(s) { return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(s) }
+
 $('join-form').addEventListener('submit', async e => {
   e.preventDefault()
   const code      = $('code-inp').value.trim().toUpperCase().replace(/[^A-Z0-9]/g, '')
   const firstName = $('firstname-inp').value.trim()
-  const lastName  = $('lastname-inp').value.trim()
+  const email     = $('email-inp').value.trim().toLowerCase()
+  const manager   = $('manager-inp').value.trim()
   const errEl = $('join-err'); const btn = $('join-btn')
   errEl.classList.remove('show')
-  if (code.length !== 6) { errEl.textContent = 'Le code doit comporter 6 caractères.'; errEl.classList.add('show'); return }
-  if (!firstName) { errEl.textContent = 'Saisis ton prénom.'; errEl.classList.add('show'); return }
+  if (code.length !== 6)   { errEl.textContent = 'Le code doit comporter 6 caractères.'; errEl.classList.add('show'); return }
+  if (!firstName)          { errEl.textContent = 'Saisis ton prénom.'; errEl.classList.add('show'); return }
+  if (!email || !isValidEmail(email)) { errEl.textContent = 'E-mail professionnel invalide.'; errEl.classList.add('show'); return }
   btn.disabled = true; btn.textContent = '⏳ Connexion…'
-  try { await joinLobby(code, firstName, lastName) }
+  try { await joinLobby(code, firstName, email, manager) }
   catch (err) { errEl.textContent = err.message; errEl.classList.add('show') }
   finally { btn.disabled = false; btn.textContent = '🚀 Rejoindre' }
 })
 
 // ── Rejoindre le lobby ───────────────────────────────────────
-async function joinLobby(code, firstName, lastName) {
+async function joinLobby(code, firstName, email, manager) {
   PS.firstName = firstName
-  PS.lastName  = lastName
-  PS.name      = firstName + (lastName ? ' ' + lastName : '')
+  PS.email     = email || null
+  PS.manager   = manager || null
+  PS.name      = firstName
   PS.code      = code
   PS.score     = 0
+  // Empêche la mise en veille de l'écran pendant la partie
+  requestWakeLock()
 
   const storedEmoji = restorePlayer(code, PS.name)
   if (storedEmoji) { PS.emoji = storedEmoji; initEmojiGrid(storedEmoji) }
@@ -743,6 +818,8 @@ async function joinLobby(code, firstName, lastName) {
     .on('broadcast', { event: 'round:idea:reveal' },          ({ payload }) => handleIdeaRevealPlayer(payload))
     .on('broadcast', { event: 'round:engage:prompt' },        ({ payload }) => handleEngagePrompt(payload))
     .on('broadcast', { event: 'round:engage:reveal' },        ({ payload }) => handleEngageRevealPlayer(payload))
+    .on('broadcast', { event: 'round:engage-free:prompt' },   ({ payload }) => handleEngageFreePrompt(payload))
+    .on('broadcast', { event: 'round:engage-free:reveal' },   ({ payload }) => handleEngageFreeRevealPlayer(payload))
     .on('broadcast', { event: 'round:wordcloud:prompt' },     ({ payload }) => handleWordcloudPrompt(payload))
     .on('broadcast', { event: 'round:wordcloud:reveal' },     () => { showScreen('screen-p4-waiting'); $('p4-waiting-msg').textContent = '🌥️ Voilà le nuage !' })
     .on('broadcast', { event: 'host:submitted' }, ({ payload }) => {
@@ -771,7 +848,8 @@ async function doTrackAsPlayer() {
     role:      'player',
     tempId:    PS.tempId,
     firstName: PS.firstName,
-    lastName:  PS.lastName,
+    email:     PS.email,
+    manager:   PS.manager,
     name:      PS.name,
     emoji:     PS.emoji,
     score:     PS.score
@@ -790,7 +868,8 @@ function showPickPlayerScreen(players) {
         PS.tempId    = p.tempId
         PS.name      = p.name
         PS.firstName = p.firstName || p.name
-        PS.lastName  = p.lastName  || ''
+        PS.email     = p.email   || PS.email   || null
+        PS.manager   = p.manager || PS.manager || null
         PS.emoji     = p.emoji || PS.emoji
         $('wait-name').textContent = (PS.emoji ? PS.emoji + ' ' : '') + PS.firstName
         $('wait-code').textContent = PS.code
@@ -840,7 +919,8 @@ $('play-again-btn').addEventListener('click', () => showScreen('screen-join'))
 ;[
   'answered-back-btn', 'reveal-back-btn', 'p4-waiting-back-btn',
   'idea-input-back-btn', 'idea-vote-back-btn', 'engage-input-back-btn',
-  'engage-vote-back-btn', 'p4-result-back-btn', 'slider-back-btn', 'wc-back-btn'
+  'engage-vote-back-btn', 'engagefree-back-btn', 'p4-result-back-btn',
+  'slider-back-btn', 'wc-back-btn'
 ].forEach(id => {
   $(id)?.addEventListener('click', () => showScreen('screen-waiting'))
 })
@@ -884,8 +964,8 @@ function handleQuestionShow(payload) {
   PS.currentQuestionId = payload.questionId || payload.id
   PS.hasAnswered       = false
   PS.selectedOption    = null
-  PS.endsAt            = payload.endsAt
-  PS.timerDuration     = payload.timer
+  PS.endsAt            = Date.now() + 9999999
+  PS.timerDuration     = 9999999
   clearInterval(PS.timerInterval)
 
   $('qp-idx').textContent   = payload.idx + 1
@@ -906,22 +986,7 @@ function handleQuestionShow(payload) {
   opts.className = 'qp-opts ' + ((payload.options?.length ?? 4) === 2 ? 'two' : 'four')
 
   showScreen('screen-question')
-
-  // Countdown
-  PS.timerInterval = setInterval(() => {
-    const rem   = PS.endsAt - Date.now()
-    const ratio = Math.max(0, rem / (PS.timerDuration * 1000))
-    $('qp-secs').textContent = Math.max(0, Math.ceil(rem / 1000))
-    $('qp-timer-fill').style.width = (ratio * 100) + '%'
-    $('qp-timer-fill').style.background = ratio > 0.33
-      ? 'linear-gradient(90deg,var(--green),var(--green-b))'
-      : ratio > 0.15 ? 'linear-gradient(90deg,#e8a020,#f4c84a)'
-      : 'linear-gradient(90deg,#c0392b,#e74c3c)'
-    if (rem <= 0) {
-      clearInterval(PS.timerInterval)
-      if (!PS.hasAnswered) showNoAnswer()
-    }
-  }, 200)
+  // Timers désactivés : plus de countdown, la question reste ouverte jusqu'au reveal.
 }
 
 function showNoAnswer() {
@@ -955,13 +1020,6 @@ function submitAnswer(value) {
   }})
 
   showScreen('screen-answered')
-
-  // Countdown pendant l'attente
-  PS.timerInterval = setInterval(() => {
-    const rem = PS.endsAt - Date.now()
-    $('answered-timer').textContent = rem > 0 ? Math.ceil(rem / 1000) + 's' : '⏳'
-    if (rem <= 0) clearInterval(PS.timerInterval)
-  }, 200)
 }
 
 // ── Révélation reçue ─────────────────────────────────────────
@@ -1066,7 +1124,7 @@ $('idea-submit-btn').addEventListener('click', () => {
   const text = $('idea-text-inp').value.trim()
   if (!text) { $('idea-input-err').textContent = 'Écrivez votre idée avant de soumettre.'; $('idea-input-err').classList.add('show'); return }
   P4J.hasSubmitted = true; $('idea-submit-btn').disabled = true; $('idea-submit-btn').textContent = '⏳ Envoi…'
-  activeChannel.send({ type: 'broadcast', event: 'submit:idea', payload: { tempId: PS.tempId, name: PS.name, text }})
+  activeChannel.send({ type: 'broadcast', event: 'submit:idea', payload: { tempId: PS.tempId, name: PS.name, email: PS.email, manager: PS.manager, text }})
   p4Wait('✅', 'Idée envoyée !', 'En attente du vote…')
 })
 
@@ -1217,10 +1275,78 @@ $('engage-submit-btn').addEventListener('click', () => {
   $('engage-submit-btn').disabled = true; $('engage-submit-btn').textContent = '⏳ Envoi…'
   err.classList.remove('show')
   activeChannel.send({ type:'broadcast', event:'submit:engage', payload:{
-    tempId: PS.tempId, name: PS.name, text, category, action, moyen, echeance
+    tempId: PS.tempId, name: PS.name, email: PS.email, manager: PS.manager,
+    text, category, action, moyen, echeance
   }})
   p4Wait('✅', 'Engagement envoyé !', 'En attente de la révélation…')
 })
+
+// ─ Engage-free : saisie libre personnel/équipe ────────────────
+let engageFreeKind = null   // 'personnel' | 'equipe' | null
+let engageFreeSubmitted = false
+
+function handleEngageFreePrompt(payload) {
+  clearInterval(PS.timerInterval)
+  P4J.kind = 'engage-free'
+  engageFreeKind = null
+  engageFreeSubmitted = false
+  $('engagefree-subject-p').textContent = payload.subject || 'Engagement libre'
+  const introEl = $('engagefree-intro-p')
+  if (introEl) {
+    if (payload.intro) { introEl.textContent = payload.intro; introEl.style.display = 'block' }
+    else introEl.style.display = 'none'
+  }
+  document.querySelectorAll('.engagefree-kind-btn').forEach(b => b.classList.remove('sel'))
+  $('engagefree-text-inp').value = ''
+  $('engagefree-char-count').textContent = '0'
+  $('engagefree-submit-btn').disabled = false
+  $('engagefree-submit-btn').textContent = '✍️ Soumettre mon engagement'
+  $('engagefree-input-err').classList.remove('show')
+  showScreen('screen-engage-free-input')
+}
+
+document.querySelectorAll('.engagefree-kind-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    engageFreeKind = btn.dataset.kind
+    document.querySelectorAll('.engagefree-kind-btn').forEach(b => b.classList.toggle('sel', b === btn))
+  })
+})
+
+$('engagefree-text-inp').addEventListener('input', e => {
+  $('engagefree-char-count').textContent = String(e.target.value.length)
+})
+
+$('engagefree-submit-btn').addEventListener('click', () => {
+  if (engageFreeSubmitted) return
+  const text = $('engagefree-text-inp').value.trim()
+  const err = $('engagefree-input-err')
+  if (!engageFreeKind) { err.textContent = 'Choisissez engagement personnel ou d\'équipe.'; err.classList.add('show'); return }
+  if (!text)           { err.textContent = 'Écrivez votre engagement.'; err.classList.add('show'); return }
+  engageFreeSubmitted = true
+  $('engagefree-submit-btn').disabled = true
+  $('engagefree-submit-btn').textContent = '⏳ Envoi…'
+  err.classList.remove('show')
+  activeChannel.send({ type:'broadcast', event:'submit:engage-free', payload:{
+    tempId: PS.tempId, name: PS.name, email: PS.email, manager: PS.manager,
+    kind: engageFreeKind, text
+  }})
+  p4Wait('✅', 'Engagement envoyé !', 'En attente de la révélation…')
+})
+
+function handleEngageFreeRevealPlayer(payload) {
+  const my = payload.items?.find(e => e.name === PS.name)
+  $('p4-result-icon').textContent  = '✍️'
+  $('p4-result-title').textContent = my ? 'Votre engagement' : 'Engagements révélés'
+  $('p4-result-pts').textContent   = ''
+  $('p4-result-pts').style.color   = ''
+  if (my) {
+    const kindLbl = my.kind === 'equipe' ? '👥 Équipe' : '🙋 Personnel'
+    $('p4-result-sub').textContent = `${kindLbl} — « ${my.text} »`
+  } else {
+    $('p4-result-sub').textContent = 'Regardez l\'écran pour voir tous les engagements.'
+  }
+  showScreen('screen-p4-result')
+}
 
 // Reveal côté joueur : simple confirmation, plus de scoring
 function handleEngageRevealPlayer(payload) {

@@ -400,6 +400,10 @@
         <span class="nav-icon">📊</span>
         <div><div class="nav-lbl">Historique</div><div class="nav-desc">Toutes les sessions et bilans</div></div>
       </div>
+      <div class="nav-card" id="nav-exports">
+        <span class="nav-icon">📥</span>
+        <div><div class="nav-lbl">Exports</div><div class="nav-desc">CSV idées, engagements, engagements libres</div></div>
+      </div>
       <div class="nav-card" id="nav-whitelist">
         <span class="nav-icon">🔐</span>
         <div><div class="nav-lbl">Accès animateurs</div><div class="nav-desc">Gérer les emails autorisés</div></div>
@@ -501,6 +505,43 @@
   </div>
 </section>
 
+<!-- ══════════════════════════════════════════ EXPORTS ══ -->
+<section class="screen" id="screen-exports">
+  <div class="admin-wrap" style="position:relative;z-index:1;">
+    <div style="display:flex;align-items:center;gap:12px;">
+      <button class="btn ghost sm" onclick="showScreen('screen-home')">← Accueil</button>
+      <h2 style="color:var(--cream);font-size:1.2rem;font-weight:900;margin:0;flex:1;">📥 Exports CSV</h2>
+    </div>
+
+    <div class="card">
+      <div class="card-title">📅 Période</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+        <div>
+          <label class="input-label" style="display:block;font-size:.78rem;color:rgba(243,238,218,.55);font-weight:700;margin-bottom:4px;">Du</label>
+          <input type="date" id="export-from" class="field-input">
+        </div>
+        <div>
+          <label class="input-label" style="display:block;font-size:.78rem;color:rgba(243,238,218,.55);font-weight:700;margin-bottom:4px;">Au</label>
+          <input type="date" id="export-to" class="field-input">
+        </div>
+      </div>
+      <div style="font-size:.78rem;color:rgba(243,238,218,.5);margin-top:6px;">
+        Laisser vide pour exporter toutes les sessions.
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">📤 Télécharger</div>
+      <div style="display:grid;grid-template-columns:1fr;gap:10px;">
+        <button class="btn" id="export-ideas-btn" style="justify-content:flex-start;">💡 Idées en Or — CSV</button>
+        <button class="btn" id="export-engage-btn" style="justify-content:flex-start;">🤝 Engagements (avec catégorie + slots) — CSV</button>
+        <button class="btn" id="export-engage-free-btn" style="justify-content:flex-start;">✍️ Engagements libres — CSV</button>
+      </div>
+      <div id="export-status" style="margin-top:10px;font-size:.85rem;color:rgba(243,238,218,.7);"></div>
+    </div>
+  </div>
+</section>
+
 <!-- ══════════════════════════════════════════ WHITELIST ══ -->
 <section class="screen" id="screen-whitelist">
   <div class="admin-wrap" style="position:relative;z-index:1;">
@@ -535,10 +576,11 @@ const ADMIN_EMAIL = 'admin@mgen.fr'
 const ADMIN_CODE  = 'mcomgenadmin'
 
 const MANCHE_TYPES = [
-  { type:'quiz',      icon:'🎯', name:'Questions Quiz',   desc:'Choix multiples, vrai/faux ou slider — auto-scoré' },
-  { type:'wordcloud', icon:'🌥️', name:'Nuage de mots',    desc:'Vote sur des mots-clés, nuage en direct' },
-  { type:'idea',      icon:'💡', name:'L\'idée en Or',    desc:'Chacun propose, le groupe vote pour la meilleure' },
-  { type:'engage',    icon:'🤝', name:'Mes Engagements',  desc:'Engagement individuel noté sur 4 critères étoiles' }
+  { type:'quiz',        icon:'🎯', name:'Questions Quiz',    desc:'Choix multiples, vrai/faux ou slider — auto-scoré' },
+  { type:'wordcloud',   icon:'🌥️', name:'Nuage de mots',     desc:'Vote sur des mots-clés, nuage en direct' },
+  { type:'idea',        icon:'💡', name:'L\'idée en Or',     desc:'Chacun propose, le groupe vote pour la meilleure' },
+  { type:'engage',      icon:'🤝', name:'Mes Engagements',   desc:'Catégorie + mad-libs à trous (3 slots)' },
+  { type:'engage-free', icon:'✍️', name:'Engagement libre',  desc:'Choix personnel/équipe + texte libre' }
 ]
 
 // Chartes MGEN — appliquées côté host lors de la manche
@@ -724,6 +766,124 @@ window.openSessionReport = openSessionReport
 $('nav-editor').addEventListener('click', () => { openQuizEditor(); showScreen('screen-quiz-editor') })
 $('nav-history').addEventListener('click', () => { loadHistory(); showScreen('screen-history') })
 $('nav-whitelist').addEventListener('click', () => { loadWhitelist(); showScreen('screen-whitelist') })
+$('nav-exports').addEventListener('click', () => showScreen('screen-exports'))
+
+// ─── Exports CSV ───────────────────────────────────────────────
+function csvEscape(v) {
+  const s = v === null || v === undefined ? '' : String(v)
+  if (/[",\n\r;]/.test(s)) return `"${s.replace(/"/g, '""')}"`
+  return s
+}
+function csvRows(rows) {
+  return rows.map(r => r.map(csvEscape).join(',')).join('\r\n')
+}
+function downloadCSV(filename, headers, rows) {
+  const csv = csvRows([headers, ...rows])
+  // BOM UTF-8 pour qu'Excel garde les accents
+  const blob = new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8;' })
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement('a'); a.href = url; a.download = filename; a.click()
+  setTimeout(() => URL.revokeObjectURL(url), 200)
+}
+
+function exportDateRange() {
+  const from = $('export-from').value ? new Date($('export-from').value + 'T00:00:00.000Z').toISOString() : null
+  const to   = $('export-to').value   ? new Date($('export-to').value   + 'T23:59:59.999Z').toISOString() : null
+  return { from, to }
+}
+function setExportStatus(msg, isError = false) {
+  const el = $('export-status')
+  el.textContent = msg
+  el.style.color = isError ? '#ff8080' : 'rgba(243,238,218,.7)'
+}
+
+async function fetchSubmissionsInRange(kind, from, to) {
+  let q = sb.from('submissions')
+    .select('id, session_id, kind, author_name, author_email, author_manager, text, category, points, is_gold, created_at, sessions(code, created_at)')
+    .eq('kind', kind)
+    .order('created_at', { ascending: true })
+  if (from) q = q.gte('created_at', from)
+  if (to)   q = q.lte('created_at', to)
+  const { data, error } = await q
+  if (error) throw error
+  return data || []
+}
+
+async function fetchVoteCounts(submissionIds) {
+  if (!submissionIds.length) return {}
+  const { data } = await sb.from('votes').select('submission_id').in('submission_id', submissionIds)
+  const map = {}
+  ;(data || []).forEach(v => { map[v.submission_id] = (map[v.submission_id] || 0) + 1 })
+  return map
+}
+
+$('export-ideas-btn').addEventListener('click', async () => {
+  try {
+    setExportStatus('⏳ Récupération des idées…')
+    const { from, to } = exportDateRange()
+    const subs = await fetchSubmissionsInRange('idea', from, to)
+    if (!subs.length) { setExportStatus('Aucune idée sur la période.', true); return }
+    const votesMap = await fetchVoteCounts(subs.map(s => s.id))
+    const rows = subs.map(s => [
+      s.sessions?.code || '',
+      (s.created_at || '').slice(0, 10),
+      s.author_name || '',
+      s.author_email || '',
+      s.author_manager || '',
+      s.text || '',
+      votesMap[s.id] || 0,
+      s.is_gold ? 'Oui' : ''
+    ])
+    downloadCSV('idees-en-or.csv',
+      ['Session', 'Date', 'Nom', 'Email', 'Manager', 'Idée', 'Votes reçus', 'Idée en Or'],
+      rows)
+    setExportStatus(`✅ ${subs.length} idée(s) exportée(s).`)
+  } catch (e) { console.warn(e); setExportStatus('❌ Erreur : ' + e.message, true) }
+})
+
+$('export-engage-btn').addEventListener('click', async () => {
+  try {
+    setExportStatus('⏳ Récupération des engagements…')
+    const { from, to } = exportDateRange()
+    const subs = await fetchSubmissionsInRange('engage', from, to)
+    if (!subs.length) { setExportStatus('Aucun engagement sur la période.', true); return }
+    const rows = subs.map(s => [
+      s.sessions?.code || '',
+      (s.created_at || '').slice(0, 10),
+      s.author_name || '',
+      s.author_email || '',
+      s.author_manager || '',
+      s.category || '',
+      s.text || ''
+    ])
+    downloadCSV('engagements.csv',
+      ['Session', 'Date', 'Nom', 'Email', 'Manager', 'Catégorie', 'Engagement'],
+      rows)
+    setExportStatus(`✅ ${subs.length} engagement(s) exporté(s).`)
+  } catch (e) { console.warn(e); setExportStatus('❌ Erreur : ' + e.message, true) }
+})
+
+$('export-engage-free-btn').addEventListener('click', async () => {
+  try {
+    setExportStatus('⏳ Récupération des engagements libres…')
+    const { from, to } = exportDateRange()
+    const subs = await fetchSubmissionsInRange('engage-free', from, to)
+    if (!subs.length) { setExportStatus('Aucun engagement libre sur la période.', true); return }
+    const rows = subs.map(s => [
+      s.sessions?.code || '',
+      (s.created_at || '').slice(0, 10),
+      s.author_name || '',
+      s.author_email || '',
+      s.author_manager || '',
+      s.category === 'equipe' ? 'Équipe' : 'Personnel',
+      s.text || ''
+    ])
+    downloadCSV('engagements-libres.csv',
+      ['Session', 'Date', 'Nom', 'Email', 'Manager', 'Type', 'Engagement'],
+      rows)
+    setExportStatus(`✅ ${subs.length} engagement(s) libre(s) exporté(s).`)
+  } catch (e) { console.warn(e); setExportStatus('❌ Erreur : ' + e.message, true) }
+})
 
 // ─── History ──────────────────────────────────────────────────
 async function loadHistory() {
@@ -1108,6 +1268,25 @@ function buildMancheEditorHTML(m, mi) {
         <label class="field-lbl">⏱️ Durée de saisie (secondes)</label>
         <input class="field-input" type="number" id="engage-dur-${mi}" value="${m.durationSecs||90}" style="width:120px;">
       </div>`
+  } else if (m.type === 'engage-free') {
+    specificFields = `
+      <div class="field-group">
+        <label class="field-lbl">📝 Texte introductif (contexte)</label>
+        <textarea class="field-input" id="engagefree-intro-${mi}" rows="3" style="resize:vertical;"
+                  placeholder="Ex : Prenons un engagement personnel ou d'équipe pour…">${escHtml(m.intro || '')}</textarea>
+      </div>
+      <div class="field-group">
+        <label class="field-lbl">🎯 Titre / sujet de l'engagement (affiché en grand)</label>
+        <input class="field-input" id="engagefree-subject-${mi}" value="${escHtml(m.subject || '')}"
+               placeholder="Ex : Mon engagement 2030">
+      </div>
+      <div class="field-group" style="background:rgba(134,191,235,.06);border:1px solid rgba(134,191,235,.18);border-radius:10px;padding:10px 12px;">
+        <div style="font-size:.78rem;color:rgba(243,238,218,.7);line-height:1.45;">
+          ℹ️ Les participants choisiront <strong>Engagement personnel</strong> ou
+          <strong>Engagement d'équipe</strong>, puis écriront leur engagement en
+          texte libre. Aucun scoring, pas de vote.
+        </div>
+      </div>`
   }
 
   const currentTheme = m.theme || 'yellow'
@@ -1279,20 +1458,8 @@ function buildQEditorHTML(q, mi, qi) {
 }
 
 function buildTimerFields(q, pid, mi, qi) {
-  return `
-    <div class="toggle-row">
-      <span class="toggle-lbl">⏱️ Timer</span>
-      <input type="checkbox" ${q.timer?'checked':''} onchange="updateQField(${mi},${qi},'timer',this.checked)" id="${pid}-timer">
-      <label for="${pid}-timer" style="color:rgba(243,238,218,.5);font-size:.82rem;cursor:pointer;">Activer</label>
-    </div>
-    ${q.timer ? `<div class="toggle-sub">
-      <label class="field-lbl" style="margin:0;">Durée (s)</label>
-      <input class="field-input" type="number" value="${q.timerDuration||60}" style="width:80px;" oninput="updateQField(${mi},${qi},'timerDuration',+this.value)">
-      <label style="display:flex;align-items:center;gap:6px;font-size:.82rem;color:rgba(243,238,218,.6);cursor:pointer;">
-        <input type="checkbox" ${q.speedBonus?'checked':''} onchange="updateQField(${mi},${qi},'speedBonus',this.checked)">
-        Bonus vitesse
-      </label>
-    </div>` : ''}`
+  // Timers retirés du produit — cette fonction reste pour compat mais n'affiche rien.
+  return ''
 }
 
 function buildImageField(q, mi, qi) {
@@ -1316,6 +1483,8 @@ function attachMancheEditorListeners(m, mi) {
   $(`engage-dur-${mi}`)?.addEventListener('input', e => { currentQuiz.config.manches[mi].durationSecs = +e.target.value })
   $(`engage-intro-${mi}`)?.addEventListener('input', e => { currentQuiz.config.manches[mi].intro = e.target.value })
   $(`engage-subject-${mi}`)?.addEventListener('input', e => { currentQuiz.config.manches[mi].subject = e.target.value })
+  $(`engagefree-intro-${mi}`)?.addEventListener('input', e => { currentQuiz.config.manches[mi].intro = e.target.value })
+  $(`engagefree-subject-${mi}`)?.addEventListener('input', e => { currentQuiz.config.manches[mi].subject = e.target.value })
 }
 
 window.setMancheTheme = (mi, themeId) => {
@@ -1339,6 +1508,10 @@ window.setMancheType = (mi, type) => {
     currentQuiz.config.manches[mi].subject = 'Mes engagements'
     currentQuiz.config.manches[mi].categories = []
     currentQuiz.config.manches[mi].durationSecs = 90
+  }
+  if (type === 'engage-free') {
+    currentQuiz.config.manches[mi].intro = ''
+    currentQuiz.config.manches[mi].subject = 'Engagement libre'
   }
   renderMancheList(); renderMancheEditor()
 }
