@@ -2180,7 +2180,16 @@ $('start-btn').addEventListener('click', async () => {
       QUIZ = data.questions.filter(q => q.type === 'choice' || q.type === 'truefalse')
     }
     await sb.from('sessions').update({ status: 'playing', started_at: new Date().toISOString() }).eq('id', activeSession.id)
-    await activeChannel.track({ role: 'host', userId: currentUser.id, phase: 'playing' })
+    // Capture les participants initiaux depuis presence pour permettre à un mobile
+    // arrivé tard de reprendre sa place (même s'il s'est déconnecté entre-temps)
+    const state = activeChannel.presenceState()
+    const initialPlayers = Object.values(state).flat()
+      .filter(p => p.role === 'player' && p.tempId)
+      .map(p => ({ tempId: p.tempId, name: p.name, emoji: p.emoji || '🎮', email: p.email || null }))
+    await activeChannel.track({
+      role: 'host', userId: currentUser.id, phase: 'playing',
+      initialPlayers
+    })
     initGame()
     showQuestion()
   } catch (err) { alert('Erreur : ' + err.message) }

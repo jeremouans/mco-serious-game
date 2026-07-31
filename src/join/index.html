@@ -380,7 +380,7 @@
           <h1>Qui êtes-vous ?</h1>
         </div>
       </div>
-      <p class="pick-intro">La partie a déjà démarré. Rejoignez un joueur existant pour continuer avec son score, ou entrez comme nouveau joueur.</p>
+      <p class="pick-intro">Cette partie a déjà démarré. Sélectionnez votre place dans la liste des participants inscrits. Les places <strong style="color:var(--fg-mute);">⚪ Hors ligne</strong> sont disponibles ; celles <strong style="color:var(--green);">🟢 En ligne</strong> sont déjà occupées sur un autre appareil.</p>
       <div class="pick-player-list" id="pick-player-list"></div>
       <div class="pick-divider">— ou —</div>
       <button class="btn big" id="pick-new-btn" style="justify-content:center;">➕ Nouveau joueur</button>
@@ -783,14 +783,33 @@ async function joinLobby(code, firstName, email) {
         const host = all.find(p => p.role === 'host')
         if (host?.phase === 'playing') {
           inPickScreen = true
-          const existingPlayers = all.filter(p => p.role === 'player')
-          showPickPlayerScreen(existingPlayers)
+          // Priorité : la liste des participants au moment du démarrage (fiable,
+          // même pour ceux qui se sont déconnectés depuis). Fallback : la
+          // presence courante si le host n'a pas broadcast la liste initiale.
+          const initial = Array.isArray(host.initialPlayers) && host.initialPlayers.length
+            ? host.initialPlayers
+            : all.filter(p => p.role === 'player')
+          const activeIds = new Set(all.filter(p => p.role === 'player').map(p => p.tempId))
+          showPickPlayerScreen(initial, activeIds)
           return
         }
         doTrackAsPlayer()
       }
 
-      if (inPickScreen) return
+      // Si on est déjà sur l'écran de choix, met à jour l'état "en ligne"
+      if (inPickScreen) {
+        const activeIds = new Set(all.filter(p => p.role === 'player').map(p => p.tempId))
+        document.querySelectorAll('.pick-player-btn[data-tempid]').forEach(btn => {
+          const online = activeIds.has(btn.dataset.tempid)
+          btn.dataset.online = online ? '1' : '0'
+          const badge = btn.querySelector('.pick-online-badge')
+          if (badge) {
+            badge.textContent = online ? '🟢 En ligne' : '⚪ Hors ligne'
+            badge.style.color = online ? 'var(--green)' : 'var(--fg-mute)'
+          }
+        })
+        return
+      }
 
       $('wait-count').textContent = all.filter(p => p.role === 'player').length
       if (hostCheckTimer && all.some(p => p.role === 'host')) {
@@ -846,15 +865,30 @@ async function doTrackAsPlayer() {
   })
 }
 
-function showPickPlayerScreen(players) {
+function showPickPlayerScreen(players, activeIds = new Set()) {
   const list = $('pick-player-list'); list.innerHTML = ''
-  if (players.length === 0) {
-    list.innerHTML = '<p style="color:var(--fg-soft);text-align:center;font-size:.9rem;">Aucun joueur connecté.</p>'
+  if (!players.length) {
+    list.innerHTML = '<p style="color:var(--fg-soft);text-align:center;font-size:.9rem;">Aucun participant initial enregistré.</p>'
   } else {
-    players.forEach(p => {
-      const btn = document.createElement('button'); btn.className = 'pick-player-btn'
-      btn.innerHTML = `<span class="pick-emoji">${p.emoji || '🎮'}</span><span class="pick-name">${p.name}</span><span style="font-size:.8rem;color:var(--fg-soft);">→ reprendre</span>`
+    // Ordre : hors ligne d'abord (place à prendre), puis en ligne
+    const sorted = [...players].sort((a, b) => (activeIds.has(a.tempId) ? 1 : 0) - (activeIds.has(b.tempId) ? 1 : 0))
+    sorted.forEach(p => {
+      const online = activeIds.has(p.tempId)
+      const btn = document.createElement('button')
+      btn.className = 'pick-player-btn'
+      btn.dataset.tempid = p.tempId
+      btn.dataset.online = online ? '1' : '0'
+      btn.innerHTML = `
+        <span class="pick-emoji">${p.emoji || '🎮'}</span>
+        <span class="pick-name">${escHtml(p.name || '?')}</span>
+        <span class="pick-online-badge" style="font-size:.72rem;font-weight:700;color:${online ? 'var(--green)' : 'var(--fg-mute)'};">
+          ${online ? '🟢 En ligne' : '⚪ Hors ligne'}
+        </span>`
       btn.addEventListener('click', () => {
+        if (activeIds.has(p.tempId)) {
+          // Autre appareil est encore en ligne sous cette identité : on demande confirmation
+          if (!confirm(`${p.name} est déjà en ligne sur un autre appareil. Reprendre cette place quand même ?`)) return
+        }
         PS.tempId    = p.tempId
         PS.name      = p.name
         PS.firstName = p.firstName || p.name
