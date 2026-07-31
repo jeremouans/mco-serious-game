@@ -347,10 +347,6 @@
           <div class="inp-label">E-mail professionnel *</div>
           <input id="email-inp" class="inp" type="email" maxlength="120" placeholder="prenom.nom@mgen.fr" autocomplete="email" required inputmode="email">
         </div>
-        <div>
-          <div class="inp-label">Manager</div>
-          <input id="manager-inp" class="inp" type="text" maxlength="80" placeholder="Nom de votre manager (optionnel)" autocomplete="off">
-        </div>
         <div class="emoji-section">
           <label>Ton avatar</label>
           <div class="emoji-grid" id="emoji-grid"></div>
@@ -618,7 +614,6 @@ let PS = {
   tempId:            crypto.randomUUID(),
   firstName:         null,
   email:             null,
-  manager:           null,
   name:              null,
   code:              null,
   emoji:             EMOJIS[0],
@@ -658,8 +653,7 @@ function restorePlayer(code, name) {
     if (stored?.tempId) {
       PS.tempId    = stored.tempId
       PS.firstName = stored.firstName || stored.name || name
-      PS.email     = stored.email   || PS.email   || null
-      PS.manager   = stored.manager || PS.manager || null
+      PS.email     = stored.email || PS.email || null
       return stored.emoji || null
     }
   } catch (_) {}
@@ -672,7 +666,6 @@ function savePlayer(code) {
       tempId:    PS.tempId,
       firstName: PS.firstName,
       email:     PS.email,
-      manager:   PS.manager,
       name:      PS.name,
       emoji:     PS.emoji,
       ts:        Date.now()
@@ -743,23 +736,21 @@ $('join-form').addEventListener('submit', async e => {
   const code      = $('code-inp').value.trim().toUpperCase().replace(/[^A-Z0-9]/g, '')
   const firstName = $('firstname-inp').value.trim()
   const email     = $('email-inp').value.trim().toLowerCase()
-  const manager   = $('manager-inp').value.trim()
   const errEl = $('join-err'); const btn = $('join-btn')
   errEl.classList.remove('show')
   if (code.length !== 6)   { errEl.textContent = 'Le code doit comporter 6 caractères.'; errEl.classList.add('show'); return }
   if (!firstName)          { errEl.textContent = 'Saisis ton prénom.'; errEl.classList.add('show'); return }
   if (!email || !isValidEmail(email)) { errEl.textContent = 'E-mail professionnel invalide.'; errEl.classList.add('show'); return }
   btn.disabled = true; btn.textContent = '⏳ Connexion…'
-  try { await joinLobby(code, firstName, email, manager) }
+  try { await joinLobby(code, firstName, email) }
   catch (err) { errEl.textContent = err.message; errEl.classList.add('show') }
   finally { btn.disabled = false; btn.textContent = '🚀 Rejoindre' }
 })
 
 // ── Rejoindre le lobby ───────────────────────────────────────
-async function joinLobby(code, firstName, email, manager) {
+async function joinLobby(code, firstName, email) {
   PS.firstName = firstName
   PS.email     = email || null
-  PS.manager   = manager || null
   PS.name      = firstName
   PS.code      = code
   PS.score     = 0
@@ -849,7 +840,6 @@ async function doTrackAsPlayer() {
     tempId:    PS.tempId,
     firstName: PS.firstName,
     email:     PS.email,
-    manager:   PS.manager,
     name:      PS.name,
     emoji:     PS.emoji,
     score:     PS.score
@@ -868,8 +858,7 @@ function showPickPlayerScreen(players) {
         PS.tempId    = p.tempId
         PS.name      = p.name
         PS.firstName = p.firstName || p.name
-        PS.email     = p.email   || PS.email   || null
-        PS.manager   = p.manager || PS.manager || null
+        PS.email     = p.email || PS.email || null
         PS.emoji     = p.emoji || PS.emoji
         $('wait-name').textContent = (PS.emoji ? PS.emoji + ' ' : '') + PS.firstName
         $('wait-code').textContent = PS.code
@@ -1124,7 +1113,7 @@ $('idea-submit-btn').addEventListener('click', () => {
   const text = $('idea-text-inp').value.trim()
   if (!text) { $('idea-input-err').textContent = 'Écrivez votre idée avant de soumettre.'; $('idea-input-err').classList.add('show'); return }
   P4J.hasSubmitted = true; $('idea-submit-btn').disabled = true; $('idea-submit-btn').textContent = '⏳ Envoi…'
-  activeChannel.send({ type: 'broadcast', event: 'submit:idea', payload: { tempId: PS.tempId, name: PS.name, email: PS.email, manager: PS.manager, text }})
+  activeChannel.send({ type: 'broadcast', event: 'submit:idea', payload: { tempId: PS.tempId, name: PS.name, email: PS.email, text }})
   p4Wait('✅', 'Idée envoyée !', 'En attente du vote…')
 })
 
@@ -1275,7 +1264,7 @@ $('engage-submit-btn').addEventListener('click', () => {
   $('engage-submit-btn').disabled = true; $('engage-submit-btn').textContent = '⏳ Envoi…'
   err.classList.remove('show')
   activeChannel.send({ type:'broadcast', event:'submit:engage', payload:{
-    tempId: PS.tempId, name: PS.name, email: PS.email, manager: PS.manager,
+    tempId: PS.tempId, name: PS.name, email: PS.email,
     text, category, action, moyen, echeance
   }})
   p4Wait('✅', 'Engagement envoyé !', 'En attente de la révélation…')
@@ -1327,7 +1316,7 @@ $('engagefree-submit-btn').addEventListener('click', () => {
   $('engagefree-submit-btn').textContent = '⏳ Envoi…'
   err.classList.remove('show')
   activeChannel.send({ type:'broadcast', event:'submit:engage-free', payload:{
-    tempId: PS.tempId, name: PS.name, email: PS.email, manager: PS.manager,
+    tempId: PS.tempId, name: PS.name, email: PS.email,
     kind: engageFreeKind, text
   }})
   p4Wait('✅', 'Engagement envoyé !', 'En attente de la révélation…')

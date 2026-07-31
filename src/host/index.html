@@ -888,6 +888,16 @@
         </section>
 
         <section>
+          <div class="home-section-title">👤 Manager de la session (facultatif)</div>
+          <input id="session-manager" class="inp" type="text" maxlength="120"
+                 placeholder="Nom du manager qui pilote cette session"
+                 style="width:100%;background:rgba(255,255,255,.08);border:2px solid rgba(255,255,255,.14);color:var(--fg);border-radius:12px;padding:.7em 1em;">
+          <div style="font-size:.78rem;color:var(--fg-mute);margin-top:4px;">
+            Cette valeur sera associée à toutes les idées et engagements produits pendant la session (exports CSV).
+          </div>
+        </section>
+
+        <section>
           <div class="home-cta-row">
             <button class="btn cta-main" id="create-btn">▶ Démarrer une session live</button>
             <button class="btn cta-alt"  id="offline-btn">🖨️ Mode offline / papier</button>
@@ -1488,14 +1498,28 @@ async function loadOpenSessions() {
   })
 }
 
+// ── Manager de session (saisi une fois par l'animateur, persisté localement) ──
+const MANAGER_LS_KEY = 'mco_host_session_manager'
+;(function initManagerInput() {
+  const inp = $('session-manager'); if (!inp) return
+  try { inp.value = localStorage.getItem(MANAGER_LS_KEY) || '' } catch (_) {}
+  inp.addEventListener('input', () => {
+    try { localStorage.setItem(MANAGER_LS_KEY, inp.value.trim()) } catch (_) {}
+  })
+})()
+function currentSessionManager() {
+  return ($('session-manager')?.value || '').trim() || null
+}
+
 $('create-btn').addEventListener('click', async () => {
   const btn = $('create-btn'); btn.disabled = true; btn.textContent = '⏳ Création…'
   try {
+    const manager = currentSessionManager()
     let session = null
     for (let i = 0; i < 5; i++) {
       const { data, error } = await sb.from('sessions').insert({
         code: generateCode(), host_id: currentUser.id, status: 'lobby',
-        settings: { timer: 30, speedBonus: true, selectedManches: null, quiz_id: QUIZ_DB_ID ?? null }
+        settings: { selectedManches: null, quiz_id: QUIZ_DB_ID ?? null, manager }
       }).select().single()
       if (!error) { session = data; break }
       if (error.code !== '23505') throw error
@@ -1504,7 +1528,7 @@ $('create-btn').addEventListener('click', async () => {
     activeSession = session
     await openLobby(session)
   } catch (err) { alert('Erreur : ' + err.message) }
-  finally { btn.disabled = false; btn.textContent = '▶ Démarrer une session' }
+  finally { btn.disabled = false; btn.textContent = '▶ Démarrer une session live' }
 })
 
 // ── Mode OFFLINE (papier) ─────────────────────────────────────
@@ -2171,7 +2195,7 @@ function initGame() {
   Object.values(state).flat().forEach(p => {
     if (p.role === 'player' && p.tempId) players.set(p.tempId, {
       name: p.name, score: 0, emoji: p.emoji || '🎮',
-      email: p.email || null, manager: p.manager || null
+      email: p.email || null
     })
   })
   GS = { questions: QUIZ, qIdx: 0, endsAt: 0, timerDuration: 0, timerInterval: null, players, currentAnswers: new Map(), revealed: false, log: [] }
@@ -2475,8 +2499,9 @@ async function endGame() {
   // Mode offline : pas de session/joueurs à logger, juste revenir à l'accueil
   if (OFFLINE_MODE) { offlineEnd(); return }
 
+  const sessionManager = activeSession?.settings?.manager || null
   const scoreboard = Array.from(GS.players.entries())
-    .map(([tid, p]) => ({ tempId: tid, name: p.name, score: p.score, email: p.email || null, manager: p.manager || null }))
+    .map(([tid, p]) => ({ tempId: tid, name: p.name, score: p.score, email: p.email || null, manager: sessionManager }))
     .sort((a, b) => b.score - a.score)
     .map((s, i) => ({ ...s, rank: i + 1 }))
 
@@ -2644,13 +2669,14 @@ document.addEventListener('fullscreenchange', updateFullscreenBtn)
 $('settings-back-btn').addEventListener('click', () => showScreen('screen-home'))
 $('settings-create-btn').addEventListener('click', async () => {
   const selectedManches = [...document.querySelectorAll('.manche-cb:checked')].map(cb => cb.dataset.id)
+  const manager = currentSessionManager()
   const btn = $('settings-create-btn'); btn.disabled = true; btn.textContent = '⏳ Création…'
   try {
     let session = null
     for (let i = 0; i < 5; i++) {
       const { data, error } = await sb.from('sessions').insert({
         code: generateCode(), host_id: currentUser.id, status: 'lobby',
-        settings: { selectedManches, quiz_id: QUIZ_DB_ID ?? null }
+        settings: { selectedManches, quiz_id: QUIZ_DB_ID ?? null, manager }
       }).select().single()
       if (!error) { session = data; break }
       if (error.code !== '23505') throw error
@@ -2829,7 +2855,7 @@ function receiveIdeaSubmit(payload) {
   const text = String(payload.text || '').slice(0, 280).trim(); if (!text) return
   P4S.submissions.set(payload.tempId, {
     text, name: payload.name || '?',
-    email: payload.email || null, manager: payload.manager || null
+    email: payload.email || null
   })
   $('idea-submitted-count').textContent = P4S.submissions.size
   if (activeChannel) activeChannel.send({ type:'broadcast', event:'host:submitted', payload:{ n: P4S.submissions.size, total: GS.players.size }})
@@ -2884,7 +2910,7 @@ function showIdeaReveal() {
     const votes = voteCounts.get(authorId)||0; const isGold = goldAuths.includes(authorId)
     const pts = votes * vPts + (isGold ? gBonus : 0)
     const player = GS.players.get(authorId); if (player) player.score += pts
-    ranking.push({ authorId, name:sub.name, email:sub.email||null, manager:sub.manager||null, text:sub.text, votes, isGold, pts })
+    ranking.push({ authorId, name:sub.name, email:sub.email||null, text:sub.text, votes, isGold, pts })
   })
   ranking.sort((a,b) => b.votes - a.votes || b.pts - a.pts)
   activeChannel.send({ type:'broadcast', event:'round:idea:reveal', payload:{
@@ -2909,10 +2935,11 @@ function showIdeaReveal() {
 async function logIdeaManche(ranking) {
   if (!activeSession) return
   try {
+    const sessionManager = activeSession?.settings?.manager || null
     const { data:subs } = await sb.from('submissions').insert(ranking.map(r => ({
       session_id: activeSession.id, round_key: P4S.mancheConfig.id, kind: 'idea',
       author_tempid: r.authorId, author_name: r.name,
-      author_email: r.email, author_manager: r.manager,
+      author_email: r.email, author_manager: sessionManager,
       text: r.text, points: r.pts, is_gold: r.isGold
     }))).select('id,author_tempid')
     if (subs?.length && P4S.votes.size > 0) {
@@ -2959,7 +2986,7 @@ function receiveEngageSubmit(payload) {
   const text = String(payload.text || '').slice(0, 280).trim(); if (!text) return
   P4S.submissions.set(payload.tempId, {
     text, category: payload.category||'', name: payload.name||'?',
-    email: payload.email || null, manager: payload.manager || null,
+    email: payload.email || null,
     action: payload.action||'', moyen: payload.moyen||'', echeance: payload.echeance||''
   })
   $('engage-submitted-count').textContent = P4S.submissions.size
@@ -2979,7 +3006,7 @@ function showEngageReveal() {
   P4S.submissions.forEach((sub, authorId) => {
     results.push({
       authorId, name: sub.name, category: sub.category, text: sub.text,
-      email: sub.email || null, manager: sub.manager || null
+      email: sub.email || null
     })
   })
   P4S.revealResults = results
@@ -3043,7 +3070,7 @@ function receiveEngageFreeSubmit(payload) {
   const kind = payload.kind === 'equipe' ? 'equipe' : 'personnel'
   P4S.submissions.set(payload.tempId, {
     text, kind, name: payload.name || '?',
-    email: payload.email || null, manager: payload.manager || null
+    email: payload.email || null
   })
   $('engagefree-submitted-count').textContent = P4S.submissions.size
   if (activeChannel) activeChannel.send({ type:'broadcast', event:'host:submitted', payload:{ n:P4S.submissions.size, total:GS.players.size }})
@@ -3059,7 +3086,7 @@ function showEngageFreeReveal() {
   P4S.phase = 'reveal'
   const results = []
   P4S.submissions.forEach((sub, authorId) => {
-    results.push({ authorId, name: sub.name, kind: sub.kind, text: sub.text, email: sub.email, manager: sub.manager })
+    results.push({ authorId, name: sub.name, kind: sub.kind, text: sub.text, email: sub.email })
   })
   P4S.revealResults = results
 
@@ -3099,10 +3126,11 @@ $('engagefree-continue-btn').addEventListener('click', () => { GS.qIdx++; showQu
 async function logEngageFreeManche() {
   if (!activeSession || !P4S?.revealResults) return
   try {
+    const sessionManager = activeSession?.settings?.manager || null
     await sb.from('submissions').insert(P4S.revealResults.map(r => ({
       session_id: activeSession.id, round_key: P4S.mancheConfig.id,
       kind: 'engage-free', author_tempid: r.authorId, author_name: r.name,
-      author_email: r.email || null, author_manager: r.manager || null,
+      author_email: r.email || null, author_manager: sessionManager,
       text: r.text, category: r.kind, points: 0
     })))
   } catch(e) { console.warn('logEngageFree:', e) }
@@ -3111,10 +3139,11 @@ async function logEngageFreeManche() {
 async function logEngageManche() {
   if (!activeSession || !P4S?.revealResults) return
   try {
+    const sessionManager = activeSession?.settings?.manager || null
     await sb.from('submissions').insert(P4S.revealResults.map(r => ({
       session_id: activeSession.id, round_key: P4S.mancheConfig.id,
       kind: 'engage', author_tempid: r.authorId, author_name: r.name,
-      author_email: r.email || null, author_manager: r.manager || null,
+      author_email: r.email || null, author_manager: sessionManager,
       text: r.text, category: r.category, points: 0
     })))
   } catch(e) { console.warn('logEngage:', e) }
