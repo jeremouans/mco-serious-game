@@ -3074,6 +3074,14 @@ function uid() { return Math.random().toString(36).slice(2, 9) }
 
 async function loadAllQuizzes() {
   const { data, error } = await sb.from('quizzes').select('id, title, config, created_at').order('created_at', { ascending: false })
+  if (error) {
+    // Distinguer « aucun quiz » d'une requête refusée : afficher « demandez à
+    // l'admin d'en créer un » alors que la session a expiré envoie sur une
+    // fausse piste. Tous les quiz sont lisibles par tout animateur autorisé.
+    QUIZ_LIST = []
+    renderQuizPickerError(error)
+    throw error
+  }
   QUIZ_LIST = data || []
   if (QUIZ_LIST.length > 0) {
     QUIZ_DB_ID  = QUIZ_LIST[0].id
@@ -3081,13 +3089,30 @@ async function loadAllQuizzes() {
     QUIZ = buildQuizFromConfig()
   }
   renderQuizPicker()
-  if (error) throw error   // remonté par startApp : « aucun quiz » ≠ « requête en échec »
+}
+
+// Message d'échec explicite à la place du sélecteur de quiz
+function renderQuizPickerError(error) {
+  const list = $('quiz-picker-list'); if (!list) return
+  const expiree = /jwt|token|expired|401/i.test(`${error?.message || ''} ${error?.code || ''}`)
+  list.innerHTML = `
+    <div style="grid-column:1/-1;background:rgba(231,76,60,.12);border:1.5px solid rgba(231,76,60,.4);
+                border-radius:16px;padding:16px 18px;color:var(--fg);font-size:.9rem;line-height:1.55;">
+      <strong style="color:#ff8f7a;">Impossible de charger les quiz.</strong><br>
+      ${expiree
+        ? 'Votre session a expiré. Reconnectez-vous pour retrouver les quiz.'
+        : 'La base a refusé la requête. Si le problème persiste, prévenez l\'administrateur.'}
+      <div style="font-size:.75rem;opacity:.7;margin-top:6px;font-family:monospace;">${escHtml(error?.message || '')}</div>
+      <button class="btn sm" id="quiz-relogin-btn" style="margin-top:10px;">🔄 Se reconnecter</button>
+    </div>`
+  const btn = $('quiz-relogin-btn')
+  if (btn) btn.addEventListener('click', async () => { await sb.auth.signOut() })
 }
 
 function renderQuizPicker() {
   const list = $('quiz-picker-list'); if (!list) return
   if (!QUIZ_LIST.length) {
-    list.innerHTML = '<p class="empty-msg" style="font-size:.88rem;padding:20px;">Aucun quiz — demandez à l\'admin d\'en créer un.</p>'
+    list.innerHTML = '<p class="empty-msg" style="font-size:.88rem;padding:20px;">Aucun quiz n\'a encore été créé par un administrateur.</p>'
     return
   }
   list.innerHTML = ''
