@@ -206,7 +206,8 @@
 
     /* ── Phase 4 joueur ── */
     #screen-idea-input, #screen-p4-waiting, #screen-idea-vote-p,
-    #screen-engage-input, #screen-engage-vote-p, #screen-p4-result {
+    #screen-engage-input, #screen-engage-vote-p, #screen-p4-result,
+    #screen-open-input {
       flex-direction: column; overflow-y: auto; gap: clamp(14px,3vh,24px); padding: 20px;
       justify-content: flex-start; padding-top: clamp(24px,5vh,48px);
     }
@@ -318,6 +319,7 @@
     #screen-idea-input, #screen-idea-vote-p, #screen-engage-input,
     #screen-engage-vote-p, #screen-engage-free-input,
     #screen-p4-result, #screen-slider-input,
+    #screen-open-input,
     #screen-wordcloud-vote { position: relative; }
   </style>
 </head>
@@ -456,12 +458,26 @@
     <div class="rip-hint">👀 Attendez la première question…</div>
   </section>
 
-  <!-- ══ INTERCALAIRE (slide reçu depuis l'animateur) ═══════════ -->
+  <!-- ══ MISE EN SITUATION (slide reçu depuis l'animateur) ══════ -->
   <section class="screen" id="screen-slide-p">
-    <div class="slide-p-kicker">🖼️ Intercalaire</div>
+    <div class="slide-p-kicker">🎬 Mise en situation</div>
     <h2 class="slide-p-title" id="slide-p-title" style="display:none;"></h2>
     <div class="slide-p-text" id="slide-p-text"></div>
-    <div class="slide-p-hint">👉 Regardez l'écran</div>
+  </section>
+
+  <!-- ══ QUESTION OUVERTE : SAISIE ══════════════════════════════ -->
+  <section class="screen" id="screen-open-input">
+    <button class="back-btn" id="open-back-btn">⬅ Attente</button>
+    <div class="p4j-badge">💬 Question ouverte</div>
+    <div class="p4j-challenge" id="open-question-p"></div>
+    <div class="p4j-sub" id="open-intro-p" style="display:none;text-align:center;"></div>
+    <div style="width:100%;">
+      <textarea class="p4j-textarea" id="open-text-inp" rows="4" maxlength="300"
+                placeholder="Écrivez votre réponse…"></textarea>
+      <div class="char-count"><span id="open-char-count">0</span> / <span id="open-char-max">300</span></div>
+    </div>
+    <div id="open-input-err" class="err"></div>
+    <button class="btn big" id="open-submit-btn" style="justify-content:center;">💬 Envoyer ma réponse</button>
   </section>
 
   <!-- ══ ANSWERED ═══════════════════════════════════════════ -->
@@ -830,6 +846,8 @@ async function joinLobby(code, firstName, email) {
     .on('broadcast', { event: 'round:engage:reveal' },        ({ payload }) => handleEngageRevealPlayer(payload))
     .on('broadcast', { event: 'round:engage-free:prompt' },   ({ payload }) => handleEngageFreePrompt(payload))
     .on('broadcast', { event: 'round:engage-free:reveal' },   ({ payload }) => handleEngageFreeRevealPlayer(payload))
+    .on('broadcast', { event: 'round:open:prompt' },          ({ payload }) => handleOpenPrompt(payload))
+    .on('broadcast', { event: 'round:open:reveal' },          ({ payload }) => handleOpenRevealPlayer(payload))
     .on('broadcast', { event: 'round:wordcloud:prompt' },     ({ payload }) => handleWordcloudPrompt(payload))
     .on('broadcast', { event: 'round:wordcloud:reveal' },     () => { showScreen('screen-p4-waiting'); $('p4-waiting-msg').textContent = '🌥️ Voilà le nuage !' })
     .on('broadcast', { event: 'host:submitted' }, ({ payload }) => {
@@ -943,7 +961,7 @@ $('play-again-btn').addEventListener('click', () => showScreen('screen-join'))
   'answered-back-btn', 'reveal-back-btn', 'p4-waiting-back-btn',
   'idea-input-back-btn', 'idea-vote-back-btn', 'engage-input-back-btn',
   'engage-vote-back-btn', 'engagefree-back-btn', 'p4-result-back-btn',
-  'slider-back-btn', 'wc-back-btn'
+  'slider-back-btn', 'wc-back-btn', 'open-back-btn'
 ].forEach(id => {
   $(id)?.addEventListener('click', () => showScreen('screen-waiting'))
 })
@@ -1384,6 +1402,65 @@ function handleEngageRevealPlayer(payload) {
     $('p4-result-sub').textContent = 'Regardez l\'écran pour voir tous les engagements.'
   }
   $('p4-result-total').textContent = `Total : ${PS.score} pts`
+  showScreen('screen-p4-result')
+}
+
+// ─ Question ouverte : réponse en texte libre, sans points ─────
+let openQuestionId = null
+let openSubmitted  = false
+
+function handleOpenPrompt(payload) {
+  clearInterval(PS.timerInterval)
+  P4J.kind = 'open'
+  openQuestionId = payload.questionId || null
+  openSubmitted  = false
+  const max = Math.max(40, Math.min(1000, payload.maxLength || 300))
+  $('open-question-p').textContent = payload.text || 'Question ouverte'
+  const introEl = $('open-intro-p')
+  if (introEl) {
+    if (payload.intro) { introEl.textContent = payload.intro; introEl.style.display = 'block' }
+    else introEl.style.display = 'none'
+  }
+  const inp = $('open-text-inp')
+  inp.value = ''
+  inp.maxLength = max
+  inp.placeholder = payload.placeholder || 'Écrivez votre réponse…'
+  $('open-char-count').textContent = '0'
+  $('open-char-max').textContent = String(max)
+  $('open-submit-btn').disabled = false
+  $('open-submit-btn').textContent = '💬 Envoyer ma réponse'
+  $('open-input-err').classList.remove('show')
+  showScreen('screen-open-input')
+}
+
+$('open-text-inp').addEventListener('input', e => {
+  $('open-char-count').textContent = String(e.target.value.length)
+})
+
+$('open-submit-btn').addEventListener('click', () => {
+  if (openSubmitted) return
+  const text = $('open-text-inp').value.trim()
+  const err = $('open-input-err')
+  if (!text) { err.textContent = 'Écrivez votre réponse avant d\'envoyer.'; err.classList.add('show'); return }
+  openSubmitted = true
+  $('open-submit-btn').disabled = true
+  $('open-submit-btn').textContent = '⏳ Envoi…'
+  err.classList.remove('show')
+  activeChannel.send({ type:'broadcast', event:'submit:open', payload:{
+    tempId: PS.tempId, name: PS.name, email: PS.email,
+    questionId: openQuestionId, text
+  }})
+  p4Wait('✅', 'Réponse envoyée !', 'En attente de l\'affichage des réponses…')
+})
+
+function handleOpenRevealPlayer(payload) {
+  const my = payload.items?.find(e => e.name === PS.name)
+  $('p4-result-icon').textContent  = '💬'
+  $('p4-result-title').textContent = my ? 'Votre réponse' : 'Réponses affichées'
+  $('p4-result-pts').textContent   = ''
+  $('p4-result-pts').style.color   = ''
+  $('p4-result-sub').textContent   = my ? `« ${my.text} »` : 'Les réponses du groupe sont affichées à l\'écran.'
+  $('p4-result-total').textContent = ''
   showScreen('screen-p4-result')
 }
 

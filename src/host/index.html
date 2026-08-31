@@ -317,6 +317,30 @@
     }
     #e2030-brand.hidden { opacity: 0; }
 
+    /* ── Rappel permanent du code + QR de session (haut gauche, pendant le jeu) ── */
+    #mini-session {
+      position: fixed; top: 12px; left: 12px; z-index: 210;
+      background: var(--cream); color: var(--ever);
+      border-radius: 14px; padding: 8px 8px 6px;
+      display: none; flex-direction: column; align-items: center; gap: 3px;
+      box-shadow: 0 6px 20px rgba(0,0,0,.30); cursor: zoom-in;
+      transform-origin: top left; transition: transform .2s ease;
+    }
+    #mini-session.visible { display: flex; }
+    #mini-session.big { transform: scale(2.4); cursor: zoom-out; }
+    #mini-session img, #mini-session canvas {
+      display: block; width: 74px; height: 74px; border-radius: 6px;
+    }
+    #mini-session .ms-code {
+      font-weight: 900; letter-spacing: 2.5px; font-size: .84rem; line-height: 1;
+    }
+    #mini-session .ms-hint {
+      font-size: .5rem; font-weight: 800; text-transform: uppercase;
+      letter-spacing: 1px; opacity: .55; line-height: 1;
+    }
+    /* Le logo Engagements 2030 se décale à droite du rappel de code */
+    body.has-mini-session #e2030-brand { left: 118px; }
+
     /* ── Picto de manche (fixe en haut à droite, sous le bouton plein écran) ── */
     #manche-picto {
       position: fixed; top: 62px; right: 16px; z-index: 199;
@@ -610,8 +634,16 @@
     }
     .engage-rev-text { font-size: clamp(.95rem, 2vw, 1.15rem); color: var(--ever); font-weight: 600; line-height: 1.35; }
 
-    #screen-engage-prompt, #screen-engage-reveal {
+    #screen-engage-prompt, #screen-engage-reveal,
+    #screen-open-prompt, #screen-open-reveal {
       overflow-y: auto; padding: clamp(14px,2.5vw,36px);
+    }
+    /* Question ouverte : la question posée en grand */
+    .open-question-big {
+      font-size: clamp(1.5rem, 4vw, 2.4rem); font-weight: 800; color: var(--fg);
+      background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.14);
+      border-left: 6px solid var(--gold); border-radius: 18px;
+      padding: clamp(18px,3vw,30px); line-height: 1.2;
     }
     .p4-wrap { width: min(860px,100%); margin: auto; display: flex; flex-direction: column; gap: 20px; }
     .p4-topbar { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
@@ -743,6 +775,12 @@
 </head>
 <body class="theme-admin with-mask">
 <img id="e2030-brand" src="/assets/logo-beige.svg" alt="Engagements 2030">
+<!-- Rappel permanent du code + QR : permet de rejoindre / se reconnecter en cours de partie -->
+<div id="mini-session" title="Code et QR pour rejoindre la session — cliquez pour agrandir">
+  <div id="mini-qr"></div>
+  <div class="ms-code" id="mini-code">——</div>
+  <div class="ms-hint">Rejoindre</div>
+</div>
 <img id="manche-picto" alt="" style="display:none;">
 <button id="resync-btn" title="Ré-envoyer la question courante à tous les mobiles">🔄 Rafraîchir écrans</button>
 <!-- Bouton "Revoir" une question passée (mode online) -->
@@ -888,12 +926,13 @@
         </section>
 
         <section>
-          <div class="home-section-title">👤 Manager de la session (facultatif)</div>
+          <div class="home-section-title">👤 Manager de la session</div>
           <input id="session-manager" class="inp" type="text" maxlength="120"
                  placeholder="Nom du manager qui pilote cette session"
                  style="width:100%;background:rgba(255,255,255,.08);border:2px solid rgba(255,255,255,.14);color:var(--fg);border-radius:12px;padding:.7em 1em;">
           <div style="font-size:.78rem;color:var(--fg-mute);margin-top:4px;">
-            Cette valeur sera associée à toutes les idées et engagements produits pendant la session (exports CSV).
+            Pré-rempli avec votre nom d'animateur — modifiez-le si un autre manager pilote la session.
+            Cette valeur est associée à toutes les productions de la session (bilans, exports CSV).
           </div>
         </section>
 
@@ -921,6 +960,7 @@
         <div class="guide-grid">
           <div class="guide-card"><div class="guide-icon">🚀</div><h4>Démarrer une session</h4><ol><li>Choisissez un quiz dans l'onglet Sessions</li><li>Cliquez "Démarrer une session"</li><li>Partagez le code ou le QR code</li><li>Attendez les joueurs → Démarrez</li></ol></div>
           <div class="guide-card"><div class="guide-icon">❓</div><h4>Questions quiz</h4><p>Laissez les joueurs répondre. Cliquez "Révéler" quand vous êtes prêt — même avant le timer. Le classement s'affiche automatiquement.</p><p class="guide-tip">Commentez la bonne réponse avant de passer à la suite.</p></div>
+          <div class="guide-card"><div class="guide-icon">💬</div><h4>Question ouverte</h4><p>Les participants répondent en texte libre depuis leur mobile. Cliquez "Afficher les réponses" pour les projeter à l'écran.</p><p class="guide-tip">Aucun point, aucun vote — c'est une collecte. Tout est conservé dans le bilan et les exports.</p></div>
           <div class="guide-card"><div class="guide-icon">🎚️</div><h4>Slider (estimation)</h4><p>Les joueurs estiment une valeur numérique. Le plus proche gagne. Cliquez "Révéler" pour voir les estimations animées.</p><p class="guide-tip">Idéal pour des statistiques surprenantes !</p></div>
           <div class="guide-card"><div class="guide-icon">☁️</div><h4>Nuage de mots</h4><p>Les joueurs choisissent des mots dans une liste. Le nuage se forme en direct. Cliquez "Afficher" pour le révéler.</p><p class="guide-tip">Bon brise-glace ou conclusion de manche.</p></div>
           <div class="guide-card"><div class="guide-icon">💡</div><h4>L'idée en Or</h4><p>Les joueurs soumettent une idée, puis votent pour leur préférée (anonymement). L'idée gagnante est révélée avec confettis.</p><p class="guide-tip">Passez au vote quand assez d'idées sont soumises.</p></div>
@@ -981,7 +1021,7 @@
   <section class="screen" id="screen-slide">
     <div class="slide-bg" id="slide-bg"></div>
     <div class="slide-wrap">
-      <div class="slide-kicker" id="slide-kicker" style="display:none;">Intercalaire</div>
+      <div class="slide-kicker" id="slide-kicker" style="display:none;">Mise en situation</div>
       <h2 class="slide-title" id="slide-title" style="display:none;"></h2>
       <div class="slide-text" id="slide-text"></div>
       <div class="slide-actions">
@@ -1273,6 +1313,42 @@
     </div>
   </section>
 
+  <!-- ══ QUESTION OUVERTE — COLLECTE ═════════════════════════════ -->
+  <section class="screen" id="screen-open-prompt">
+    <div class="p4-wrap">
+      <div class="p4-topbar">
+        <span class="p4-badge">💬 Question ouverte</span>
+        <h2 id="open-manche-name">Question ouverte</h2>
+        <button class="btn sm ghost" onclick="goHome()">⌂</button>
+      </div>
+      <div id="open-question-text" class="open-question-big">–</div>
+      <div id="open-intro" class="p4-challenge-box" style="border-left-color:var(--green);display:none;"></div>
+      <div class="p4-stats">
+        <div class="p4-stat">
+          <div class="p4-stat-num" id="open-submitted-count">0</div>
+          <div class="p4-stat-lbl">réponses reçues sur <span id="open-total-players">0</span></div>
+        </div>
+      </div>
+      <div class="game-actions">
+        <button class="btn gold" id="open-reveal-btn">▶ Afficher les réponses</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ QUESTION OUVERTE — RÉPONSES ═════════════════════════════ -->
+  <section class="screen" id="screen-open-reveal">
+    <div class="p4-wrap">
+      <div class="p4-topbar">
+        <span class="p4-badge">💬 Les réponses</span>
+        <h2 id="open-reveal-question">Question ouverte</h2>
+      </div>
+      <div id="open-reveal-list" class="engage-reveal-list"></div>
+      <div class="game-actions">
+        <button class="btn big" id="open-continue-btn">→ Continuer</button>
+      </div>
+    </div>
+  </section>
+
   <!-- ══ WORDCLOUD ═══════════════════════════════════════════ -->
   <section class="screen" id="screen-wordcloud">
     <div class="wc-wrap">
@@ -1328,6 +1404,10 @@ let OFFLINE_MODE  = false  // mode offline : pas de joueurs, pas de session Supa
 // ── Utils ───────────────────────────────────────────────────
 const $ = id => document.getElementById(id)
 
+// Types de questions jouables dans une manche « quiz »
+// (choice/truefalse/slider sont scorés ; open et slide ne le sont pas)
+const PLAYABLE_Q_TYPES = new Set(['choice','truefalse','slider','open','slide'])
+
 // Écrans où le bandeau logo Engagements 2030 est masqué (UI de gestion)
 const BRAND_HIDDEN_SCREENS = new Set([
   'screen-login', 'screen-check-email', 'screen-home',
@@ -1340,7 +1420,8 @@ const GAME_SCREENS = new Set([
   'screen-scoreboard-host','screen-slide','screen-wordcloud',
   'screen-idea-prompt','screen-idea-vote','screen-idea-reveal',
   'screen-engage-prompt','screen-engage-reveal',
-  'screen-engage-free-prompt','screen-engage-free-reveal'
+  'screen-engage-free-prompt','screen-engage-free-reveal',
+  'screen-open-prompt','screen-open-reveal'
 ])
 
 // Écrans qui portent un fond masque MGEN discret
@@ -1375,6 +1456,8 @@ function showScreen(id) {
   if (typeof updateReviewBtnVisibility === 'function') updateReviewBtnVisibility()
   // Bouton "Rafraîchir écrans" visible sur les écrans de jeu en mode online
   if (typeof updateResyncBtnVisibility === 'function') updateResyncBtnVisibility()
+  // Rappel code + QR visible sur tous les écrans de jeu (mode online)
+  if (typeof updateMiniSessionVisibility === 'function') updateMiniSessionVisibility(id)
 
   // Écrans à thème complet → body swap vers la charte de la manche courante
   const b = document.body
@@ -1456,11 +1539,18 @@ const initial = n => (n||'?').trim().charAt(0).toUpperCase()
 const DEMO_MODE = true
 const DEMO_USER = { id: '029a5460-7dee-40e7-b8b7-5851e8de538d', email: 'animateur@mgen.fr' }
 
+// Nom affichable de l'animateur connecté (profil > email > libellé générique)
+function hostDisplayName() {
+  const n = [hostProfile?.first_name, hostProfile?.last_name].filter(Boolean).join(' ').trim()
+  return n || currentUser?.email || ''
+}
+
 async function startApp() {
   currentUser = DEMO_USER
   hostProfile = { first_name: 'Animateur', last_name: '' }
   if ($('user-email')) $('user-email').textContent = 'Mode démo'
   applyMancheTheme('yellow', '')
+  initManagerInput()
   await loadAllQuizzes()
   await loadOpenSessions()
   await loadHistory()
@@ -1498,17 +1588,38 @@ async function loadOpenSessions() {
   })
 }
 
-// ── Manager de session (saisi une fois par l'animateur, persisté localement) ──
+// ── Manager de session ────────────────────────────────────────
+// Pré-rempli avec le nom de l'animateur connecté. S'il est modifié, la valeur
+// saisie est mémorisée (localStorage) et utilisée pour la session créée ; si
+// une session est déjà ouverte, ses settings sont mis à jour en base.
 const MANAGER_LS_KEY = 'mco_host_session_manager'
-;(function initManagerInput() {
+let managerInputReady = false
+function initManagerInput() {
   const inp = $('session-manager'); if (!inp) return
-  try { inp.value = localStorage.getItem(MANAGER_LS_KEY) || '' } catch (_) {}
-  inp.addEventListener('input', () => {
-    try { localStorage.setItem(MANAGER_LS_KEY, inp.value.trim()) } catch (_) {}
-  })
-})()
+  if (!managerInputReady) {
+    managerInputReady = true
+    inp.addEventListener('input', () => {
+      const v = inp.value.trim()
+      try { localStorage.setItem(MANAGER_LS_KEY, v) } catch (_) {}
+      syncManagerToSession(v || null)
+    })
+  }
+  let stored = null
+  try { stored = localStorage.getItem(MANAGER_LS_KEY) } catch (_) {}
+  // Défaut = animateur connecté ; une saisie manuelle antérieure a priorité
+  inp.value = (stored && stored.trim()) || hostDisplayName()
+  inp.placeholder = hostDisplayName() || 'Nom du manager qui pilote cette session'
+}
 function currentSessionManager() {
-  return ($('session-manager')?.value || '').trim() || null
+  return ($('session-manager')?.value || '').trim() || hostDisplayName() || null
+}
+// Répercute une modification du manager sur la session en cours (si lobby ouvert)
+async function syncManagerToSession(manager) {
+  if (!activeSession) return
+  const settings = { ...(activeSession.settings || {}), manager }
+  activeSession.settings = settings
+  try { await sb.from('sessions').update({ settings }).eq('id', activeSession.id) }
+  catch (e) { console.warn('syncManager:', e) }
 }
 
 $('create-btn').addEventListener('click', async () => {
@@ -1560,9 +1671,9 @@ function buildOfflineQuestions() {
   const arr = []
   ;(QUIZ_CONFIG.manches || []).forEach(m => {
     const mtype = m.type || 'quiz'
-    if (mtype !== 'quiz') return  // en mode offline on ne joue que les manches quiz (+ intercalaires)
+    if (mtype !== 'quiz') return  // en mode offline on ne joue que les manches quiz (+ mises en situation)
     ;(m.questions || []).forEach(q => {
-      if (['choice','truefalse','slider','slide'].includes(q.type))
+      if (PLAYABLE_Q_TYPES.has(q.type))
         arr.push({ ...q, id: q.id || uid(), section: m.name })
     })
   })
@@ -1596,7 +1707,7 @@ function buildOfflineExportItems() {
     const meta = { section: m.name, sectionType: mtype, mancheConfig: m }
     if (mtype === 'quiz') {
       ;(m.questions || []).forEach(q => {
-        if (['choice','truefalse','slider','slide'].includes(q.type))
+        if (PLAYABLE_Q_TYPES.has(q.type))
           items.push({ ...q, id: q.id || uid(), ...meta })
       })
     } else if (mtype === 'wordcloud') {
@@ -1677,9 +1788,19 @@ function offlineExportQuestionnaire() {
       </div>`
       return
     }
+    if (it.type === 'open') {
+      qNum++
+      body += `<div class="freeform-block">
+        <div class="ff-label">💬 Question ouverte · Q${qNum}</div>
+        <div class="ff-prompt">${escHtml(it.text || '')}</div>
+        ${it.intro ? `<div class="ff-note">${escHtml(it.intro)}</div>` : ''}
+        <div class="ff-note"><em>Pas de bonne réponse — les participants répondent librement ; les réponses sont collectées et restituées.</em></div>
+      </div>`
+      return
+    }
     if (it.type === 'slide') {
       body += `<div class="slide-block">
-        <div class="slide-label">Intercalaire</div>
+        <div class="slide-label">Mise en situation</div>
         ${it.title ? `<div class="slide-t">${escHtml(it.title)}</div>` : ''}
         <div class="slide-body">${escHtml(it.text || '')}</div>
       </div>`
@@ -1788,9 +1909,20 @@ function offlineExportForm() {
       </div>`
       return
     }
+    if (it.type === 'open') {
+      qNum++
+      body += `<div class="freeform-block avoid-break">
+        <div class="ff-label">💬 Question ouverte · Q${qNum}</div>
+        <div class="ff-prompt">${escHtml(it.text || '')}</div>
+        ${it.intro ? `<div class="ff-note">${escHtml(it.intro)}</div>` : ''}
+        <div class="ff-instr">Répondez librement sur les lignes ci-dessous.</div>
+        <div class="write-area"></div>
+      </div>`
+      return
+    }
     if (it.type === 'slide') {
       body += `<div class="slide-block">
-        <div class="slide-label">Introduction</div>
+        <div class="slide-label">Mise en situation</div>
         ${it.title ? `<div class="slide-t">${escHtml(it.title)}</div>` : ''}
         <div class="slide-body">${escHtml(it.text || '')}</div>
       </div>`
@@ -1963,6 +2095,16 @@ function rebroadcastCurrentState() {
       type:'slider', idx:GS.qIdx, total:GS.questions.length, questionId:q.id,
       text:q.text, unit:q.unit||'', min:q.min??0, max:q.max??100
     }})
+  } else if (currentScreen === 'screen-open-prompt' && OQS?.question) {
+    activeChannel.send({ type:'broadcast', event:'round:open:prompt', payload:{
+      questionId: OQS.question.id, text: OQS.question.text || '', intro: OQS.question.intro || '',
+      placeholder: OQS.question.placeholder || '', maxLength: OQS.question.maxLength || 300
+    }})
+  } else if (currentScreen === 'screen-open-reveal' && OQS?.results) {
+    activeChannel.send({ type:'broadcast', event:'round:open:reveal', payload:{
+      questionId: OQS.question.id, text: OQS.question.text || '',
+      items: OQS.results.map(r => ({ name: r.name, text: r.text }))
+    }})
   } else if (currentScreen === 'screen-idea-prompt' && P4S?.kind === 'idea') {
     activeChannel.send({ type:'broadcast', event:'round:idea:prompt', payload:{
       challenge: P4S.mancheConfig?.challenge || 'Quelle innovation proposez-vous ?'
@@ -2023,6 +2165,21 @@ function renderReview() {
   $('review-pos').textContent = `${REVIEW_IDX + 1} / ${GS.log.length}`
   $('review-qtext').textContent = q.text || '—'
   const optsEl = $('review-opts')
+  // Question ouverte : pas d'options ni de bonne réponse, on liste les réponses
+  if (entry.type === 'open' || q.type === 'open') {
+    optsEl.innerHTML = `<div class="review-opt"><span class="review-opt-key">💬</span>
+      <span>Question ouverte — aucune bonne réponse, aucun point.</span></div>`
+    const rows = (entry.responses || []).map(r => `<tr>
+      <td style="font-weight:700">${escHtml(r.name || '?')}</td>
+      <td>« ${escHtml(r.text || '')} »</td>
+    </tr>`).join('')
+    $('review-answers-wrap').innerHTML = rows
+      ? `<table class="review-table"><thead><tr><th>Participant</th><th>Réponse</th></tr></thead><tbody>${rows}</tbody></table>`
+      : '<div class="review-empty">Aucune réponse enregistrée pour cette question.</div>'
+    $('review-prev-btn').disabled = REVIEW_IDX <= 0
+    $('review-next-btn').disabled = REVIEW_IDX >= GS.log.length - 1
+    return
+  }
   if (q.type === 'slider') {
     optsEl.innerHTML = `<div class="review-opt correct"><span class="review-opt-key">🎯</span>
       <span>Bonne réponse : <strong>${q.correct}${q.unit ? ' ' + escHtml(q.unit) : ''}</strong> (min ${q.min ?? 0} · max ${q.max ?? 1000})</span></div>`
@@ -2097,12 +2254,35 @@ $('offline-run-btn').addEventListener('click', () => {
   document.body.classList.add('offline')
   activeSession = null
   const questions = buildOfflineQuestions()
-  if (!questions.length) { OFFLINE_MODE = false; document.body.classList.remove('offline'); alert('Ce quiz ne contient aucune question offline (choix, vrai/faux, slider, intercalaire).'); return }
+  if (!questions.length) { OFFLINE_MODE = false; document.body.classList.remove('offline'); alert('Ce quiz ne contient aucune question projetable (choix, vrai/faux, slider, question ouverte, mise en situation).'); return }
   GS = { questions, qIdx: 0, endsAt: 0, timerDuration: 0, timerInterval: null,
     players: new Map(), currentAnswers: new Map(), revealed: false, log: [] }
   GAME_LOG = []
   showQuestion()
 })
+
+// ── Rappel code + QR (haut gauche, pendant toute la partie) ───
+function updateMiniSessionVisibility(screenId) {
+  const box = $('mini-session'); if (!box) return
+  const id = screenId || document.querySelector('.screen.active')?.id
+  const show = !OFFLINE_MODE && !!activeSession && GAME_SCREENS.has(id)
+  box.classList.toggle('visible', show)
+  if (!show) box.classList.remove('big')
+  document.body.classList.toggle('has-mini-session', show)
+}
+async function renderMiniSession(session) {
+  const codeEl = $('mini-code'); if (codeEl) codeEl.textContent = session?.code || '——'
+  const wrap = $('mini-qr'); if (!wrap) return
+  wrap.innerHTML = ''
+  if (!session?.code) return
+  try {
+    const joinUrl = window.location.origin + '/join/?code=' + session.code
+    const dataUrl = await QRCode.toDataURL(joinUrl, { width: 220, margin: 1, color: { dark: '#113124', light: '#f1e9d2' } })
+    const img = document.createElement('img'); img.src = dataUrl; img.alt = 'QR code de la session'
+    wrap.appendChild(img)
+  } catch (_) {}
+}
+$('mini-session').addEventListener('click', () => $('mini-session').classList.toggle('big'))
 
 // ── Lobby ────────────────────────────────────────────────────
 async function openLobby(session) {
@@ -2114,6 +2294,7 @@ async function openLobby(session) {
     const dataUrl = await QRCode.toDataURL(joinUrl, { width: 256, margin: 2, color: { dark: '#113124', light: '#f1e9d2' } })
     const img = document.createElement('img'); img.src = dataUrl; img.alt = 'QR code'; qrWrap.appendChild(img)
   } catch (_) {}
+  await renderMiniSession(session)
   showScreen('screen-lobby')
   await startPresence(session.code)
 }
@@ -2132,6 +2313,7 @@ async function startPresence(code) {
     .on('broadcast', { event: 'vote:idea' },       ({ payload }) => receiveIdeaVote(payload))
     .on('broadcast', { event: 'submit:engage' },   ({ payload }) => receiveEngageSubmit(payload))
     .on('broadcast', { event: 'submit:engage-free' }, ({ payload }) => receiveEngageFreeSubmit(payload))
+    .on('broadcast', { event: 'submit:open' },      ({ payload }) => receiveOpenSubmit(payload))
     .on('broadcast', { event: 'vote:engage' },     ({ payload }) => receiveEngageVote(payload))
     .on('broadcast', { event: 'vote:wordcloud' },  ({ payload }) => receiveWordcloudVote(payload))
     .subscribe(async status => {
@@ -2209,6 +2391,7 @@ function initGame() {
   })
   GS = { questions: QUIZ, qIdx: 0, endsAt: 0, timerDuration: 0, timerInterval: null, players, currentAnswers: new Map(), revealed: false, log: [] }
   GAME_LOG = []
+  P4S = null; WCS = null; OQS = null
 }
 
 // ── Question ──────────────────────────────────────────────────
@@ -2230,6 +2413,7 @@ function showQuestion(skipIntro = false) {
   if (q.type === 'engage')      { startEngageManche(q.mancheConfig); return }
   if (q.type === 'engage-free') { startEngageFreeManche(q.mancheConfig); return }
   if (q.type === 'wordcloud')   { startWordcloudManche(q.mancheConfig); return }
+  if (q.type === 'open')        { startOpenQuestion(q); return }
   if (q.type === 'slider')      { showSliderQuestion(); return }
   if (q.type === 'slide')       { showSlide(q); return }
 
@@ -2300,7 +2484,7 @@ function showSlide(q) {
   const bg = $('slide-bg')
   if (bg) bg.style.backgroundImage = q.image ? `url("${q.image}")` : ''
   const kicker = $('slide-kicker')
-  if (kicker) { kicker.style.display = q.title ? 'inline-block' : 'none'; kicker.textContent = 'Intercalaire' }
+  if (kicker) { kicker.style.display = q.title ? 'inline-block' : 'none'; kicker.textContent = 'Mise en situation' }
   const titleEl = $('slide-title')
   if (titleEl) {
     titleEl.style.display = q.title ? 'block' : 'none'
@@ -2496,7 +2680,8 @@ function renderScoreboard() {
   const hasMore = GS.qIdx + 1 < GS.questions.length
   const nextQ   = GS.questions[GS.qIdx + 1]
   $('next-q-btn').style.display = hasMore ? 'inline-flex' : 'none'
-  $('next-q-btn').textContent   = (nextQ?.type === 'idea' || nextQ?.type === 'engage') ? 'Manche suivante →' : 'Question suivante →'
+  const mancheTypes = ['idea','engage','engage-free','wordcloud']
+  $('next-q-btn').textContent   = mancheTypes.includes(nextQ?.type) ? 'Manche suivante →' : 'Question suivante →'
   $('end-game-btn').textContent = hasMore ? '🏁 Terminer' : '🏁 Voir le classement final'
 }
 
@@ -2548,13 +2733,36 @@ async function endGame() {
     }
   } catch(e) { console.warn('DB log:', e) }
 
-  // Build quiz manche summaries for GAME_LOG
-  if (GS.questions?.length && GS.log.length) {
+  // Résumés des manches « quiz » pour le bilan live (GAME_LOG).
+  // Les manches participatives (idée / engagements / nuage) ont déjà poussé
+  // leur propre entrée au moment de leur révélation : on ne les ré-emballe pas
+  // ici, sinon elles ressortaient en double sous forme de sections vides.
+  if (GS.questions?.length) {
     const mancheMap = {}
     GS.questions.forEach(q => {
+      if (['idea','engage','engage-free','wordcloud'].includes(q.type)) return
       const sec = q.section || 'Quiz'
       if (!mancheMap[sec]) mancheMap[sec] = { mancheName: sec, questions: [] }
       const logEntry = GS.log.find(e => e.questionId === q.id)
+
+      // Mise en situation (intercalaire) : aucun tableau de réponses
+      if (q.type === 'slide') {
+        mancheMap[sec].questions.push({
+          id: q.id, type: 'slide', title: q.title || '', text: q.text || '',
+          image: q.image || '', answers: [], stats: { answered: 0, correct: 0 }
+        })
+        return
+      }
+      // Question ouverte : les réponses libres, pas de bonne réponse
+      if (q.type === 'open') {
+        const responses = logEntry?.responses || []
+        mancheMap[sec].questions.push({
+          id: q.id, type: 'open', text: q.text || '', responses,
+          answers: [], stats: { answered: responses.length, correct: 0 }
+        })
+        return
+      }
+
       const perOption = {}; let answered = 0, correct = 0, totalTime = 0, values = []
       ;(logEntry?.answers || []).forEach(a => {
         if (a.value === null || a.value === undefined) return
@@ -2566,7 +2774,16 @@ async function endGame() {
       })
       mancheMap[sec].questions.push({ id:q.id, type:q.type, text:q.text, options:q.options, correct:q.correct, unit:q.unit, stats:{ answered, correct, perOption, avgTimeMs: answered ? Math.round(totalTime/answered) : 0, values }, answers: logEntry?.answers || [] })
     })
-    Object.values(mancheMap).forEach(ms => GAME_LOG.push({ type:'quiz', mancheName:ms.mancheName, questions:ms.questions }))
+    Object.values(mancheMap).forEach(ms => {
+      if (ms.questions.length) GAME_LOG.push({ type:'quiz', mancheName:ms.mancheName, questions:ms.questions })
+    })
+
+    // Remet les manches dans l'ordre de jeu (les manches participatives ont été
+    // ajoutées au fil de la partie, les manches quiz seulement maintenant)
+    const order = []
+    GS.questions.forEach(q => { const s = q.section || 'Quiz'; if (!order.includes(s)) order.push(s) })
+    const rank = name => { const i = order.indexOf(name); return i === -1 ? 999 : i }
+    GAME_LOG.sort((a, b) => rank(a.mancheName) - rank(b.mancheName))
   }
 
   // UI
@@ -2583,7 +2800,8 @@ async function endGame() {
 }
 
 $('new-session-btn').addEventListener('click', async () => {
-  await cleanupChannel(); activeSession = null; GS = null
+  await cleanupChannel(); activeSession = null; GS = null; P4S = null; WCS = null; OQS = null
+  GAME_LOG = []
   await loadOpenSessions(); await loadHistory(); showScreen('screen-home')
 })
 
@@ -2618,11 +2836,33 @@ async function loadHistory() {
 
   const list = $('history-list')
   if (!data || data.length === 0) { list.innerHTML = '<p class="empty-msg" style="font-size:.88rem;">Aucune partie jouée.</p>'; return }
+
+  // Participants de chaque session (une seule requête pour toute la liste)
+  const namesBySession = {}
+  try {
+    const { data: players } = await sb.from('players')
+      .select('session_id, name').in('session_id', data.map(s => s.id))
+    ;(players || []).forEach(p => { (namesBySession[p.session_id] ||= []).push(p.name || '?') })
+  } catch (e) { console.warn('loadHistory players:', e) }
+
   list.innerHTML = ''
   data.forEach(s => {
     const date = new Date(s.created_at).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric' })
+    const quizTitle = QUIZ_LIST.find(q => q.id === s.settings?.quiz_id)?.title || null
+    const names = namesBySession[s.id] || []
+    const shown = names.slice(0, 5).map(escHtml).join(', ')
+    const more  = names.length > 5 ? ` +${names.length - 5}` : ''
+    const bits = []
+    if (quizTitle) bits.push(`🎲 ${escHtml(quizTitle)}`)
+    if (s.settings?.manager) bits.push(`👤 ${escHtml(s.settings.manager)}`)
+    bits.push(names.length ? `👥 ${names.length} : ${shown}${more}` : '👥 aucun participant')
+
     const row = document.createElement('div'); row.className = 'history-row'
-    row.innerHTML = `<span class="history-code">${s.code}</span><span class="history-date">${date}</span>`
+    row.innerHTML = `<span class="history-code">${s.code}</span>
+      <span class="history-date" style="display:flex;flex-direction:column;gap:2px;">
+        <span>${date}</span>
+        <span class="history-meta" style="font-size:.74rem;line-height:1.35;">${bits.join(' · ')}</span>
+      </span>`
     const btn = document.createElement('button'); btn.className = 'btn sm'; btn.textContent = '📊 Bilan'
     btn.addEventListener('click', () => openReport(s.id, s.code, date, s.settings))
     const delBtn = document.createElement('button'); delBtn.className = 'btn sm'; delBtn.textContent = '🗑️'
@@ -2638,6 +2878,18 @@ async function loadHistory() {
   })
 }
 
+// Charge la config d'un quiz (cache local d'abord, puis base)
+async function loadQuizConfigById(quizId) {
+  if (!quizId) return null
+  const cached = QUIZ_LIST.find(q => q.id === quizId)?.config
+  if (cached) return typeof cached === 'string' ? JSON.parse(cached) : cached
+  try {
+    const { data: qz } = await sb.from('quizzes').select('config').eq('id', quizId).single()
+    if (!qz?.config) return null
+    return typeof qz.config === 'string' ? JSON.parse(qz.config) : qz.config
+  } catch (e) { console.warn('loadQuizConfigById:', e); return null }
+}
+
 // ── Rapport depuis historique ──────────────────────────────────
 async function openReport(sessionId, code, date, settings) {
   showScreen('screen-report')
@@ -2650,12 +2902,11 @@ async function openReport(sessionId, code, date, settings) {
       sb.from('wordcloud_votes').select('round_key, word').eq('session_id', sessionId),
       sb.from('votes').select('*').eq('session_id', sessionId)
     ])
-    let config = QUIZ_CONFIG
-    const quizId = settings?.quiz_id
-    if (!config && quizId) {
-      const { data: qz } = await sb.from('quizzes').select('config').eq('id', quizId).single()
-      if (qz?.config) config = typeof qz.config === 'string' ? JSON.parse(qz.config) : qz.config
-    }
+    // Toujours repartir de la config du quiz RÉELLEMENT joué par cette session :
+    // se rabattre sur le quiz sélectionné à l'écran faisait disparaître des
+    // manches (engagements, idées…) du bilan quand ce n'était pas le même quiz.
+    let config = await loadQuizConfigById(settings?.quiz_id)
+    if (!config) config = QUIZ_CONFIG
     const scoreboard = (results ?? []).map(r => ({ name: r.player_name, score: r.final_score }))
     const mancheLog = buildMancheLogFromDB({ answers: answers??[], submissions: submissions??[], wordcloudVotes: wcVotes??[], votes: votes??[], config })
     $('report-body').innerHTML = buildBilanHtml({ code, date, scoreboard, mancheLog, logoHtml: LOGO_SVG })
@@ -2727,7 +2978,7 @@ function renderQuizPicker() {
     const date = new Date(quiz.created_at).toLocaleDateString('fr-FR', { day:'numeric', month:'short', year:'2-digit' })
     // Chips = types de manches distincts
     const types = [...new Set(manches.map(m => m.type || 'quiz'))]
-    const typeLabels = { quiz:'Quiz', wordcloud:'Nuage', idea:'Idée', engage:'Engag.' }
+    const typeLabels = { quiz:'Quiz', wordcloud:'Nuage', idea:'Idée', engage:'Engag.', 'engage-free':'Engag. libre' }
     const chips = types.map(t => `<span class="qt-mchip">${typeLabels[t] || t}</span>`).join('')
 
     const div = document.createElement('div')
@@ -2763,7 +3014,7 @@ function buildQuizFromConfig(selectedManches = null) {
       result.push({ id: m.id, _id: m.id, type: mtype, section: m.name, mancheConfig: m, ...themeMeta })
     } else {
       ;(m.questions || []).forEach(q => {
-        if (q.type === 'choice' || q.type === 'truefalse' || q.type === 'slider' || q.type === 'slide')
+        if (PLAYABLE_Q_TYPES.has(q.type))
           result.push({ ...q, id: q.id || q._id, section: m.name, ...themeMeta })
       })
     }
@@ -2780,8 +3031,14 @@ function renderMancheCheckboxes() {
     let badge
     if (mtype === 'idea') badge = '💡 Idée en Or'
     else if (mtype === 'engage') badge = '🤝 Engagements'
+    else if (mtype === 'engage-free') badge = '✍️ Engagement libre'
     else if (mtype === 'wordcloud') badge = '☁️ Nuage de mots'
-    else badge = ((m.questions||[]).filter(q => ['choice','truefalse','slider'].includes(q.type)).length) + ' Q'
+    else {
+      const qs = m.questions || []
+      const scored = qs.filter(q => ['choice','truefalse','slider'].includes(q.type)).length
+      const open   = qs.filter(q => q.type === 'open').length
+      badge = `${scored} Q` + (open ? ` · ${open} 💬` : '')
+    }
     const label = document.createElement('label'); label.className = 'manche-check-row'
     label.innerHTML = `<input type="checkbox" class="manche-cb" data-id="${m.id}" checked><span class="manche-name">${m.name}</span><span class="manche-qcount">${badge}</span>`
     wrap.appendChild(label)
@@ -3295,6 +3552,126 @@ function animateSliderReveal(q, answers, correct) {
 }
 
 $('slider-continue-btn').addEventListener('click', () => { GS.qIdx++; showQuestion() })
+
+// ── Question ouverte ──────────────────────────────────────────
+// Une question est posée, les participants répondent en texte libre depuis
+// leur mobile, puis toutes les réponses s'affichent à l'écran.
+// Aucun point n'est attribué, aucun vote n'est organisé.
+let OQS = null   // { question, submissions: Map<tempId,{name,email,text}>, revealed }
+
+function startOpenQuestion(q) {
+  // Mode offline : projection simple sur l'écran intercalaire
+  if (OFFLINE_MODE) { showOfflineOpenQuestion(q); return }
+
+  OQS = { question: q, submissions: new Map(), revealed: false, results: null }
+  $('open-manche-name').textContent   = q.section || 'Question ouverte'
+  $('open-question-text').textContent = q.text || 'Question ouverte'
+  const introEl = $('open-intro')
+  if (introEl) {
+    if (q.intro) { introEl.textContent = q.intro; introEl.style.display = 'block' }
+    else introEl.style.display = 'none'
+  }
+  $('open-submitted-count').textContent = '0'
+  $('open-total-players').textContent   = GS.players.size
+  if (activeChannel) {
+    activeChannel.send({ type:'broadcast', event:'round:open:prompt', payload:{
+      questionId: q.id, text: q.text || '', intro: q.intro || '',
+      placeholder: q.placeholder || '', maxLength: q.maxLength || 300
+    }})
+  }
+  showScreen('screen-open-prompt')
+}
+
+function receiveOpenSubmit(payload) {
+  if (!OQS || OQS.revealed) return
+  if (payload.questionId && payload.questionId !== OQS.question.id) return
+  if (OQS.submissions.has(payload.tempId)) return
+  const max = OQS.question.maxLength || 300
+  const text = String(payload.text || '').slice(0, max).trim(); if (!text) return
+  OQS.submissions.set(payload.tempId, {
+    text, name: payload.name || '?', email: payload.email || null
+  })
+  $('open-submitted-count').textContent = OQS.submissions.size
+  if (activeChannel) activeChannel.send({ type:'broadcast', event:'host:submitted', payload:{ n: OQS.submissions.size, total: GS.players.size }})
+}
+
+$('open-reveal-btn').addEventListener('click', showOpenReveal)
+
+function showOpenReveal() {
+  if (!OQS) return
+  if (!OFFLINE_MODE && GS.players.size > 0 && OQS.submissions.size < GS.players.size && !OQS.revealed) {
+    const missing = GS.players.size - OQS.submissions.size
+    const ok = confirm(`${missing} participant${missing>1?'s':''} n'${missing>1?'ont':'a'} pas encore répondu.\nAfficher les réponses maintenant ?`)
+    if (!ok) return
+  }
+  OQS.revealed = true
+  const results = []
+  OQS.submissions.forEach((sub, authorId) => {
+    results.push({ authorId, name: sub.name, text: sub.text, email: sub.email || null })
+  })
+  OQS.results = results
+
+  $('open-reveal-question').textContent = OQS.question.text || 'Question ouverte'
+  const listEl = $('open-reveal-list'); listEl.innerHTML = ''
+  if (!results.length) {
+    listEl.innerHTML = '<div class="empty-msg" style="text-align:center;padding:20px;">Aucune réponse reçue.</div>'
+  } else {
+    results.forEach((r, i) => {
+      const color = colorFor(r.name)
+      const row = document.createElement('div')
+      row.className = 'engage-rev-item'
+      row.style.animationDelay = (i * 0.06) + 's'
+      row.innerHTML = `
+        <div class="engage-rev-avatar" style="background:${color};">${initial(r.name)}</div>
+        <div class="engage-rev-content">
+          <div class="engage-rev-name">${escHtml(r.name)}</div>
+          <div class="engage-rev-text">« ${escHtml(r.text)} »</div>
+        </div>`
+      listEl.appendChild(row)
+    })
+  }
+
+  if (activeChannel) activeChannel.send({ type:'broadcast', event:'round:open:reveal', payload:{
+    questionId: OQS.question.id, text: OQS.question.text || '',
+    items: results.map(r => ({ name: r.name, text: r.text }))
+  }})
+
+  // Journalisation en mémoire (bilan live) + en base (bilan / exports différés)
+  GS.log.push({ questionId: OQS.question.id, type: 'open', answers: [], responses: results.map(r => ({ name: r.name, text: r.text })) })
+  logOpenQuestion()
+  showScreen('screen-open-reveal')
+}
+
+async function logOpenQuestion() {
+  if (!activeSession || !OQS?.results?.length) return
+  try {
+    const sessionManager = activeSession?.settings?.manager || null
+    await sb.from('submissions').insert(OQS.results.map(r => ({
+      session_id: activeSession.id, round_key: OQS.question.id,
+      kind: 'open', author_tempid: r.authorId, author_name: r.name,
+      author_email: r.email || null, author_manager: sessionManager,
+      text: r.text, category: null, points: 0
+    })))
+  } catch(e) { console.warn('logOpen:', e) }
+}
+
+$('open-continue-btn').addEventListener('click', () => { GS.qIdx++; showQuestion() })
+
+// Mode offline : la question ouverte est projetée (les participants répondent
+// sur le formulaire papier), sans collecte ni réponses à l'écran.
+function showOfflineOpenQuestion(q) {
+  showScreen('screen-slide')
+  const bg = $('slide-bg');  if (bg) bg.style.backgroundImage = q.image ? `url("${q.image}")` : ''
+  const kicker = $('slide-kicker'), titleEl = $('slide-title'), textEl = $('slide-text')
+  if (kicker)  { kicker.style.display = 'inline-block'; kicker.textContent = '💬 Question ouverte' }
+  if (titleEl) { titleEl.style.display = 'block'; titleEl.textContent = q.text || '' }
+  if (textEl)  {
+    textEl.textContent = q.intro || 'Notez votre réponse sur votre formulaire.'
+    textEl.style.display = 'block'
+  }
+  const nextBtn = $('slide-next-btn'); if (nextBtn) nextBtn.textContent = 'Suivant →'
+  slideNextAction = () => { slideNextAction = null; GS.qIdx++; showQuestion() }
+}
 
 // ── Wordcloud manche ──────────────────────────────────────────
 function startWordcloudManche(m) {

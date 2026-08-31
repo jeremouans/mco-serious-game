@@ -402,7 +402,7 @@
       </div>
       <div class="nav-card" id="nav-exports">
         <span class="nav-icon">📥</span>
-        <div><div class="nav-lbl">Exports</div><div class="nav-desc">CSV idées, engagements, engagements libres</div></div>
+        <div><div class="nav-lbl">Exports</div><div class="nav-desc">CSV idées, engagements, engagements libres, questions ouvertes</div></div>
       </div>
       <div class="nav-card" id="nav-whitelist">
         <span class="nav-icon">🔐</span>
@@ -536,6 +536,7 @@
         <button class="btn" id="export-ideas-btn" style="justify-content:flex-start;">💡 Idées en Or — CSV</button>
         <button class="btn" id="export-engage-btn" style="justify-content:flex-start;">🤝 Engagements (avec catégorie + slots) — CSV</button>
         <button class="btn" id="export-engage-free-btn" style="justify-content:flex-start;">✍️ Engagements libres — CSV</button>
+        <button class="btn" id="export-open-btn" style="justify-content:flex-start;">💬 Questions ouvertes — CSV</button>
       </div>
       <div id="export-status" style="margin-top:10px;font-size:.85rem;color:rgba(243,238,218,.7);"></div>
     </div>
@@ -576,7 +577,7 @@ const ADMIN_EMAIL = 'admin@mgen.fr'
 const ADMIN_CODE  = 'mcomgenadmin'
 
 const MANCHE_TYPES = [
-  { type:'quiz',        icon:'🎯', name:'Questions Quiz',    desc:'Choix multiples, vrai/faux ou slider — auto-scoré' },
+  { type:'quiz',        icon:'🎯', name:'Questions Quiz',    desc:'Choix, vrai/faux, slider (scorés) + questions ouvertes & mises en situation' },
   { type:'wordcloud',   icon:'🌥️', name:'Nuage de mots',     desc:'Vote sur des mots-clés, nuage en direct' },
   { type:'idea',        icon:'💡', name:'L\'idée en Or',     desc:'Chacun propose, le groupe vote pour la meilleure' },
   { type:'engage',      icon:'🤝', name:'Mes Engagements',   desc:'Catégorie + mad-libs à trous (3 slots)' },
@@ -668,8 +669,13 @@ spawnStars()
 // ─── Auth ─────────────────────────────────────────────────────
 sb.auth.onAuthStateChange(async (event, session) => {
   if ((event === 'SIGNED_IN' || event === 'INITIAL_SESSION') && session) {
+    // Supabase ré-émet SIGNED_IN à chaque rafraîchissement de token / retour
+    // d'onglet. Ré-initialiser l'app à ce moment-là ramenait l'utilisateur à
+    // l'accueil et faisait perdre le travail en cours dans l'éditeur de quiz.
+    if (currentAdmin && currentAdmin.id === session.user.id) return
     await handleAuth(session)
   } else if (event === 'SIGNED_OUT') {
+    currentAdmin = null
     showScreen('screen-login')
   }
 })
@@ -736,15 +742,55 @@ $('code-btn').addEventListener('click', async () => {
 
 $('logout-btn').addEventListener('click', () => sb.auth.signOut())
 
+// ─── Enrichissement des sessions (quiz utilisé + participants) ──────────
+// Utilisé par l'accueil ET l'historique : chaque session porte le titre du
+// quiz joué et la liste nominative des participants.
+function enrichSessions(sessions, players, quizzes) {
+  const quizById = Object.fromEntries((quizzes || []).map(q => [q.id, q.title || 'Sans titre']))
+  const namesBySession = {}
+  ;(players || []).forEach(p => {
+    const n = (p.first_name && p.last_name ? `${p.first_name} ${p.last_name}` : p.name) || '?'
+    ;(namesBySession[p.session_id] ||= []).push(n)
+  })
+  return (sessions || []).map(s => {
+    const names = namesBySession[s.id] || []
+    return {
+      ...s,
+      playerCount: names.length,
+      playerNames: names,
+      quizTitle: quizById[s.settings?.quiz_id] || null,
+      manager: s.settings?.manager || null
+    }
+  })
+}
+
+// Ligne secondaire « quiz utilisé · participants » (accueil + historique)
+function sessionSubLine(s, maxNames = 6) {
+  const bits = []
+  if (s.quizTitle) bits.push(`🎲 ${escHtml(s.quizTitle)}`)
+  if (s.manager)   bits.push(`👤 ${escHtml(s.manager)}`)
+  if (s.playerCount) {
+    const shown = s.playerNames.slice(0, maxNames).map(escHtml).join(', ')
+    const more = s.playerCount > maxNames ? ` +${s.playerCount - maxNames}` : ''
+    bits.push(`👥 ${s.playerCount} : ${shown}${more}`)
+  } else {
+    bits.push('👥 aucun participant enregistré')
+  }
+  return `<div style="font-size:.72rem;color:rgba(243,238,218,.45);margin-top:3px;line-height:1.35;">${bits.join(' · ')}</div>`
+}
+
 // ─── Home ─────────────────────────────────────────────────────
 async function loadHome() {
-  const [sessRes, quizRes, playRes] = await Promise.all([
+  const [sessRes, quizRes, playRes, profRes] = await Promise.all([
     sb.from('sessions').select('*').order('created_at', { ascending: false }),
     sb.from('quizzes').select('id,title,created_at').order('created_at', { ascending: false }),
-    sb.from('players').select('id')
+    sb.from('players').select('id,session_id,name,first_name,last_name'),
+    sb.from('host_profiles').select('*')
   ])
   quizList = quizRes.data || []
-  historyAll = sessRes.data || []
+  // Nécessaire pour afficher l'animateur dans un bilan ouvert depuis l'accueil
+  histProfiles = Object.fromEntries((profRes.data || []).map(p => [p.user_id, p]))
+  historyAll = enrichSessions(sessRes.data || [], playRes.data || [], quizList)
 
   if ($('stat-sessions')) $('stat-sessions').textContent = historyAll.length
   if ($('stat-players')) $('stat-players').textContent = (playRes.data||[]).length
@@ -754,9 +800,12 @@ async function loadHome() {
   $('home-recent-sessions').innerHTML = recent.length === 0
     ? '<div style="color:rgba(243,238,218,.4);font-size:.9rem;">Aucune session pour l\'instant.</div>'
     : recent.map(s => `
-      <div class="wl-row" style="cursor:pointer;" onclick="openSessionReport('${s.id}')">
+      <div class="wl-row" style="cursor:pointer;align-items:flex-start;" onclick="openSessionReport('${s.id}')">
         <span style="font-size:1rem;">📋</span>
-        <span class="wl-email"><strong>${escHtml(s.code)}</strong> · ${fmtDate(s.created_at)}</span>
+        <span class="wl-email">
+          <strong>${escHtml(s.code)}</strong> · ${fmtDate(s.created_at)}
+          ${sessionSubLine(s)}
+        </span>
         <span class="badge badge-${s.status}">${s.status}</span>
       </div>`).join('')
 }
@@ -799,7 +848,7 @@ function setExportStatus(msg, isError = false) {
 
 async function fetchSubmissionsInRange(kind, from, to) {
   let q = sb.from('submissions')
-    .select('id, session_id, kind, author_name, author_email, author_manager, text, category, points, is_gold, created_at, sessions(code, created_at)')
+    .select('id, session_id, round_key, kind, author_name, author_email, author_manager, text, category, points, is_gold, created_at, sessions(code, created_at)')
     .eq('kind', kind)
     .order('created_at', { ascending: true })
   if (from) q = q.gte('created_at', from)
@@ -885,22 +934,64 @@ $('export-engage-free-btn').addEventListener('click', async () => {
   } catch (e) { console.warn(e); setExportStatus('❌ Erreur : ' + e.message, true) }
 })
 
+// Retrouve le libellé des questions ouvertes (round_key = id de la question)
+// en relisant la config du quiz joué par chaque session.
+async function buildOpenQuestionTextMap(sessionIds) {
+  const ids = [...new Set(sessionIds.filter(Boolean))]
+  if (!ids.length) return {}
+  const { data: sess } = await sb.from('sessions').select('id,settings').in('id', ids)
+  const quizIds = [...new Set((sess || []).map(s => s.settings?.quiz_id).filter(Boolean))]
+  if (!quizIds.length) return {}
+  const { data: quizzes } = await sb.from('quizzes').select('id,config').in('id', quizIds)
+  const map = {}
+  ;(quizzes || []).forEach(qz => {
+    let cfg = qz.config
+    try { if (typeof cfg === 'string') cfg = JSON.parse(cfg) } catch (_) { cfg = null }
+    ;(cfg?.manches || []).forEach(m => (m.questions || []).forEach(q => {
+      const qid = q.id || q._id
+      if (q.type === 'open' && qid) map[qid] = q.text || ''
+    }))
+  })
+  return map
+}
+
+$('export-open-btn').addEventListener('click', async () => {
+  try {
+    setExportStatus('⏳ Récupération des réponses ouvertes…')
+    const { from, to } = exportDateRange()
+    const subs = await fetchSubmissionsInRange('open', from, to)
+    if (!subs.length) { setExportStatus('Aucune réponse ouverte sur la période.', true); return }
+    const qTexts = await buildOpenQuestionTextMap(subs.map(s => s.session_id))
+    const rows = subs.map(s => [
+      s.sessions?.code || '',
+      (s.created_at || '').slice(0, 10),
+      s.author_name || '',
+      s.author_email || '',
+      s.author_manager || '',
+      qTexts[s.round_key] || s.round_key || '',
+      s.text || ''
+    ])
+    downloadCSV('questions-ouvertes.csv',
+      ['Session', 'Date', 'Nom', 'Email', 'Manager', 'Question', 'Réponse'],
+      rows)
+    setExportStatus(`✅ ${subs.length} réponse(s) exportée(s).`)
+  } catch (e) { console.warn(e); setExportStatus('❌ Erreur : ' + e.message, true) }
+})
+
 // ─── History ──────────────────────────────────────────────────
 async function loadHistory() {
   $('history-tbody').innerHTML = '<tr><td colspan="6" style="text-align:center;padding:20px;color:rgba(243,238,218,.4);">Chargement…</td></tr>'
 
-  const [sessRes, profRes, playRes] = await Promise.all([
+  const [sessRes, profRes, playRes, quizRes] = await Promise.all([
     sb.from('sessions').select('*').order('created_at', { ascending: false }),
     sb.from('host_profiles').select('*'),
-    sb.from('players').select('session_id')
+    sb.from('players').select('session_id,name,first_name,last_name'),
+    sb.from('quizzes').select('id,title')
   ])
-  historyAll = sessRes.data || []
   histProfiles = Object.fromEntries((profRes.data||[]).map(p => [p.user_id, p]))
 
-  const countMap = {}
-  for (const p of (playRes.data||[])) { countMap[p.session_id] = (countMap[p.session_id]||0)+1 }
-
-  historyAll = historyAll.map(s => ({ ...s, playerCount: countMap[s.id]||0, hostProfile: histProfiles[s.host_id]||null }))
+  historyAll = enrichSessions(sessRes.data || [], playRes.data || [], quizRes.data || [])
+    .map(s => ({ ...s, hostProfile: histProfiles[s.host_id] || null }))
   renderHistory()
 }
 
@@ -909,7 +1000,11 @@ function renderHistory() {
   const filtered = historyAll.filter(s => {
     if (!q) return true
     const name = s.hostProfile ? `${s.hostProfile.first_name} ${s.hostProfile.last_name}`.toLowerCase() : ''
-    return (s.code||'').toLowerCase().includes(q) || name.includes(q)
+    const haystack = [
+      s.code || '', name, s.quizTitle || '', s.manager || '',
+      ...(s.playerNames || [])
+    ].join(' ').toLowerCase()
+    return haystack.includes(q)
   })
   if (filtered.length === 0) {
     $('history-tbody').innerHTML = '<tr><td colspan="6" style="text-align:center;padding:20px;color:rgba(243,238,218,.4);">Aucun résultat.</td></tr>'
@@ -920,7 +1015,7 @@ function renderHistory() {
     const dur = s.ended_at && s.started_at ? fmtDur(s.started_at, s.ended_at) : '—'
     return `<tr onclick="openSessionReport('${s.id}')">
       <td>${fmtDate(s.created_at)}</td>
-      <td><strong>${escHtml(s.code)}</strong></td>
+      <td><strong>${escHtml(s.code)}</strong>${sessionSubLine(s, 4)}</td>
       <td>${escHtml(hostName)}</td>
       <td>${s.playerCount}</td>
       <td><span class="badge badge-${s.status}">${s.status}</span></td>
@@ -1045,6 +1140,23 @@ $('wl-add-btn').addEventListener('click', async () => {
 })
 
 // ─── Quiz Editor ──────────────────────────────────────────────
+// Suivi des modifications non enregistrées : évite de perdre sa progression
+// en quittant l'éditeur, en changeant de config ou en fermant l'onglet.
+let editorDirty = false
+function markEditorDirty() { editorDirty = true }
+function clearEditorDirty() { editorDirty = false }
+function confirmLeaveEditor() {
+  if (!editorDirty) return true
+  return confirm('Des modifications ne sont pas enregistrées.\nQuitter quand même ? (elles seront perdues)')
+}
+window.addEventListener('beforeunload', e => {
+  if (!editorDirty) return
+  e.preventDefault(); e.returnValue = ''
+})
+// Toute saisie dans l'éditeur marque la config comme modifiée
+$('screen-quiz-editor').addEventListener('input', markEditorDirty)
+$('screen-quiz-editor').addEventListener('change', markEditorDirty)
+
 function openQuizEditor(quizId = null) {
   // Load quiz list in sidebar
   renderQuizSelectList()
@@ -1068,7 +1180,11 @@ function renderQuizSelectList() {
       </div>
     </div>`).join('') || '<div style="color:rgba(243,238,218,.35);font-size:.8rem;padding:6px;">Aucun quiz</div>'
 }
-window.switchQuiz = id => loadQuizById(id)
+window.switchQuiz = id => {
+  if (id === currentQuiz?.id) return
+  if (!confirmLeaveEditor()) return
+  loadQuizById(id)
+}
 
 async function loadQuizById(id) {
   const { data } = await sb.from('quizzes').select('*').eq('id', id).single()
@@ -1077,6 +1193,7 @@ async function loadQuizById(id) {
   if (!currentQuiz.config.manches) currentQuiz.config.manches = []
   selectedMancheIdx = currentQuiz.config.manches.length > 0 ? 0 : -1
   renderEditorUI()
+  clearEditorDirty()
 }
 
 function renderEditorUI() {
@@ -1136,6 +1253,7 @@ window.deleteManche = idx => {
 $('add-manche-btn').addEventListener('click', () => {
   // Add a default quiz manche
   if (!currentQuiz) return
+  markEditorDirty()
   currentQuiz.config.manches.push({ id: uid(), type:'quiz', name:'Nouvelle manche', theme:'yellow', picto:'', questions:[] })
   selectedMancheIdx = currentQuiz.config.manches.length - 1
   renderMancheList(); renderMancheEditor()
@@ -1175,7 +1293,8 @@ function buildMancheEditorHTML(m, mi) {
             <button class="btn ghost sm" onclick="addQuestion(${mi},'choice')">＋ Choix</button>
             <button class="btn ghost sm" onclick="addQuestion(${mi},'truefalse')">＋ Vrai/Faux</button>
             <button class="btn ghost sm" onclick="addQuestion(${mi},'slider')">＋ Slider</button>
-            <button class="btn ghost sm" onclick="addQuestion(${mi},'slide')" title="Écran d'introduction ou de conclusion — pas de question">🖼️ ＋ Intercalaire</button>
+            <button class="btn ghost sm" onclick="addQuestion(${mi},'open')" title="Question posée aux participants — réponse en texte libre, sans points ni vote">💬 ＋ Question ouverte</button>
+            <button class="btn ghost sm" onclick="addQuestion(${mi},'slide')" title="Écran d'introduction ou de conclusion — pas de question">🎬 ＋ Mise en situation</button>
           </div>
         </div>
         ${qs.map((q, qi) => buildQRowHTML(q, mi, qi)).join('')}
@@ -1331,9 +1450,10 @@ function buildMancheEditorHTML(m, mi) {
 }
 
 function buildQRowHTML(q, mi, qi) {
-  const typeLbl = { choice:'Choix', truefalse:'Vrai/Faux', slider:'Slider', slide:'🖼️ Intercalaire' }[q.type] || q.type
+  const typeLbl = { choice:'Choix', truefalse:'Vrai/Faux', slider:'Slider', open:'💬 Question ouverte', slide:'🎬 Mise en situation' }[q.type] || q.type
   const previewSrc = q.type === 'slide' ? (q.title || q.text) : q.text
-  const preview = previewSrc ? previewSrc.slice(0,60)+(previewSrc.length>60?'…':'') : (q.type === 'slide' ? '(intercalaire vide)' : '(question vide)')
+  const emptyLbl = q.type === 'slide' ? '(mise en situation vide)' : '(question vide)'
+  const preview = previewSrc ? previewSrc.slice(0,60)+(previewSrc.length>60?'…':'') : emptyLbl
   return `
     <div class="q-row open" id="qrow-${mi}-${qi}">
       <div class="q-row-head" onclick="toggleQ(${mi},${qi})">
@@ -1352,14 +1472,41 @@ function buildQRowHTML(q, mi, qi) {
 
 function buildQEditorHTML(q, mi, qi) {
   const pid = `q-${mi}-${qi}`
+  if (q.type === 'open') {
+    return `
+      <div style="background:rgba(217,165,90,.10);border:1px solid rgba(217,165,90,.3);border-radius:10px;padding:10px 12px;margin-bottom:12px;font-size:.82rem;color:rgba(243,238,218,.75);">
+        💬 <strong>Question ouverte</strong> — les participants répondent en texte libre depuis leur mobile,
+        puis toutes les réponses s'affichent à l'écran. <strong>Aucun point, aucun vote.</strong>
+        Les réponses sont enregistrées (bilan, historique, exports CSV).
+      </div>
+      <div class="field-group">
+        <label class="field-lbl">Question posée</label>
+        <textarea class="field-input" rows="2" style="resize:vertical;" placeholder="Ex : Selon vous, qu'est-ce qui freine l'engagement au quotidien ?" oninput="updateQField(${mi},${qi},'text',this.value)">${escHtml(q.text||'')}</textarea>
+      </div>
+      <div class="field-group">
+        <label class="field-lbl">Consigne / précision (optionnel)</label>
+        <input class="field-input" value="${escHtml(q.intro||'')}" placeholder="Ex : En une phrase, sans réfléchir trop longtemps." oninput="updateQField(${mi},${qi},'intro',this.value)">
+      </div>
+      <div class="field-row">
+        <div class="field-group">
+          <label class="field-lbl">Texte d'aide dans le champ (placeholder)</label>
+          <input class="field-input" value="${escHtml(q.placeholder||'')}" placeholder="Écrivez votre réponse…" oninput="updateQField(${mi},${qi},'placeholder',this.value)">
+        </div>
+        <div class="field-group" style="max-width:140px;">
+          <label class="field-lbl">Longueur max.</label>
+          <input class="field-input" type="number" min="40" max="1000" value="${q.maxLength||300}" oninput="updateQField(${mi},${qi},'maxLength',+this.value)">
+        </div>
+      </div>
+      ${buildImageField(q, mi, qi)}`
+  }
   if (q.type === 'slide') {
     return `
       <div style="background:rgba(134,191,235,.08);border:1px solid rgba(134,191,235,.25);border-radius:10px;padding:10px 12px;margin-bottom:12px;font-size:.82rem;color:rgba(243,238,218,.7);">
-        🖼️ <strong>Intercalaire</strong> — écran d'introduction ou de conclusion. Aucune action attendue des joueurs.
+        🎬 <strong>Mise en situation</strong> — écran d'introduction ou de conclusion. Aucune action attendue des joueurs.
       </div>
       <div class="field-group">
         <label class="field-lbl">Titre (optionnel)</label>
-        <input class="field-input" value="${escHtml(q.title||'')}" placeholder="ex : Mise en situation" oninput="updateQField(${mi},${qi},'title',this.value)">
+        <input class="field-input" value="${escHtml(q.title||'')}" placeholder="ex : Le contexte" oninput="updateQField(${mi},${qi},'title',this.value)">
       </div>
       <div class="field-group">
         <label class="field-lbl">Texte d'explication</label>
@@ -1523,6 +1670,7 @@ window.addQuestion = (mi, type) => {
     choice: { type:'choice', text:'', options:['','','',''], correct:0, points:1000, timer:false, timerDuration:60, speedBonus:false, image:'', explain:'' },
     truefalse: { type:'truefalse', text:'', options:['Vrai','Faux'], correct:0, points:800, timer:false, timerDuration:60, speedBonus:false, image:'', explain:'' },
     slider: { type:'slider', text:'', correct:0, unit:'', min:0, max:1000, points:1000, timer:false, timerDuration:60, explain:'' },
+    open:   { type:'open',   text:'', intro:'', placeholder:'', maxLength:300, image:'' },
     slide:  { type:'slide',  title:'', text:'', image:'' }
   }
   m.questions.push({ id: uid(), ...defaults[type] })
@@ -1641,6 +1789,7 @@ async function saveCurrentQuiz() {
     showErr('editor-save-err', 'Erreur sauvegarde : ' + (result.error.message || result.error.code || 'inconnue'))
   } else {
     $('editor-save-btn').textContent = '✅ Enregistré'
+    clearEditorDirty()
   }
   setTimeout(() => { $('editor-save-btn').textContent = '💾 Enregistrer'; $('editor-save-btn').disabled = false }, 2200)
   // Refresh quiz list
@@ -1650,9 +1799,11 @@ async function saveCurrentQuiz() {
 }
 
 $('editor-new-btn').addEventListener('click', () => {
+  if (!confirmLeaveEditor()) return
   currentQuiz = { id:null, title:'Nouveau quiz', config:{ manches:[] } }
   selectedMancheIdx = -1
   renderEditorUI()
+  clearEditorDirty()
 })
 
 $('editor-delete-btn').addEventListener('click', async () => {
@@ -1675,12 +1826,31 @@ $('editor-export-btn').addEventListener('click', () => {
   a.click()
 })
 
-$('editor-back-btn').addEventListener('click', () => showScreen('screen-home'))
+$('editor-back-btn').addEventListener('click', () => {
+  if (!confirmLeaveEditor()) return
+  clearEditorDirty()
+  showScreen('screen-home')
+})
 
 $('new-quiz-btn').addEventListener('click', () => {
+  if (!confirmLeaveEditor()) return
   currentQuiz = { id:null, title:'Nouveau quiz', config:{ manches:[] } }
   selectedMancheIdx = -1
   renderEditorUI()
+  clearEditorDirty()
+})
+
+// Les actions structurelles (ajout/suppression/déplacement, thème, picto…)
+// modifient la config sans déclencher d'événement `input` : on les marque ici.
+;[
+  'moveMancheUp','moveMancheDown','deleteManche','setMancheTheme','setManchePicto','setMancheType',
+  'addQuestion','deleteQ','moveQUp','moveQDown','updateQField','updateQOption',
+  'addWord','removeWord','resetWords','updateCat','addCat','removeCat',
+  'addSlotOpt','updateSlotOpt','removeSlotOpt'
+].forEach(fnName => {
+  const orig = window[fnName]
+  if (typeof orig !== 'function') return
+  window[fnName] = (...args) => { markEditorDirty(); return orig(...args) }
 })
 </script>
 </body>
