@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "cd src && python3 -m http.server 3000"
+    "dev": "cd src && python3 -m http.server 3000",
+    "vendor": "npm i --no-save @supabase/supabase-js@2 qrcode@1.5.3 esbuild@0.21.5 && echo \"export * from '@supabase/supabase-js'\" > .entry-supabase.js && echo \"export { default } from 'qrcode'\" > .entry-qrcode.js && npx esbuild .entry-supabase.js --bundle --format=esm --target=es2020 --platform=browser --minify --legal-comments=none --outfile=src/lib/vendor/supabase.esm.js && npx esbuild .entry-qrcode.js --bundle --format=esm --target=es2020 --platform=browser --minify --legal-comments=none --outfile=src/lib/vendor/qrcode.esm.js && rm -f .entry-supabase.js .entry-qrcode.js"
   }
 }
