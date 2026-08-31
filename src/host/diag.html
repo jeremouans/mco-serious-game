@@ -40,6 +40,9 @@
 <h2>Exécution des modules ES</h2>
 <table id="t-mod"></table>
 
+<h2>Test réel de la page /host/</h2>
+<table id="t-host"></table>
+
 <button onclick="location.reload()">↻ Relancer les tests</button>
 <h2>À copier-coller</h2>
 <pre id="summary">…</pre>
@@ -48,6 +51,7 @@
 /* Volontairement en ES5 : doit tourner même sur un navigateur très ancien. */
 (function () {
   var results = [];
+  var HOSTS = [];
   function row(tableId, label, value, cls, extra) {
     var t = document.getElementById(tableId);
     var tr = t.insertRow(-1);
@@ -138,13 +142,73 @@
         window.__MOD_INLINE__ ? 'ok' : 'ko');
     row('t-mod', 'import() du bundle Supabase', String(window.__MOD_IMPORT__),
         String(window.__MOD_IMPORT__).indexOf('OK') === 0 ? 'ok' : 'ko');
-    verdict();
   }, 9000);
 
-  /* ── 4. Verdict lisible ── */
+  /* ── 4. La vraie page /host/ démarre-t-elle dans CE navigateur ? ── */
+  /* Quelle version du HTML le serveur renvoie-t-il réellement ? */
+  var xh = new XMLHttpRequest();
+  xh.open('GET', '/host/?cb=' + new Date().getTime(), true);
+  xh.onload = function () {
+    var html = xh.responseText || '';
+    var aJour  = html.indexOf('boot-error-detail') > -1;
+    var vieuxOp = html.indexOf('||=') > -1;
+    var cdn     = html.indexOf('esm.sh/') > -1;
+    row('t-host', 'HTML servi : version à jour', aJour ? 'OUI' : 'NON — version ancienne', aJour ? 'ok' : 'ko');
+    row('t-host', 'HTML servi : contient  ||=', vieuxOp ? 'OUI — ancienne version !' : 'non', vieuxOp ? 'ko' : 'ok');
+    row('t-host', 'HTML servi : appelle esm.sh', cdn ? 'OUI — ancienne version !' : 'non', cdn ? 'ko' : 'ok');
+    row('t-host', 'HTML servi : taille', html.length + ' octets', '');
+  };
+  xh.onerror = function () { row('t-host', 'Récupération du HTML /host/', 'ÉCHEC', 'ko'); };
+  xh.send(null);
+
+  /* Charge réellement /host/ dans une iframe et observe son état interne */
+  function testHost(label, url) {
+    var tr = row('t-host', label, '⏳ chargement…', 'wait');
+    var f = document.createElement('iframe');
+    f.style.cssText = 'position:absolute;left:-9999px;width:1024px;height:768px;';
+    f.src = url;
+    document.body.appendChild(f);
+    setTimeout(function () {
+      var booted = '?', ecran = '?', detail = '';
+      try {
+        booted = String(f.contentWindow.__APP_BOOTED__);
+        var el = f.contentDocument.querySelector('.screen.active');
+        ecran = el ? el.id : 'aucun';
+        var d = f.contentDocument.getElementById('boot-error-detail');
+        if (d && d.textContent) detail = d.textContent.replace(/\s+/g, ' ').slice(0, 200);
+      } catch (e) { booted = 'inaccessible (' + e.message + ')'; }
+      var ok = (booted === 'true' && ecran === 'screen-home');
+      HOSTS.push({ label: label, ok: ok, booted: booted, ecran: ecran });
+      tr.cells[1].className = 'v ' + (ok ? 'ok' : 'ko');
+      tr.cells[1].textContent = 'démarré=' + booted + ' · écran=' + ecran + (detail ? ' · ' + detail : '');
+      results.push(label + ' : démarré=' + booted + ', écran=' + ecran + (detail ? ', ' + detail : ''));
+      verdict();
+    }, 8000);
+  }
+  testHost('/host/ tel quel (cache éventuel)', '/host/');
+  testHost('/host/ sans cache', '/host/?nocache=' + new Date().getTime());
+
+  /* ── 5. Verdict lisible ── */
   function verdict() {
     var v = document.getElementById('verdict');
     var txt;
+    if (HOSTS.length === 2) {
+      var avec = HOSTS[0].ok ? HOSTS[0] : (HOSTS[1].label.indexOf('tel quel') > -1 ? HOSTS[1] : HOSTS[0]);
+      var sans = HOSTS[0].label.indexOf('sans cache') > -1 ? HOSTS[0] : HOSTS[1];
+      var cache = HOSTS[0].label.indexOf('tel quel') > -1 ? HOSTS[0] : HOSTS[1];
+      if (cache.ok && sans.ok) {
+        v.textContent = '✅ La page /host/ démarre correctement dans ce navigateur, avec et sans cache. Si elle vous semble bloquée, c\'est l\'onglet déjà ouvert qui est figé : fermez-le et rouvrez https://mcogames.com/host/';
+        dump(); return;
+      }
+      if (!cache.ok && sans.ok) {
+        v.textContent = '⚠️ C\'EST LE CACHE. La page démarre quand on contourne le cache, mais pas depuis la version mise en cache. Videz le cache : Cmd+Shift+R (Mac) ou Ctrl+F5 (Windows).';
+        dump(); return;
+      }
+      if (!sans.ok) {
+        v.textContent = '❌ La page /host/ ne démarre pas, même sans cache (écran atteint : ' + sans.ecran + '). Le problème est dans la page elle-même — envoyez-moi le bloc ci-dessous.';
+        dump(); return;
+      }
+    }
     if (!hasModules) {
       txt = '❌ Ce navigateur ne supporte pas les modules ES. L\'application ne peut pas fonctionner ici — il faut un navigateur récent (Chrome, Edge ou Firefox à jour).';
     } else if (window.__MOD_INLINE__ === false) {
@@ -155,6 +219,9 @@
       txt = '✅ Le démarrage fonctionne sur cette page. Si /host/ reste bloqué, videz le cache (Cmd+Shift+R ou Ctrl+F5).';
     }
     v.textContent = txt;
+    dump();
+  }
+  function dump() {
     document.getElementById('summary').textContent =
       results.join('\n') + '\nmodule inline = ' + window.__MOD_INLINE__ +
       '\nimport() = ' + window.__MOD_IMPORT__;
