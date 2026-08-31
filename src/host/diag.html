@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Diagnostic — Engagements 2030</title>
+<style>
+  body { font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+         background:#113124; color:#F1E9D2; margin:0; padding:20px; line-height:1.45; }
+  h1 { font-size:1.2rem; margin:0 0 4px; }
+  p.sub { margin:0 0 18px; font-size:.85rem; opacity:.7; }
+  h2 { font-size:.78rem; text-transform:uppercase; letter-spacing:1.5px; opacity:.6;
+       margin:22px 0 8px; font-weight:700; }
+  table { width:100%; border-collapse:collapse; font-size:.85rem; }
+  td { padding:6px 8px; border-bottom:1px solid rgba(241,233,210,.12); vertical-align:top; }
+  td.k { width:46%; word-break:break-all; }
+  td.v { font-weight:700; white-space:nowrap; }
+  .ok { color:#8cc63f; } .ko { color:#ff8f7a; } .wait { color:#F4C84A; }
+  pre { background:rgba(0,0,0,.3); padding:10px; border-radius:8px; font-size:.72rem;
+        white-space:pre-wrap; word-break:break-word; margin:6px 0 0; }
+  #verdict { margin:20px 0; padding:14px 16px; border-radius:12px; font-size:.9rem;
+             background:rgba(244,200,74,.12); border:1.5px solid rgba(244,200,74,.4); }
+  button { font:inherit; font-weight:700; background:#6aa517; color:#fff; border:none;
+           border-radius:10px; padding:.6em 1.2em; cursor:pointer; margin-top:16px; }
+</style>
+</head>
+<body>
+
+<h1>Diagnostic de démarrage</h1>
+<p class="sub">Cette page n'utilise aucun module ni bibliothèque externe : elle s'exécute partout.</p>
+
+<div id="verdict">⏳ Tests en cours…</div>
+
+<h2>Navigateur</h2>
+<table id="t-env"></table>
+
+<h2>Ressources (chargement + délai)</h2>
+<table id="t-net"></table>
+
+<h2>Exécution des modules ES</h2>
+<table id="t-mod"></table>
+
+<button onclick="location.reload()">↻ Relancer les tests</button>
+<h2>À copier-coller</h2>
+<pre id="summary">…</pre>
+
+<script>
+/* Volontairement en ES5 : doit tourner même sur un navigateur très ancien. */
+(function () {
+  var results = [];
+  function row(tableId, label, value, cls, extra) {
+    var t = document.getElementById(tableId);
+    var tr = t.insertRow(-1);
+    tr.insertCell(0).className = 'k';
+    tr.cells[0].textContent = label;
+    var c = tr.insertCell(1);
+    c.className = 'v ' + (cls || '');
+    c.textContent = value + (extra ? ' · ' + extra : '');
+    results.push(label + ' = ' + value + (extra ? ' (' + extra + ')' : ''));
+    return tr;
+  }
+
+  /* ── 1. Navigateur & fonctionnalités du langage ── */
+  row('t-env', 'User-Agent', navigator.userAgent, '');
+  function supports(code) { try { eval(code); return true; } catch (e) { return false; } }
+
+  var hasModules = 'noModule' in document.createElement('script');
+  row('t-env', 'Modules ES (<script type=module>)', hasModules ? 'supporté' : 'NON SUPPORTÉ',
+      hasModules ? 'ok' : 'ko');
+  var feats = [
+    ['Fonctions fléchées + let/const', '(()=>{let a=1;})'],
+    ['async/await',                    '(async function(){})'],
+    ['Optional chaining  a?.b',        'var o={};o?.b'],
+    ['Nullish  a ?? b',                'var x=null; x ?? 1'],
+    ['Logical assignment  a ||= b',    'var y=0; y ||= 1'],
+    ['Spread  {...o}',                 'var o={};var p={...o}']
+  ];
+  for (var i = 0; i < feats.length; i++) {
+    var ok = supports(feats[i][1]);
+    row('t-env', feats[i][0], ok ? 'supporté' : 'NON SUPPORTÉ', ok ? 'ok' : 'ko');
+  }
+  row('t-env', 'WebSocket', typeof WebSocket !== 'undefined' ? 'disponible' : 'ABSENT',
+      typeof WebSocket !== 'undefined' ? 'ok' : 'ko');
+  row('t-env', 'fetch()', typeof fetch !== 'undefined' ? 'disponible' : 'ABSENT',
+      typeof fetch !== 'undefined' ? 'ok' : 'ko');
+
+  /* ── 2. Ressources réseau (XHR : marche partout, et on mesure le délai) ── */
+  var urls = [
+    '/lib/supabase.js',
+    '/lib/vendor/supabase.esm.js',
+    '/lib/vendor/qrcode.esm.js',
+    '/lib/bilan.js',
+    '/lib/theme.css',
+    'https://xavjaucknyeihzglnbey.supabase.co/rest/v1/'
+  ];
+  var pending = urls.length;
+  function testUrl(url) {
+    var t0 = new Date().getTime();
+    var tr = row('t-net', url, '⏳ en cours…', 'wait');
+    var done = false;
+    function finish(txt, cls) {
+      if (done) return; done = true;
+      var ms = new Date().getTime() - t0;
+      tr.cells[1].className = 'v ' + cls;
+      tr.cells[1].textContent = txt + ' · ' + ms + ' ms';
+      results.push(url + ' = ' + txt + ' (' + ms + ' ms)');
+      pending--; if (pending === 0) verdict();
+    }
+    try {
+      var x = new XMLHttpRequest();
+      x.open('GET', url, true);
+      x.timeout = 8000;
+      x.onload    = function () { finish('HTTP ' + x.status, x.status >= 200 && x.status < 400 ? 'ok' : 'ko'); };
+      x.onerror   = function () { finish('BLOQUÉ (erreur réseau)', 'ko'); };
+      x.ontimeout = function () { finish('SUSPENDU (>8 s)', 'ko'); };
+      x.send(null);
+    } catch (e) { finish('EXCEPTION ' + e.message, 'ko'); }
+  }
+  for (var j = 0; j < urls.length; j++) testUrl(urls[j]);
+
+  /* ── 3. Les modules ES s'exécutent-ils réellement ? ── */
+  window.__MOD_INLINE__ = false;
+  window.__MOD_IMPORT__ = 'non testé';
+  var s = document.createElement('script');
+  s.type = 'text/javascript';
+  s.setAttribute('type', 'module');
+  s.textContent = 'window.__MOD_INLINE__ = true;'
+    + 'import("/lib/vendor/supabase.esm.js")'
+    + '.then(function(m){ window.__MOD_IMPORT__ = m && m.createClient ? "OK (createClient présent)" : "chargé mais export manquant"; })'
+    + '.catch(function(e){ window.__MOD_IMPORT__ = "ÉCHEC : " + (e && e.message ? e.message : e); });';
+  document.body.appendChild(s);
+  window.addEventListener('error', function (e) {
+    row('t-mod', 'Erreur JS captée', (e.message || '?') + ' @ ' + (e.filename || '?') + ':' + (e.lineno || '?'), 'ko');
+  }, true);
+
+  setTimeout(function () {
+    row('t-mod', 'Script module inline exécuté', window.__MOD_INLINE__ ? 'OUI' : 'NON',
+        window.__MOD_INLINE__ ? 'ok' : 'ko');
+    row('t-mod', 'import() du bundle Supabase', String(window.__MOD_IMPORT__),
+        String(window.__MOD_IMPORT__).indexOf('OK') === 0 ? 'ok' : 'ko');
+    verdict();
+  }, 9000);
+
+  /* ── 4. Verdict lisible ── */
+  function verdict() {
+    var v = document.getElementById('verdict');
+    var txt;
+    if (!hasModules) {
+      txt = '❌ Ce navigateur ne supporte pas les modules ES. L\'application ne peut pas fonctionner ici — il faut un navigateur récent (Chrome, Edge ou Firefox à jour).';
+    } else if (window.__MOD_INLINE__ === false) {
+      txt = '❌ Les modules ES sont supportés mais ne s\'exécutent pas : très probablement une politique de sécurité (CSP) ou une extension qui bloque les scripts.';
+    } else if (String(window.__MOD_IMPORT__).indexOf('OK') !== 0 && String(window.__MOD_IMPORT__) !== 'non testé') {
+      txt = '⚠️ Les modules s\'exécutent, mais le chargement de la bibliothèque Supabase échoue. Détail ci-dessous dans « import() du bundle ».';
+    } else {
+      txt = '✅ Le démarrage fonctionne sur cette page. Si /host/ reste bloqué, videz le cache (Cmd+Shift+R ou Ctrl+F5).';
+    }
+    v.textContent = txt;
+    document.getElementById('summary').textContent =
+      results.join('\n') + '\nmodule inline = ' + window.__MOD_INLINE__ +
+      '\nimport() = ' + window.__MOD_IMPORT__;
+  }
+})();
+</script>
+</body>
+</html>
