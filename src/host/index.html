@@ -776,29 +776,25 @@
 <body class="theme-admin with-mask">
 <script>
   // Filet de diagnostic — script classique volontairement : il s'exécute même si
-  // le script principal (module ES) ne démarre jamais, par ex. si le CDN esm.sh
-  // dont dépend la bibliothèque Supabase est injoignable (réseau d'entreprise,
-  // proxy, filtrage). Sans ce filet, on reste sur l'écran de connexion dont
-  // aucun champ n'est branché : impossible de comprendre ce qui se passe.
+  // le module ES ne démarre pas. Il n'affiche plus rien à l'écran de connexion ;
+  // il journalise en console et expose son état à /host/diag.html.
   window.__APP_BOOTED__ = false   // le module ES s'est évalué
   window.__APP_READY__  = false   // l'application est utilisable
-  function showBootError(detail) {
-    var box = document.getElementById('boot-error')
-    if (!box) return
-    box.style.display = 'block'
-    var d = document.getElementById('boot-error-detail')
-    if (d && detail) { d.textContent = detail; d.style.display = 'block' }
-  }
-  // Une erreur de syntaxe dans le module (fonctionnalité JS non supportée par
-  // un navigateur ancien) le fait échouer en silence : on l'affiche.
+  window.__BOOT_ERROR__ = ''      // dernière erreur de démarrage, pour diag.html
   window.addEventListener('error', function (e) {
-    if (window.__APP_READY__) return   // erreur pendant l'usage : pas au démarrage
+    if (window.__APP_READY__) return
     var msg = (e && (e.message || (e.error && e.error.message))) || ''
-    var src = e && e.filename ? '\n' + e.filename + (e.lineno ? ':' + e.lineno : '') : ''
-    showBootError(msg ? msg + src : '')
+    var src = e && e.filename ? ' @ ' + e.filename + (e.lineno ? ':' + e.lineno : '') : ''
+    window.__BOOT_ERROR__ = msg + src
+    console.error('[démarrage] ' + msg + src)
   }, true)
   window.addEventListener('load', function () {
-    setTimeout(function () { if (!window.__APP_BOOTED__) showBootError('') }, 5000)
+    setTimeout(function () {
+      if (window.__APP_BOOTED__) return
+      window.__BOOT_ERROR__ = window.__BOOT_ERROR__ ||
+        "le module ES ne s'est pas exécuté (aucune erreur remontée)"
+      console.error('[démarrage] ' + window.__BOOT_ERROR__ + ' — diagnostic : /host/diag.html')
+    }, 5000)
   })
 </script>
 <img id="e2030-brand" src="/assets/logo-beige.svg" alt="Engagements 2030">
@@ -872,16 +868,6 @@
             <div style="font-size:.75rem;font-weight:800;text-transform:uppercase;letter-spacing:2.5px;color:var(--green);">Espace animateur</div>
             <h2 style="margin-top:2px;">Connexion</h2>
           </div>
-        </div>
-
-        <div id="boot-error" style="display:none;background:rgba(231,76,60,.14);border:1.5px solid rgba(231,76,60,.45);border-radius:14px;padding:14px 16px;font-size:.88rem;line-height:1.5;color:#ffb3a7;">
-          <strong style="color:#ff8f7a;">⚠️ L'application n'a pas démarré.</strong><br>
-          Le script principal ne s'est pas exécuté. Les bibliothèques étant servies
-          depuis ce domaine, il ne s'agit pas d'un CDN bloqué : cherchez plutôt une
-          extension de navigateur qui bloque les scripts, ou une erreur ci-dessous.
-          Le formulaire ne fonctionnera pas tant que ce point n'est pas résolu.<br>
-          <span style="opacity:.85;">Erreur détectée :</span>
-          <pre id="boot-error-detail" style="display:none;white-space:pre-wrap;word-break:break-word;margin:6px 0 0;padding:8px 10px;background:rgba(0,0,0,.28);border-radius:8px;font-size:.78rem;color:#ffd0c6;"></pre>
         </div>
 
         <form id="login-form" style="display:flex;flex-direction:column;gap:14px;" novalidate>

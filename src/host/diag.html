@@ -150,10 +150,10 @@
   xh.open('GET', '/host/?cb=' + new Date().getTime(), true);
   xh.onload = function () {
     var html = xh.responseText || '';
-    var aJour  = html.indexOf('boot-error-detail') > -1;
+    var aJour  = html.indexOf('password-inp') > -1;
     var vieuxOp = html.indexOf('||=') > -1;
     var cdn     = html.indexOf('esm.sh/') > -1;
-    row('t-host', 'HTML servi : version à jour', aJour ? 'OUI' : 'NON — version ancienne', aJour ? 'ok' : 'ko');
+    row('t-host', 'HTML servi : vrai login (version à jour)', aJour ? 'OUI' : 'NON — version ancienne', aJour ? 'ok' : 'ko');
     row('t-host', 'HTML servi : contient  ||=', vieuxOp ? 'OUI — ancienne version !' : 'non', vieuxOp ? 'ko' : 'ok');
     row('t-host', 'HTML servi : appelle esm.sh', cdn ? 'OUI — ancienne version !' : 'non', cdn ? 'ko' : 'ok');
     row('t-host', 'HTML servi : taille', html.length + ' octets', '');
@@ -174,13 +174,13 @@
         booted = String(f.contentWindow.__APP_BOOTED__);
         var el = f.contentDocument.querySelector('.screen.active');
         ecran = el ? el.id : 'aucun';
-        var d = f.contentDocument.getElementById('boot-error-detail');
-        if (d && d.textContent) detail = d.textContent.replace(/\s+/g, ' ').slice(0, 200);
+        detail = String(f.contentWindow.__BOOT_ERROR__ || '').slice(0, 200);
       } catch (e) { booted = 'inaccessible (' + e.message + ')'; }
-      var ok = (booted === 'true' && ecran === 'screen-home');
+      var ok = (booted === 'true' && (ecran === 'screen-home' || ecran === 'screen-login'));
       HOSTS.push({ label: label, ok: ok, booted: booted, ecran: ecran });
       tr.cells[1].className = 'v ' + (ok ? 'ok' : 'ko');
-      tr.cells[1].textContent = 'démarré=' + booted + ' · écran=' + ecran + (detail ? ' · ' + detail : '');
+      tr.cells[1].textContent = 'démarré=' + booted + ' · écran=' + ecran +
+        (ecran === 'screen-login' ? ' (non connecté — normal)' : '') + (detail ? ' · ' + detail : '');
       results.push(label + ' : démarré=' + booted + ', écran=' + ecran + (detail ? ', ' + detail : ''));
       verdict();
     }, 8000);
