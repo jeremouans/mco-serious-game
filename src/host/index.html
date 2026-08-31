@@ -1545,15 +1545,42 @@ function hostDisplayName() {
   return n || currentUser?.email || ''
 }
 
+// Échecs de chargement au démarrage : signalés en console ET à l'écran, pour
+// distinguer « aucune donnée » d'une requête qui a échoué.
+const STARTUP_ERRORS = []
+function reportStartupError(label, err) {
+  console.error(`[startApp] échec du chargement : ${label}`, err)
+  if (!STARTUP_ERRORS.includes(label)) STARTUP_ERRORS.push(label)
+  const el = $('user-email')
+  if (el) el.textContent = `Mode démo — ⚠️ chargement incomplet : ${STARTUP_ERRORS.join(', ')} (voir la console)`
+}
+
+// Rechargement des listes de l'accueil. Ne propage jamais d'erreur : un échec
+// de requête ne doit pas empêcher le retour à l'accueil.
+async function refreshHomeLists() {
+  try { await loadOpenSessions() } catch (e) { reportStartupError('sessions ouvertes', e) }
+  try { await loadHistory() }      catch (e) { reportStartupError('historique', e) }
+}
+
 async function startApp() {
   currentUser = DEMO_USER
   hostProfile = { first_name: 'Animateur', last_name: '' }
   if ($('user-email')) $('user-email').textContent = 'Mode démo'
   applyMancheTheme('yellow', '')
   initManagerInput()
-  await loadAllQuizzes()
-  await loadOpenSessions()
-  await loadHistory()
+
+  // Chaque chargement est isolé : une requête Supabase en échec ne doit jamais
+  // empêcher d'atteindre l'accueil. Sinon on reste bloqué sur l'écran de
+  // connexion (écran `active` par défaut dans le HTML), dont les champs ne sont
+  // branchés à rien en mode démo — d'où l'impression d'un « code qui ne marche pas ».
+  for (const [label, fn] of [
+    ['quiz', loadAllQuizzes],
+    ['sessions ouvertes', loadOpenSessions],
+    ['historique', loadHistory]
+  ]) {
+    try { await fn() } catch (e) { reportStartupError(label, e) }
+  }
+
   showScreen('screen-home')
 }
 
@@ -1576,7 +1603,8 @@ $('tab-guide').addEventListener('click', () => {
 
 // ── Sessions ─────────────────────────────────────────────────
 async function loadOpenSessions() {
-  const { data } = await sb.from('sessions').select('id,code,status,settings,created_at').eq('status','lobby').order('created_at',{ascending:false}).limit(5)
+  const { data, error } = await sb.from('sessions').select('id,code,status,settings,created_at').eq('status','lobby').order('created_at',{ascending:false}).limit(5)
+  if (error) throw error
   const list = $('sessions-list')
   if (!data || data.length === 0) { list.innerHTML = '<p class="empty-msg" style="font-size:.88rem;">Aucune session ouverte.</p>'; return }
   list.innerHTML = ''
@@ -2350,7 +2378,7 @@ $('back-home-btn').addEventListener('click', async () => {
     await sb.from('sessions').update({ status: 'ended', ended_at: new Date().toISOString() }).eq('id', activeSession.id)
     activeSession = null
   }
-  await loadOpenSessions(); showScreen('screen-home')
+  await refreshHomeLists(); showScreen('screen-home')
 })
 
 // ── Démarrer la partie ────────────────────────────────────────
@@ -2802,7 +2830,7 @@ async function endGame() {
 $('new-session-btn').addEventListener('click', async () => {
   await cleanupChannel(); activeSession = null; GS = null; P4S = null; WCS = null; OQS = null
   GAME_LOG = []
-  await loadOpenSessions(); await loadHistory(); showScreen('screen-home')
+  await refreshHomeLists(); showScreen('screen-home')
 })
 
 // ── "Voir le bilan" depuis fin de partie ──────────────────────
@@ -2828,11 +2856,12 @@ function renderLiveBilan(code, date) {
 
 // ── Historique ────────────────────────────────────────────────
 async function loadHistory() {
-  const { data } = await sb.from('sessions')
+  const { data, error } = await sb.from('sessions')
     .select('id, code, created_at, ended_at, settings')
     .eq('status', 'ended')
     .order('created_at', { ascending: false })
     .limit(20)
+  if (error) throw error
 
   const list = $('history-list')
   if (!data || data.length === 0) { list.innerHTML = '<p class="empty-msg" style="font-size:.88rem;">Aucune partie jouée.</p>'; return }
@@ -2952,16 +2981,15 @@ $('settings-create-btn').addEventListener('click', async () => {
 function uid() { return Math.random().toString(36).slice(2, 9) }
 
 async function loadAllQuizzes() {
-  try {
-    const { data } = await sb.from('quizzes').select('id, title, config, created_at').order('created_at', { ascending: false })
-    QUIZ_LIST = data || []
-    if (QUIZ_LIST.length > 0) {
-      QUIZ_DB_ID  = QUIZ_LIST[0].id
-      QUIZ_CONFIG = QUIZ_LIST[0].config
-      QUIZ = buildQuizFromConfig()
-    }
-    renderQuizPicker()
-  } catch(e) { console.warn('loadAllQuizzes:', e) }
+  const { data, error } = await sb.from('quizzes').select('id, title, config, created_at').order('created_at', { ascending: false })
+  QUIZ_LIST = data || []
+  if (QUIZ_LIST.length > 0) {
+    QUIZ_DB_ID  = QUIZ_LIST[0].id
+    QUIZ_CONFIG = QUIZ_LIST[0].config
+    QUIZ = buildQuizFromConfig()
+  }
+  renderQuizPicker()
+  if (error) throw error   // remonté par startApp : « aucun quiz » ≠ « requête en échec »
 }
 
 function renderQuizPicker() {
@@ -3420,7 +3448,7 @@ function goHome() {
   if (!confirm('Retourner à l\'accueil ? La session reste active et peut être reprise.')) return
   if (GS?.timerInterval) clearInterval(GS.timerInterval)
   if (P4S?.timerInterval) clearInterval(P4S.timerInterval)
-  loadOpenSessions(); loadHistory(); showScreen('screen-home')
+  refreshHomeLists(); showScreen('screen-home')
 }
 window.goHome = goHome
 
