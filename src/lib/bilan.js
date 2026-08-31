@@ -189,7 +189,11 @@
       leftOpen.forEach(s => usedSubIds.add(s.id))
       // Regroupées par round_key = id de la question
       const byKey = {}
-      leftOpen.forEach(s => { (byKey[s.round_key || '—'] ||= []).push(s) })
+      leftOpen.forEach(s => {
+        const k = s.round_key || '—'
+        if (!byKey[k]) byKey[k] = []
+        byKey[k].push(s)
+      })
       mancheLog.push({
         type: 'open', mancheName: 'Questions ouvertes',
         questions: Object.entries(byKey).map(([key, rows]) => ({

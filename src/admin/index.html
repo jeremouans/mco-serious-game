@@ -750,7 +750,8 @@ function enrichSessions(sessions, players, quizzes) {
   const namesBySession = {}
   ;(players || []).forEach(p => {
     const n = (p.first_name && p.last_name ? `${p.first_name} ${p.last_name}` : p.name) || '?'
-    ;(namesBySession[p.session_id] ||= []).push(n)
+    if (!namesBySession[p.session_id]) namesBySession[p.session_id] = []
+    namesBySession[p.session_id].push(n)
   })
   return (sessions || []).map(s => {
     const names = namesBySession[s.id] || []

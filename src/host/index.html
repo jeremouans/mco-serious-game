@@ -781,12 +781,23 @@
   // proxy, filtrage). Sans ce filet, on reste sur l'écran de connexion dont
   // aucun champ n'est branché : impossible de comprendre ce qui se passe.
   window.__APP_BOOTED__ = false
+  function showBootError(detail) {
+    var box = document.getElementById('boot-error')
+    if (!box) return
+    box.style.display = 'block'
+    var d = document.getElementById('boot-error-detail')
+    if (d && detail) { d.textContent = detail; d.style.display = 'block' }
+  }
+  // Une erreur de syntaxe dans le module (fonctionnalité JS non supportée par
+  // un navigateur ancien) le fait échouer en silence : on l'affiche.
+  window.addEventListener('error', function (e) {
+    if (window.__APP_BOOTED__) return
+    var msg = (e && (e.message || (e.error && e.error.message))) || ''
+    var src = e && e.filename ? '\n' + e.filename + (e.lineno ? ':' + e.lineno : '') : ''
+    showBootError(msg ? msg + src : '')
+  }, true)
   window.addEventListener('load', function () {
-    setTimeout(function () {
-      if (window.__APP_BOOTED__) return
-      var box = document.getElementById('boot-error')
-      if (box) box.style.display = 'block'
-    }, 5000)
+    setTimeout(function () { if (!window.__APP_BOOTED__) showBootError('') }, 5000)
   })
 </script>
 <img id="e2030-brand" src="/assets/logo-beige.svg" alt="Engagements 2030">
@@ -868,7 +879,8 @@
           Le script principal n'a pas pu se charger — le plus souvent une ressource
           externe bloquée par le réseau (<code>esm.sh</code>, <code>supabase.co</code>).
           Les champs ci-dessous ne sont branchés à rien et ne servent à rien.<br>
-          <span style="opacity:.85;">Ouvrez la console du navigateur pour l'erreur exacte.</span>
+          <span style="opacity:.85;">Erreur détectée :</span>
+          <pre id="boot-error-detail" style="display:none;white-space:pre-wrap;word-break:break-word;margin:6px 0 0;padding:8px 10px;background:rgba(0,0,0,.28);border-radius:8px;font-size:.78rem;color:#ffd0c6;"></pre>
         </div>
 
         <div class="login-tabs">
@@ -2900,7 +2912,10 @@ async function loadHistory() {
   try {
     const { data: players } = await sb.from('players')
       .select('session_id, name').in('session_id', data.map(s => s.id))
-    ;(players || []).forEach(p => { (namesBySession[p.session_id] ||= []).push(p.name || '?') })
+    ;(players || []).forEach(p => {
+      if (!namesBySession[p.session_id]) namesBySession[p.session_id] = []
+      namesBySession[p.session_id].push(p.name || '?')
+    })
   } catch (e) { console.warn('loadHistory players:', e) }
 
   list.innerHTML = ''
