@@ -780,7 +780,8 @@
   // dont dépend la bibliothèque Supabase est injoignable (réseau d'entreprise,
   // proxy, filtrage). Sans ce filet, on reste sur l'écran de connexion dont
   // aucun champ n'est branché : impossible de comprendre ce qui se passe.
-  window.__APP_BOOTED__ = false
+  window.__APP_BOOTED__ = false   // le module ES s'est évalué
+  window.__APP_READY__  = false   // l'application est utilisable
   function showBootError(detail) {
     var box = document.getElementById('boot-error')
     if (!box) return
@@ -791,7 +792,7 @@
   // Une erreur de syntaxe dans le module (fonctionnalité JS non supportée par
   // un navigateur ancien) le fait échouer en silence : on l'affiche.
   window.addEventListener('error', function (e) {
-    if (window.__APP_BOOTED__) return
+    if (window.__APP_READY__) return   // erreur pendant l'usage : pas au démarrage
     var msg = (e && (e.message || (e.error && e.error.message))) || ''
     var src = e && e.filename ? '\n' + e.filename + (e.lineno ? ':' + e.lineno : '') : ''
     showBootError(msg ? msg + src : '')
@@ -875,10 +876,10 @@
 
         <div id="boot-error" style="display:none;background:rgba(231,76,60,.14);border:1.5px solid rgba(231,76,60,.45);border-radius:14px;padding:14px 16px;font-size:.88rem;line-height:1.5;color:#ffb3a7;">
           <strong style="color:#ff8f7a;">⚠️ L'application n'a pas démarré.</strong><br>
-          Le script principal n'a pas pu se charger. Les bibliothèques sont servies
-          depuis ce domaine, il ne devrait donc plus s'agir d'un CDN bloqué —
-          vérifiez l'accès à <code>xavjaucknyeihzglnbey.supabase.co</code>.
-          Le formulaire ci-dessous ne fonctionnera pas tant que ce point n'est pas résolu.<br>
+          Le script principal ne s'est pas exécuté. Les bibliothèques étant servies
+          depuis ce domaine, il ne s'agit pas d'un CDN bloqué : cherchez plutôt une
+          extension de navigateur qui bloque les scripts, ou une erreur ci-dessous.
+          Le formulaire ne fonctionnera pas tant que ce point n'est pas résolu.<br>
           <span style="opacity:.85;">Erreur détectée :</span>
           <pre id="boot-error-detail" style="display:none;white-space:pre-wrap;word-break:break-word;margin:6px 0 0;padding:8px 10px;background:rgba(0,0,0,.28);border-radius:8px;font-size:.78rem;color:#ffd0c6;"></pre>
         </div>
@@ -1394,6 +1395,12 @@
 import { sb } from '../lib/supabase.js'
 import QRCode from '../lib/vendor/qrcode.esm.js'
 
+// Le module s'est bien évalué : désarme le filet de diagnostic. Ce drapeau
+// signale « le script a démarré », PAS « l'authentification a répondu » — les
+// deux avaient été confondus, d'où un faux avertissement quand l'appel d'auth
+// dépassait 5 secondes.
+window.__APP_BOOTED__ = true
+
 // ── Constantes ──────────────────────────────────────────────
 const PCOLORS  = ['#6aa517','#86bfeb','#3f7e2e','#2b6a8c','#8cc63f','#1f6b3a','#5aa0d8','#9bd06a','#124c15','#6fb0d6']
 const OPT_COLORS = ['#e74c3c','#2980b9','#f0b429','#27ae60']
@@ -1580,6 +1587,7 @@ function hostDisplayName() {
 }
 
 function showLogin(message) {
+  window.__APP_READY__ = true
   const err = $('login-err')
   if (err) {
     if (message) { err.textContent = message; err.classList.add('show') }
@@ -1610,8 +1618,21 @@ $('login-form').addEventListener('submit', async e => {
 
 // Réagit à la session : au chargement de la page comme après connexion
 let bootStarted = false
+let authResolved = false
+
+// Si Supabase ne répond pas, on le dit explicitement plutôt que de laisser un
+// formulaire qui semble simplement inerte.
+setTimeout(() => {
+  if (authResolved) return
+  const err = $('login-err')
+  if (err && !err.classList.contains('show')) {
+    err.textContent = "Le serveur d'authentification ne répond pas. Vérifiez votre connexion, puis rechargez la page."
+    err.classList.add('show')
+  }
+}, 8000)
+
 sb.auth.onAuthStateChange(async (event, session) => {
-  window.__APP_BOOTED__ = true
+  authResolved = true
   if (event === 'SIGNED_OUT' || !session) {
     currentUser = null; currentRole = 'anon'; hostProfile = null; bootStarted = false
     showLogin(); return
@@ -1623,6 +1644,7 @@ sb.auth.onAuthStateChange(async (event, session) => {
 })
 
 async function startApp(session) {
+  window.__APP_READY__ = true
   currentUser = session.user
 
   // Autorisation : décidée par la base, pas par l'interface
