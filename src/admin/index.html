@@ -327,28 +327,18 @@
       <div class="login-title">Administration</div>
       <div class="login-sub">Accès réservé aux gestionnaires du quiz</div>
 
-      <div class="tabs">
-        <div class="tab" data-tab="magic">🔗 Lien magique</div>
-        <div class="tab active" data-tab="code">🔑 Code d'accès</div>
-      </div>
-
-      <div class="tab-pane" id="tab-magic">
+      <form id="login-form">
         <div class="input-group">
-          <label>Adresse email admin</label>
-          <input type="email" id="magic-email" placeholder="votre@email.fr" autocomplete="email">
+          <label>Adresse email</label>
+          <input type="email" id="login-email" placeholder="vous@exemple.fr" autocomplete="username">
         </div>
-        <div class="err-msg" id="magic-err"></div>
-        <button class="btn big" id="magic-btn" style="width:100%">📧 Envoyer le lien de connexion</button>
-      </div>
-
-      <div class="tab-pane active" id="tab-code">
         <div class="input-group">
-          <label>Code d'accès administrateur</label>
-          <input type="password" id="code-input" placeholder="••••••••••••" autocomplete="off">
+          <label>Mot de passe</label>
+          <input type="password" id="login-password" placeholder="••••••••••" autocomplete="current-password">
         </div>
-        <div class="err-msg" id="code-err"></div>
-        <button class="btn big" id="code-btn" style="width:100%">🔓 Accéder</button>
-      </div>
+        <div class="err-msg" id="login-err"></div>
+        <button class="btn big" id="login-btn" style="width:100%" type="submit">Se connecter</button>
+      </form>
 
       <button class="link-btn" onclick="window.location='/'">← Retour à l'accueil</button>
     </div>
@@ -406,7 +396,7 @@
       </div>
       <div class="nav-card" id="nav-whitelist">
         <span class="nav-icon">🔐</span>
-        <div><div class="nav-lbl">Accès animateurs</div><div class="nav-desc">Gérer les emails autorisés</div></div>
+        <div><div class="nav-lbl">Comptes</div><div class="nav-desc">Créer et révoquer les accès animateurs</div></div>
       </div>
     </div>
 
@@ -543,28 +533,55 @@
   </div>
 </section>
 
-<!-- ══════════════════════════════════════════ WHITELIST ══ -->
+<!-- ══════════════════════════════════════════ COMPTES ══ -->
 <section class="screen" id="screen-whitelist">
   <div class="admin-wrap" style="position:relative;z-index:1;">
     <div style="display:flex;align-items:center;gap:12px;">
       <button class="btn ghost sm" onclick="showScreen('screen-home')">← Accueil</button>
-      <h2 style="color:var(--cream);font-size:1.2rem;font-weight:900;margin:0;flex:1;">🔐 Accès animateurs</h2>
+      <h2 style="color:var(--cream);font-size:1.2rem;font-weight:900;margin:0;flex:1;">🔐 Comptes</h2>
     </div>
 
     <div class="card">
-      <div class="card-title">Ajouter un email autorisé</div>
-      <div style="display:flex;gap:10px;">
-        <input type="email" id="wl-email-input" class="field-input" placeholder="animateur@mgen.fr" style="flex:1;">
-        <button class="btn sm" id="wl-add-btn">Ajouter</button>
+      <div class="card-title">➕ Créer un accès</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+        <div>
+          <label class="field-lbl">Adresse email</label>
+          <input type="email" id="acc-email" class="field-input" placeholder="animateur@mgen.fr">
+        </div>
+        <div>
+          <label class="field-lbl">Rôle</label>
+          <select id="acc-role" class="field-input">
+            <option value="host">Animateur — lance des sessions</option>
+            <option value="admin">Administrateur — tout, y compris les comptes</option>
+          </select>
+        </div>
+        <div>
+          <label class="field-lbl">Mot de passe (10 caractères minimum)</label>
+          <input type="text" id="acc-password" class="field-input" placeholder="À communiquer à la personne">
+        </div>
+        <div style="display:flex;align-items:flex-end;gap:8px;">
+          <button class="btn ghost sm" id="acc-gen-btn" style="flex:1;">🎲 Générer</button>
+          <button class="btn sm" id="acc-create-btn" style="flex:1;">Créer le compte</button>
+        </div>
       </div>
-      <div class="err-msg" id="wl-err"></div>
+      <div class="err-msg" id="acc-err"></div>
+      <div id="acc-created" style="display:none;margin-top:10px;padding:12px 14px;border-radius:10px;background:rgba(106,165,23,.14);border:1px solid rgba(106,165,23,.4);font-size:.85rem;color:var(--cream);"></div>
+      <div style="font-size:.75rem;color:rgba(243,238,218,.45);margin-top:8px;line-height:1.5;">
+        Le mot de passe n'est affiché qu'une fois, juste après la création : notez-le avant de quitter l'écran.
+        Vous pourrez toujours le réinitialiser plus tard.
+      </div>
     </div>
 
-    <div class="card">
-      <div class="card-title">Emails autorisés</div>
-      <div id="wl-list">
-        <div style="color:rgba(243,238,218,.4);font-size:.9rem;">Chargement…</div>
-      </div>
+    <div class="card" style="overflow:auto;">
+      <div class="card-title">👥 Comptes existants</div>
+      <table class="session-table">
+        <thead>
+          <tr><th>Email</th><th>Rôle</th><th>Sessions</th><th>Dernière connexion</th><th>Actions</th></tr>
+        </thead>
+        <tbody id="acc-tbody">
+          <tr><td colspan="5" style="color:rgba(243,238,218,.4);text-align:center;padding:20px;">Chargement…</td></tr>
+        </tbody>
+      </table>
     </div>
   </div>
 </section>
@@ -573,8 +590,6 @@
 import { sb } from '/lib/supabase.js'
 
 // ─── Constants ───────────────────────────────────────────────
-const ADMIN_EMAIL = 'admin@mgen.fr'
-const ADMIN_CODE  = 'mcomgenadmin'
 
 const MANCHE_TYPES = [
   { type:'quiz',        icon:'🎯', name:'Questions Quiz',    desc:'Choix, vrai/faux, slider (scorés) + questions ouvertes & mises en situation' },
@@ -687,7 +702,7 @@ async function handleAuth(session) {
     .select('email').eq('email', currentAdmin.email).maybeSingle()
   if (!adminCheck) {
     await sb.auth.signOut()
-    showErr('code-err', 'Accès non autorisé.')
+    showErr('login-err', "Ce compte n'est pas administrateur.")
     showScreen('screen-login')
     return
   }
@@ -709,35 +724,17 @@ function showErr(id, msg) {
 }
 
 
-// Tab switching
-document.querySelectorAll('.tab').forEach(tab => {
-  tab.addEventListener('click', () => {
-    const name = tab.dataset.tab
-    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'))
-    document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'))
-    tab.classList.add('active')
-    $(`tab-${name}`)?.classList.add('active')
-  })
-})
-
-$('magic-btn').addEventListener('click', async () => {
-  const email = $('magic-email').value.trim()
-  if (!email) { showErr('magic-err','Saisissez un email.'); return }
-  $('magic-btn').disabled = true; $('magic-btn').textContent = 'Envoi…'
-  const { error } = await sb.auth.signInWithOtp({ email, options: { emailRedirectTo: window.location.origin+'/admin/' } })
-  $('magic-btn').disabled = false; $('magic-btn').textContent = '📧 Envoyer le lien de connexion'
-  if (error) { showErr('magic-err', error.message); return }
-  $('sent-to-email').textContent = email
-  showScreen('screen-check-email')
-})
-
-$('code-btn').addEventListener('click', async () => {
-  const code = $('code-input').value.trim()
-  if (!code) { showErr('code-err', 'Saisissez le code.'); return }
-  $('code-btn').disabled = true; $('code-btn').textContent = '⏳ Connexion…'
-  const { error } = await sb.auth.signInWithPassword({ email: ADMIN_EMAIL, password: code })
-  $('code-btn').disabled = false; $('code-btn').textContent = '🔓 Accéder'
-  if (error) { showErr('code-err', 'Code incorrect.'); return }
+$('login-form').addEventListener('submit', async e => {
+  e.preventDefault()
+  const email = ($('login-email').value || '').trim().toLowerCase()
+  const password = $('login-password').value || ''
+  if (!email || !password) { showErr('login-err', 'Renseignez votre email et votre mot de passe.'); return }
+  const btn = $('login-btn')
+  btn.disabled = true; btn.textContent = '⏳ Connexion…'
+  const { error } = await sb.auth.signInWithPassword({ email, password })
+  btn.disabled = false; btn.textContent = 'Se connecter'
+  if (error) showErr('login-err', /invalid/i.test(error.message) ? 'Email ou mot de passe incorrect.' : error.message)
+  // La suite est prise en charge par onAuthStateChange
 })
 
 $('logout-btn').addEventListener('click', () => sb.auth.signOut())
@@ -815,7 +812,7 @@ window.openSessionReport = openSessionReport
 
 $('nav-editor').addEventListener('click', () => { openQuizEditor(); showScreen('screen-quiz-editor') })
 $('nav-history').addEventListener('click', () => { loadHistory(); showScreen('screen-history') })
-$('nav-whitelist').addEventListener('click', () => { loadWhitelist(); showScreen('screen-whitelist') })
+$('nav-whitelist').addEventListener('click', () => { loadAccounts(); showScreen('screen-whitelist') })
 $('nav-exports').addEventListener('click', () => showScreen('screen-exports'))
 
 // ─── Exports CSV ───────────────────────────────────────────────
@@ -1112,33 +1109,135 @@ $('export-pdf-btn').addEventListener('click', async () => {
     })
 })
 
-// ─── Whitelist ────────────────────────────────────────────────
-async function loadWhitelist() {
-  $('wl-list').innerHTML = '<div style="color:rgba(243,238,218,.4);font-size:.9rem;">Chargement…</div>'
-  const { data } = await sb.from('host_whitelist').select('*').order('added_at', { ascending: false })
-  const list = data || []
-  $('wl-list').innerHTML = list.length === 0
-    ? '<div style="color:rgba(243,238,218,.4);font-size:.9rem;">Aucun email autorisé pour l\'instant.</div>'
-    : list.map(r => `
-      <div class="wl-row">
-        <span class="wl-email">${escHtml(r.email)}</span>
-        <button class="wl-del" onclick="removeFromWhitelist('${escHtml(r.email)}')">✕</button>
-      </div>`).join('')
+// ─── Comptes (via l'Edge Function manage-users) ────────────────
+// La clé service_role, nécessaire pour créer un compte, vit uniquement dans
+// la fonction côté serveur : elle n'atteint jamais le navigateur.
+let ACCOUNTS = []
+
+async function callManageUsers(payload) {
+  const { data: { session } } = await sb.auth.getSession()
+  if (!session) throw new Error('Session expirée — reconnectez-vous.')
+  const res = await fetch(`${sb.supabaseUrl}/functions/v1/manage-users`, {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${session.access_token}`,
+      'apikey': sb.supabaseKey,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(payload)
+  })
+  const body = await res.json().catch(() => ({}))
+  if (!res.ok) { const e = new Error(body.error || `Erreur ${res.status}`); e.body = body; throw e }
+  return body
 }
 
-window.removeFromWhitelist = async email => {
-  await sb.from('host_whitelist').delete().eq('email', email)
-  loadWhitelist()
+const ROLE_LBL = {
+  admin: '<span class="badge badge-playing">Administrateur</span>',
+  host:  '<span class="badge badge-lobby">Animateur</span>',
+  none:  '<span class="badge badge-ended">Aucun accès</span>'
 }
 
-$('wl-add-btn').addEventListener('click', async () => {
-  const email = $('wl-email-input').value.trim().toLowerCase()
-  if (!email || !email.includes('@')) { showErr('wl-err','Email invalide.'); return }
-  const { error } = await sb.from('host_whitelist').insert({ email })
-  if (error) { showErr('wl-err', error.code === '23505' ? 'Email déjà dans la liste.' : error.message); return }
-  $('wl-email-input').value = ''
-  loadWhitelist()
+async function loadAccounts() {
+  $('acc-tbody').innerHTML = '<tr><td colspan="5" style="text-align:center;padding:20px;color:rgba(243,238,218,.4);">Chargement…</td></tr>'
+  try {
+    const { users } = await callManageUsers({ action: 'list' })
+    ACCOUNTS = users || []
+    renderAccounts()
+  } catch (e) {
+    $('acc-tbody').innerHTML = `<tr><td colspan="5" style="text-align:center;padding:20px;color:#e74c3c;">${escHtml(e.message)}</td></tr>`
+  }
+}
+
+function renderAccounts() {
+  if (!ACCOUNTS.length) {
+    $('acc-tbody').innerHTML = '<tr><td colspan="5" style="text-align:center;padding:20px;color:rgba(243,238,218,.4);">Aucun compte.</td></tr>'
+    return
+  }
+  $('acc-tbody').innerHTML = ACCOUNTS.map(u => `
+    <tr>
+      <td><strong>${escHtml(u.email)}</strong>${u.is_self ? ' <span style="font-size:.7rem;opacity:.6;">(vous)</span>' : ''}</td>
+      <td>${ROLE_LBL[u.role] || u.role}</td>
+      <td>${u.sessions}</td>
+      <td style="font-size:.8rem;opacity:.7;">${u.last_sign_in_at ? fmtDate(u.last_sign_in_at) : 'jamais'}</td>
+      <td style="white-space:nowrap;">
+        <button class="btn ghost sm" onclick="accSetRole('${u.id}')" title="Changer le rôle">Rôle</button>
+        <button class="btn ghost sm" onclick="accSetPassword('${u.id}')" title="Réinitialiser le mot de passe">Mot de passe</button>
+        ${u.is_self ? '' : `<button class="btn ghost sm" style="color:rgba(231,76,60,.8);" onclick="accDelete('${u.id}')">Supprimer</button>`}
+      </td>
+    </tr>`).join('')
+}
+
+function motDePasseAleatoire() {
+  // Sans caractères ambigus (O/0, l/1) : ces mots de passe se dictent à l'oral.
+  const a = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz23456789'
+  return Array.from(crypto.getRandomValues(new Uint32Array(14)), n => a[n % a.length]).join('')
+}
+$('acc-gen-btn').addEventListener('click', () => { $('acc-password').value = motDePasseAleatoire() })
+
+$('acc-create-btn').addEventListener('click', async () => {
+  const email = ($('acc-email').value || '').trim().toLowerCase()
+  const password = $('acc-password').value || ''
+  const role = $('acc-role').value
+  const btn = $('acc-create-btn')
+  $('acc-created').style.display = 'none'
+  if (!email) { showErr('acc-err', 'Renseignez une adresse email.'); return }
+  if (password.length < 10) { showErr('acc-err', 'Le mot de passe doit faire au moins 10 caractères.'); return }
+  btn.disabled = true; btn.textContent = '⏳…'
+  try {
+    await callManageUsers({ action: 'create', email, password, role })
+    const box = $('acc-created')
+    box.style.display = 'block'
+    box.innerHTML = `✅ Compte créé.<br>Identifiants à transmettre :<br>
+      <strong>${escHtml(email)}</strong><br>
+      <strong style="font-family:monospace;font-size:1.05em;">${escHtml(password)}</strong><br>
+      <span style="opacity:.7;font-size:.9em;">Ce mot de passe ne sera plus affiché.</span>`
+    $('acc-email').value = ''; $('acc-password').value = ''
+    await loadAccounts()
+  } catch (e) { showErr('acc-err', e.message) }
+  finally { btn.disabled = false; btn.textContent = 'Créer le compte' }
 })
+
+window.accSetRole = async id => {
+  const u = ACCOUNTS.find(x => x.id === id); if (!u) return
+  const r = prompt(`Rôle de ${u.email} ?\n\nadmin  = tout, y compris la gestion des comptes\nhost   = animateur (lance des sessions)\nnone   = accès révoqué (le compte subsiste)`, u.role)
+  if (!r || !['admin','host','none'].includes(r.trim())) return
+  try { await callManageUsers({ action: 'set_role', email: u.email, role: r.trim() }); await loadAccounts() }
+  catch (e) { alert('Erreur : ' + e.message) }
+}
+
+window.accSetPassword = async id => {
+  const u = ACCOUNTS.find(x => x.id === id); if (!u) return
+  const suggestion = motDePasseAleatoire()
+  const pw = prompt(`Nouveau mot de passe pour ${u.email} :\n(10 caractères minimum — notez-le, il ne sera plus affiché)`, suggestion)
+  if (!pw) return
+  if (pw.length < 10) { alert('Le mot de passe doit faire au moins 10 caractères.'); return }
+  try {
+    await callManageUsers({ action: 'set_password', user_id: id, password: pw })
+    alert(`Mot de passe réinitialisé pour ${u.email} :\n\n${pw}\n\nTransmettez-le à la personne.`)
+  } catch (e) { alert('Erreur : ' + e.message) }
+}
+
+window.accDelete = async id => {
+  const u = ACCOUNTS.find(x => x.id === id); if (!u) return
+  if (!confirm(`Supprimer définitivement le compte ${u.email} ?`)) return
+  try {
+    await callManageUsers({ action: 'delete', user_id: id })
+    await loadAccounts()
+  } catch (e) {
+    // Le serveur refuse tant que le compte possède des sessions : leur
+    // suppression en cascade effacerait les parties, joueurs et engagements.
+    if (e.body?.needs_reassign) {
+      const autres = ACCOUNTS.filter(x => x.id !== id)
+      const liste = autres.map((x, i) => `${i + 1}. ${x.email}`).join('\n')
+      const choix = prompt(`${e.message}\n\nRéattribuer ses ${e.body.sessions} session(s) à :\n${liste}\n\nNuméro :`)
+      const cible = autres[parseInt(choix, 10) - 1]
+      if (!cible) return
+      if (!confirm(`Réattribuer ${e.body.sessions} session(s) à ${cible.email}, puis supprimer ${u.email} ?`)) return
+      try { await callManageUsers({ action: 'delete', user_id: id, reassign_to: cible.id }); await loadAccounts() }
+      catch (e2) { alert('Erreur : ' + e2.message) }
+    } else alert('Erreur : ' + e.message)
+  }
+}
 
 // ─── Quiz Editor ──────────────────────────────────────────────
 // Suivi des modifications non enregistrées : évite de perdre sa progression

@@ -875,53 +875,32 @@
 
         <div id="boot-error" style="display:none;background:rgba(231,76,60,.14);border:1.5px solid rgba(231,76,60,.45);border-radius:14px;padding:14px 16px;font-size:.88rem;line-height:1.5;color:#ffb3a7;">
           <strong style="color:#ff8f7a;">⚠️ L'application n'a pas démarré.</strong><br>
-          Normalement cet écran ne s'affiche pas : l'accès animateur est automatique.
           Le script principal n'a pas pu se charger. Les bibliothèques sont servies
           depuis ce domaine, il ne devrait donc plus s'agir d'un CDN bloqué —
           vérifiez l'accès à <code>xavjaucknyeihzglnbey.supabase.co</code>.
-          Les champs ci-dessous ne sont branchés à rien et ne servent à rien.<br>
+          Le formulaire ci-dessous ne fonctionnera pas tant que ce point n'est pas résolu.<br>
           <span style="opacity:.85;">Erreur détectée :</span>
           <pre id="boot-error-detail" style="display:none;white-space:pre-wrap;word-break:break-word;margin:6px 0 0;padding:8px 10px;background:rgba(0,0,0,.28);border-radius:8px;font-size:.78rem;color:#ffd0c6;"></pre>
         </div>
 
-        <div class="login-tabs">
-          <button class="login-tab" id="tab-magic">✉️ Lien magique</button>
-          <button class="login-tab active" id="tab-code">🔑 Code d'accès</button>
-          <button class="login-tab" id="tab-direct" style="border-color:rgba(244,200,74,.4);color:rgba(244,200,74,.7);">⚡ Direct</button>
-        </div>
-
-        <!-- Onglet lien magique -->
-        <div class="login-pane" id="pane-magic">
-          <p style="margin:0;">Recevez un lien de connexion par e-mail.</p>
-          <form id="login-form" style="display:flex;flex-direction:column;gap:14px;" novalidate>
-            <div>
-              <div class="inp-label">Adresse e-mail</div>
-              <input id="email-inp" class="inp" type="email" placeholder="vous@mgen.fr" autocomplete="email" required>
-            </div>
-            <div id="login-err" class="err"></div>
-            <button type="submit" class="btn big" id="login-btn" style="justify-content:center;">✉️ Recevoir le lien magique</button>
-          </form>
-        </div>
-
-        <!-- Onglet accès direct (temporaire) -->
-        <div class="login-pane" id="pane-direct">
-          <p style="margin:0;color:rgba(244,200,74,.7);font-size:.85rem;">⚠️ Accès temporaire — à supprimer avant prod.</p>
-          <button class="btn big" id="direct-btn" style="justify-content:center;background:rgba(244,200,74,.15);border-color:rgba(244,200,74,.4);color:rgba(244,200,74,.9);">⚡ Accéder directement</button>
-          <div id="direct-err" class="err"></div>
-        </div>
-
-        <!-- Onglet code d'accès -->
-        <div class="login-pane active" id="pane-code">
-          <p style="margin:0;">Entrez le code animateur pour accéder directement.</p>
-          <form id="code-form" style="display:flex;flex-direction:column;gap:14px;" novalidate>
-            <div>
-              <div class="inp-label">Code d'accès</div>
-              <input id="code-inp" class="code-inp-big" type="password" placeholder="••••••••" autocomplete="off" required>
-            </div>
-            <div id="code-err" class="err"></div>
-            <button type="submit" class="btn big" id="code-btn" style="justify-content:center;">🔑 Accéder</button>
-          </form>
-        </div>
+        <form id="login-form" style="display:flex;flex-direction:column;gap:14px;" novalidate>
+          <div>
+            <div class="inp-label">Adresse e-mail</div>
+            <input id="email-inp" class="inp" type="email" placeholder="vous@mgen.fr"
+                   autocomplete="username" required>
+          </div>
+          <div>
+            <div class="inp-label">Mot de passe</div>
+            <input id="password-inp" class="inp" type="password" placeholder="••••••••••"
+                   autocomplete="current-password" required>
+          </div>
+          <div id="login-err" class="err"></div>
+          <button type="submit" class="btn big" id="login-btn" style="justify-content:center;">Se connecter</button>
+        </form>
+        <p style="margin:0;font-size:.82rem;color:var(--fg-mute);line-height:1.5;">
+          Vos identifiants vous sont remis par l'administrateur.
+          Mot de passe oublié ? Demandez-lui de le réinitialiser.
+        </p>
       </div>
     </div>
   </section>
@@ -1571,17 +1550,6 @@ function colorFor(name) {
 
 const initial = n => (n||'?').trim().charAt(0).toUpperCase()
 
-// ── DEMO MODE — accès direct sans auth ──────────────────────────
-// Mettre DEMO_MODE = false pour réactiver le vrai système auth
-const DEMO_MODE = true
-const DEMO_USER = { id: '029a5460-7dee-40e7-b8b7-5851e8de538d', email: 'animateur@mgen.fr' }
-
-// Nom affichable de l'animateur connecté (profil > email > libellé générique)
-function hostDisplayName() {
-  const n = [hostProfile?.first_name, hostProfile?.last_name].filter(Boolean).join(' ').trim()
-  return n || currentUser?.email || ''
-}
-
 // Échecs de chargement au démarrage : signalés en console ET à l'écran, pour
 // distinguer « aucune donnée » d'une requête qui a échoué.
 const STARTUP_ERRORS = []
@@ -1589,7 +1557,7 @@ function reportStartupError(label, err) {
   console.error(`[startApp] échec du chargement : ${label}`, err)
   if (!STARTUP_ERRORS.includes(label)) STARTUP_ERRORS.push(label)
   const el = $('user-email')
-  if (el) el.textContent = `Mode démo — ⚠️ chargement incomplet : ${STARTUP_ERRORS.join(', ')} (voir la console)`
+  if (el) el.textContent = `${hostDisplayName()} — ⚠️ chargement incomplet : ${STARTUP_ERRORS.join(', ')} (voir la console)`
 }
 
 // Rechargement des listes de l'accueil. Ne propage jamais d'erreur : un échec
@@ -1599,23 +1567,97 @@ async function refreshHomeLists() {
   try { await loadHistory() }      catch (e) { reportStartupError('historique', e) }
 }
 
-async function startApp() {
+// ── Authentification animateur ────────────────────────────────
+// Comptes nominatifs Supabase Auth (email + mot de passe), créés depuis /admin.
+// Le rôle est déterminé côté base par la fonction my_role() : 'admin', 'host',
+// 'none' (compte existant mais non autorisé) ou 'anon'.
+let currentRole = 'anon'
+
+// Nom affichable de l'animateur connecté (profil > email > libellé générique)
+function hostDisplayName() {
+  const n = [hostProfile?.first_name, hostProfile?.last_name].filter(Boolean).join(' ').trim()
+  return n || currentUser?.email || ''
+}
+
+function showLogin(message) {
+  const err = $('login-err')
+  if (err) {
+    if (message) { err.textContent = message; err.classList.add('show') }
+    else err.classList.remove('show')
+  }
+  showScreen('screen-login')
+}
+
+// Formulaire de connexion
+$('login-form').addEventListener('submit', async e => {
+  e.preventDefault()
+  const email = ($('email-inp').value || '').trim().toLowerCase()
+  const password = $('password-inp').value || ''
+  const err = $('login-err'); const btn = $('login-btn')
+  err.classList.remove('show')
+  if (!email || !password) { err.textContent = 'Renseignez votre e-mail et votre mot de passe.'; err.classList.add('show'); return }
+  btn.disabled = true; btn.textContent = '⏳ Connexion…'
+  try {
+    const { error } = await sb.auth.signInWithPassword({ email, password })
+    if (error) throw new Error(/invalid/i.test(error.message) ? 'E-mail ou mot de passe incorrect.' : error.message)
+    // La suite est prise en charge par onAuthStateChange
+  } catch (e2) {
+    err.textContent = e2.message; err.classList.add('show')
+  } finally {
+    btn.disabled = false; btn.textContent = 'Se connecter'
+  }
+})
+
+// Réagit à la session : au chargement de la page comme après connexion
+let bootStarted = false
+sb.auth.onAuthStateChange(async (event, session) => {
   window.__APP_BOOTED__ = true
-  currentUser = DEMO_USER
-  hostProfile = { first_name: 'Animateur', last_name: '' }
-  if ($('user-email')) $('user-email').textContent = 'Mode démo'
+  if (event === 'SIGNED_OUT' || !session) {
+    currentUser = null; currentRole = 'anon'; hostProfile = null; bootStarted = false
+    showLogin(); return
+  }
+  // Supabase ré-émet SIGNED_IN au rafraîchissement du jeton : ne pas tout relancer
+  if (bootStarted && currentUser?.id === session.user.id) return
+  bootStarted = true
+  await startApp(session)
+})
+
+async function startApp(session) {
+  currentUser = session.user
+
+  // Autorisation : décidée par la base, pas par l'interface
+  try {
+    const { data, error } = await sb.rpc('my_role')
+    if (error) throw error
+    currentRole = data || 'none'
+  } catch (e) {
+    console.error('[startApp] my_role :', e)
+    currentRole = 'none'
+  }
+  if (currentRole !== 'host' && currentRole !== 'admin') {
+    await sb.auth.signOut()
+    showLogin("Ce compte n'est pas autorisé à animer de session. Contactez l'administrateur.")
+    return
+  }
+
+  // Profil (prénom / nom) — facultatif
+  try {
+    const { data: prof } = await sb.from('host_profiles')
+      .select('first_name,last_name').eq('user_id', currentUser.id).maybeSingle()
+    hostProfile = prof || null
+  } catch (_) { hostProfile = null }
+
+  if ($('user-email')) {
+    const nom = hostDisplayName()
+    $('user-email').textContent = nom + (currentRole === 'admin' ? ' · administrateur' : '')
+  }
   applyMancheTheme('yellow', '')
   initManagerInput()
 
-  // Mode démo : on bascule sur l'accueil AVANT le moindre appel réseau.
-  // Aucun échec Supabase ne peut donc laisser l'utilisateur coincé sur
-  // l'écran de connexion (dont les champs ne sont branchés à rien ici).
+  // L'accueil s'affiche avant les chargements : un échec réseau ne doit pas
+  // renvoyer sur l'écran de connexion, qui laisserait croire à une déconnexion.
   showScreen('screen-home')
 
-  // Chaque chargement est isolé : une requête Supabase en échec ne doit jamais
-  // empêcher d'atteindre l'accueil. Sinon on reste bloqué sur l'écran de
-  // connexion (écran `active` par défaut dans le HTML), dont les champs ne sont
-  // branchés à rien en mode démo — d'où l'impression d'un « code qui ne marche pas ».
   for (const [label, fn] of [
     ['quiz', loadAllQuizzes],
     ['sessions ouvertes', loadOpenSessions],
@@ -1623,14 +1665,11 @@ async function startApp() {
   ]) {
     try { await fn() } catch (e) { reportStartupError(label, e) }
   }
-
 }
-
-startApp()
 
 $('logout-btn').addEventListener('click', async () => {
   await cleanupChannel()
-  window.location.href = '/'
+  await sb.auth.signOut()   // onAuthStateChange ramène à l'écran de connexion
 })
 
 // ── Home tabs ─────────────────────────────────────────────────
