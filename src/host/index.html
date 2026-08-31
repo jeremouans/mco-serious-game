@@ -669,6 +669,13 @@
     .gold-kicker { font-size: .78rem; font-weight: 900; text-transform: uppercase; letter-spacing: 3px; color: var(--gold); margin-bottom: 8px; }
     .gold-idea-text { font-size: clamp(1.2rem,3vw,2rem); font-weight: 900; color: var(--fg); line-height: 1.2; }
     .gold-author { font-size: 1rem; color: var(--fg-soft); font-weight: 600; margin-top: 8px; }
+    /* Ex æquo : plusieurs idées à égalité, séparées par un filet doré */
+    .gold-entry + .gold-entry {
+      margin-top: 16px; padding-top: 16px; border-top: 1.5px solid rgba(244,200,74,.35);
+    }
+    .gold-exaequo-note {
+      font-size: .82rem; font-weight: 700; color: var(--gold); opacity: .85; margin-top: 12px;
+    }
     .engage-card-host { background: var(--panel); color: var(--ever); border-radius: 18px; padding: clamp(16px,2.5vw,26px); box-shadow: var(--shadow); }
     .engage-category-badge { display: inline-block; font-size: .78rem; font-weight: 800; text-transform: uppercase; letter-spacing: 1.5px; color: var(--green); background: rgba(106,165,23,.14); border-radius: 6px; padding: .25em .65em; margin-bottom: 8px; }
     .engage-card-text { font-size: clamp(1.05rem,2.5vw,1.5rem); font-weight: 700; color: var(--ever); line-height: 1.3; }
@@ -1244,9 +1251,8 @@
       </div>
       <div class="gold-winner-box">
         <div class="gold-crown">✨</div>
-        <div class="gold-kicker">💡 L'idée en Or</div>
-        <div class="gold-idea-text" id="idea-gold-text">–</div>
-        <div class="gold-author" id="idea-gold-author">–</div>
+        <div class="gold-kicker" id="idea-gold-kicker">💡 L'idée en Or</div>
+        <div id="idea-gold-list"></div>
       </div>
       <div class="idea-list" id="idea-ranking-host"></div>
       <div class="game-actions">
@@ -3394,12 +3400,39 @@ function showIdeaReveal() {
   })
   ranking.sort((a,b) => b.votes - a.votes || b.pts - a.pts)
   activeChannel.send({ type:'broadcast', event:'round:idea:reveal', payload:{
+    goldCount: goldAuths.length, maxVotes,
     ranking: ranking.map(r => ({ name:r.name, text:r.text, votes:r.votes, isGold:r.isGold, pts:r.pts })),
     playerPoints: Object.fromEntries(ranking.map(r => [r.authorId, { delta:r.pts, isGold:r.isGold }]))
   }})
-  const gold = ranking.find(r => r.isGold)
-  $('idea-gold-text').textContent   = gold?.text ?? ranking[0]?.text ?? '(aucune soumission)'
-  $('idea-gold-author').textContent = gold ? '— ' + gold.name : (P4S.submissions.size <= 1 ? 'Pas assez de participants pour voter' : 'Ex æquo')
+  // Ex æquo : toutes les idées à égalité de votes sont gagnantes et reçoivent
+  // le bonus. On les affiche toutes — n'en couronner qu'une, choisie au hasard
+  // de l'ordre interne, était injuste et incompréhensible pour le groupe.
+  const golds = ranking.filter(r => r.isGold)
+  const kicker = $('idea-gold-kicker')
+  const list = $('idea-gold-list'); list.innerHTML = ''
+
+  if (!golds.length) {
+    if (kicker) kicker.textContent = '💡 L\'idée en Or'
+    list.innerHTML = `<div class="gold-idea-text">${escHtml(ranking[0]?.text || '(aucune soumission)')}</div>
+      <div class="gold-author">${P4S.submissions.size <= 1
+        ? 'Pas assez de participants pour voter'
+        : 'Aucun vote exprimé — pas de gagnant désigné'}</div>`
+  } else {
+    if (kicker) kicker.textContent = golds.length > 1
+      ? `💡 Les idées en Or — ${golds.length} ex æquo`
+      : '💡 L\'idée en Or'
+    list.innerHTML = golds.map(g => `
+      <div class="gold-entry">
+        <div class="gold-idea-text">${escHtml(g.text)}</div>
+        <div class="gold-author">— ${escHtml(g.name)}</div>
+      </div>`).join('')
+    if (golds.length > 1) {
+      list.innerHTML += `<div class="gold-exaequo-note">
+        ${golds.length} idées à ${maxVotes} vote${maxVotes > 1 ? 's' : ''} :
+        chacune reçoit le bonus de ${gBonus} pts.
+      </div>`
+    }
+  }
   const rankList = $('idea-ranking-host'); rankList.innerHTML = ''
   ranking.forEach((r, i) => {
     const div = document.createElement('div'); div.className = 'idea-item' + (r.isGold ? ' gold-idea' : ''); div.style.animationDelay = (i*.06)+'s'

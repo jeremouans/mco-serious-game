@@ -1201,12 +1201,18 @@ $('idea-vote-submit-btn').addEventListener('click', () => {
 
 function handleIdeaRevealPlayer(payload) {
   const my = payload.playerPoints?.[PS.tempId]; const delta = my?.delta ?? 0; const isGold = my?.isGold ?? false
+  const exaequo = isGold && (payload.goldCount || 1) > 1
   PS.score += delta
   $('p4-result-icon').textContent  = isGold ? '🥇' : delta > 0 ? '✨' : '🎯'
-  $('p4-result-title').textContent = isGold ? '🏆 C\'est votre idée en Or !' : delta > 0 ? 'Vos idées inspirent !' : 'Résultat'
+  $('p4-result-title').textContent = exaequo ? '🏆 Votre idée est en Or — ex æquo !'
+    : isGold ? '🏆 C\'est votre idée en Or !'
+    : delta > 0 ? 'Vos idées inspirent !' : 'Résultat'
   $('p4-result-pts').textContent   = delta > 0 ? `+${delta} pts` : '0 pt'
   $('p4-result-pts').style.color   = delta > 0 ? 'var(--gold)' : 'rgba(243,238,218,.4)'
-  $('p4-result-sub').textContent   = isGold ? 'Votre idée a remporté le vote !' : delta > 0 ? 'Vous avez reçu des votes.' : 'Continuez à proposer !'
+  $('p4-result-sub').textContent   = exaequo
+      ? `${payload.goldCount} idées sont arrivées à égalité : toutes reçoivent le bonus.`
+    : isGold ? 'Votre idée a remporté le vote !'
+    : delta > 0 ? 'Vous avez reçu des votes.' : 'Continuez à proposer !'
   $('p4-result-total').textContent = `Total : ${PS.score} pts`
   showScreen('screen-p4-result')
 }
