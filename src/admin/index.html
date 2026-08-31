@@ -339,6 +339,9 @@
         <div class="err-msg" id="login-err"></div>
         <button class="btn big" id="login-btn" style="width:100%" type="submit">Se connecter</button>
       </form>
+      <button class="btn ghost sm" id="login-signout-btn" style="width:100%;margin-top:8px;display:none;">
+        Se déconnecter du compte actuel
+      </button>
 
       <button class="link-btn" onclick="window.location='/'">← Retour à l'accueil</button>
     </div>
@@ -691,6 +694,7 @@ sb.auth.onAuthStateChange(async (event, session) => {
     await handleAuth(session)
   } else if (event === 'SIGNED_OUT') {
     currentAdmin = null
+    const b = $('login-signout-btn'); if (b) b.style.display = 'none'
     showScreen('screen-login')
   }
 })
@@ -701,8 +705,12 @@ async function handleAuth(session) {
   const { data: adminCheck } = await sb.from('admin_emails')
     .select('email').eq('email', currentAdmin.email).maybeSingle()
   if (!adminCheck) {
-    await sb.auth.signOut()
-    showErr('login-err', "Ce compte n'est pas administrateur.")
+    // Surtout PAS de signOut() : il est global. Cet onglet coupait la session
+    // d'un animateur qui venait de se connecter sur /host, d'où des « logins
+    // qui ne marchent pas » sans aucune explication.
+    currentAdmin = null
+    showErr('login-err', "Ce compte n'est pas administrateur. Connectez-vous avec un compte admin, ou utilisez /host.")
+    $('login-signout-btn').style.display = 'block'
     showScreen('screen-login')
     return
   }
@@ -733,11 +741,21 @@ $('login-form').addEventListener('submit', async e => {
   btn.disabled = true; btn.textContent = '⏳ Connexion…'
   const { error } = await sb.auth.signInWithPassword({ email, password })
   btn.disabled = false; btn.textContent = 'Se connecter'
-  if (error) showErr('login-err', /invalid/i.test(error.message) ? 'Email ou mot de passe incorrect.' : error.message)
+  if (error) {
+    let msg = error.message
+    if (/invalid login|invalid credentials/i.test(msg)) msg = 'Email ou mot de passe incorrect.'
+    else if (/rate limit|too many/i.test(msg))          msg = 'Trop de tentatives. Patientez une minute.'
+    else if (/fetch|network|failed/i.test(msg))         msg = 'Serveur injoignable. Vérifiez votre connexion.'
+    showErr('login-err', msg)
+  }
   // La suite est prise en charge par onAuthStateChange
 })
 
 $('logout-btn').addEventListener('click', () => sb.auth.signOut())
+$('login-signout-btn').addEventListener('click', async () => {
+  await sb.auth.signOut()
+  $('login-signout-btn').style.display = 'none'
+})
 
 // ─── Enrichissement des sessions (quiz utilisé + participants) ──────────
 // Utilisé par l'accueil ET l'historique : chaque session porte le titre du

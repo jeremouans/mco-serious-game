@@ -9,6 +9,8 @@
   <style>
     body { overflow: auto; }
 
+    @keyframes spin { to { transform: rotate(360deg) } }
+
     /* ── Card (login / check-email) ── */
     .card-center { flex: 1; display: flex; align-items: center; justify-content: center; padding: 24px; }
     .card {
@@ -870,6 +872,14 @@
           </div>
         </div>
 
+        <div id="login-checking" style="display:none;color:var(--fg-soft);font-size:.95rem;
+             display:flex;align-items:center;gap:10px;">
+          <span style="width:18px;height:18px;border:2.5px solid rgba(255,255,255,.2);
+                       border-top-color:var(--green);border-radius:50%;
+                       animation:spin .9s linear infinite;display:inline-block;"></span>
+          Vérification de votre session…
+        </div>
+
         <form id="login-form" style="display:flex;flex-direction:column;gap:14px;" novalidate>
           <div>
             <div class="inp-label">Adresse e-mail</div>
@@ -884,6 +894,9 @@
           <div id="login-err" class="err"></div>
           <button type="submit" class="btn big" id="login-btn" style="justify-content:center;">Se connecter</button>
         </form>
+        <button class="btn ghost sm" id="login-signout-btn" style="display:none;justify-content:center;">
+          Se déconnecter de ce compte
+        </button>
         <p style="margin:0;font-size:.82rem;color:var(--fg-mute);line-height:1.5;">
           Vos identifiants vous sont remis par l'administrateur.
           Mot de passe oublié ? Demandez-lui de le réinitialiser.
@@ -1572,15 +1585,37 @@ function hostDisplayName() {
   return n || currentUser?.email || ''
 }
 
-function showLogin(message) {
+// Trois états de l'écran de connexion :
+//   'checking' — on restaure la session, le formulaire est masqué pour ne pas
+//                inviter à saisir des identifiants inutilement
+//   'form'     — saisie possible ; `sessionActive` ajoute un bouton de
+//                déconnexion quand une session existe mais ne convient pas
+function setLoginState(state, message = '', opts = {}) {
   window.__APP_READY__ = true
-  const err = $('login-err')
+  const form = $('login-form'), checking = $('login-checking')
+  const out = $('login-signout-btn'), err = $('login-err'), btn = $('login-btn')
+  showScreen('screen-login')
+  if (state === 'checking') {
+    if (checking) checking.style.display = 'flex'
+    if (form) form.style.display = 'none'
+    if (out) out.style.display = 'none'
+    if (err) err.classList.remove('show')
+    return
+  }
+  if (checking) checking.style.display = 'none'
+  if (form) form.style.display = 'flex'
+  if (btn) { btn.disabled = false; btn.textContent = 'Se connecter' }
+  if (out) out.style.display = opts.sessionActive ? 'inline-flex' : 'none'
   if (err) {
     if (message) { err.textContent = message; err.classList.add('show') }
     else err.classList.remove('show')
   }
-  showScreen('screen-login')
 }
+const showLogin = (message, opts) => setLoginState('form', message, opts)
+
+$('login-signout-btn').addEventListener('click', async () => {
+  await sb.auth.signOut()
+})
 
 // Formulaire de connexion
 $('login-form').addEventListener('submit', async e => {
@@ -1591,15 +1626,21 @@ $('login-form').addEventListener('submit', async e => {
   err.classList.remove('show')
   if (!email || !password) { err.textContent = 'Renseignez votre e-mail et votre mot de passe.'; err.classList.add('show'); return }
   btn.disabled = true; btn.textContent = '⏳ Connexion…'
-  try {
-    const { error } = await sb.auth.signInWithPassword({ email, password })
-    if (error) throw new Error(/invalid/i.test(error.message) ? 'E-mail ou mot de passe incorrect.' : error.message)
-    // La suite est prise en charge par onAuthStateChange
-  } catch (e2) {
-    err.textContent = e2.message; err.classList.add('show')
-  } finally {
+  const { error } = await sb.auth.signInWithPassword({ email, password })
+  if (error) {
+    // Messages distincts : identifiants, quota, réseau — « ça ne marche pas »
+    // sans raison était le principal reproche fait à cet écran.
+    let msg = error.message
+    if (/invalid login|invalid credentials/i.test(msg)) msg = 'E-mail ou mot de passe incorrect.'
+    else if (/rate limit|too many/i.test(msg))          msg = 'Trop de tentatives. Patientez une minute avant de réessayer.'
+    else if (/confirm/i.test(msg))                      msg = "Ce compte n'est pas confirmé. Contactez l'administrateur."
+    else if (/fetch|network|failed/i.test(msg))         msg = 'Serveur injoignable. Vérifiez votre connexion.'
+    err.textContent = msg; err.classList.add('show')
     btn.disabled = false; btn.textContent = 'Se connecter'
+    return
   }
+  // Succès : on laisse le bouton en attente. C'est onAuthStateChange qui
+  // bascule d'écran ; réactiver le bouton ici laissait croire à un échec.
 })
 
 // Réagit à la session : au chargement de la page comme après connexion
@@ -1608,20 +1649,32 @@ let authResolved = false
 
 // Si Supabase ne répond pas, on le dit explicitement plutôt que de laisser un
 // formulaire qui semble simplement inerte.
+// Tant que la session n'est pas restaurée, on affiche « vérification » plutôt
+// qu'un formulaire vide : au rechargement, l'utilisateur voyait le login et
+// croyait avoir été déconnecté alors que la session revenait juste après.
+setLoginState('checking')
+
 setTimeout(() => {
   if (authResolved) return
-  const err = $('login-err')
-  if (err && !err.classList.contains('show')) {
-    err.textContent = "Le serveur d'authentification ne répond pas. Vérifiez votre connexion, puis rechargez la page."
-    err.classList.add('show')
-  }
+  setLoginState('form', "Le serveur d'authentification n'a pas répondu. Vérifiez votre connexion, puis rechargez la page.")
 }, 8000)
+
+// Filet supplémentaire : si l'événement d'initialisation n'arrive pas, on
+// interroge directement la session stockée.
+;(async () => {
+  await new Promise(r => setTimeout(r, 1500))
+  if (authResolved) return
+  try {
+    const { data } = await sb.auth.getSession()
+    if (data?.session && !authResolved) { authResolved = true; bootStarted = true; await startApp(data.session) }
+  } catch (e) { console.warn('[auth] getSession :', e) }
+})()
 
 sb.auth.onAuthStateChange(async (event, session) => {
   authResolved = true
   if (event === 'SIGNED_OUT' || !session) {
     currentUser = null; currentRole = 'anon'; hostProfile = null; bootStarted = false
-    showLogin(); return
+    setLoginState('form'); return
   }
   // Supabase ré-émet SIGNED_IN au rafraîchissement du jeton : ne pas tout relancer
   if (bootStarted && currentUser?.id === session.user.id) return
@@ -1629,22 +1682,38 @@ sb.auth.onAuthStateChange(async (event, session) => {
   await startApp(session)
 })
 
+// Renvoie { role } ou { role: null, error } si le serveur reste injoignable.
+async function fetchRole(tentatives = 3) {
+  let derniere = null
+  for (let i = 0; i < tentatives; i++) {
+    const { data, error } = await sb.rpc('my_role')
+    if (!error) return { role: data || 'none' }
+    derniere = error
+    await new Promise(r => setTimeout(r, 400 * (i + 1)))
+  }
+  return { role: null, error: derniere }
+}
+
 async function startApp(session) {
   window.__APP_READY__ = true
   currentUser = session.user
 
-  // Autorisation : décidée par la base, pas par l'interface
-  try {
-    const { data, error } = await sb.rpc('my_role')
-    if (error) throw error
-    currentRole = data || 'none'
-  } catch (e) {
-    console.error('[startApp] my_role :', e)
-    currentRole = 'none'
+  // Autorisation : décidée par la base, jamais par l'interface.
+  // On réessaie : un incident réseau ne doit pas être pris pour un refus,
+  // sinon un utilisateur légitime se retrouve éjecté sans explication.
+  const { role, error: roleErr } = await fetchRole()
+  if (role === null) {
+    console.error('[startApp] rôle indéterminé :', roleErr)
+    showLogin("Impossible de vérifier vos droits — le serveur n'a pas répondu. Vérifiez votre connexion puis rechargez la page.",
+              { sessionActive: true })
+    return
   }
+  currentRole = role
   if (currentRole !== 'host' && currentRole !== 'admin') {
-    await sb.auth.signOut()
-    showLogin("Ce compte n'est pas autorisé à animer de session. Contactez l'administrateur.")
+    // Surtout PAS de signOut() ici : il est global et couperait aussi la
+    // session d'un autre onglet. L'utilisateur se déconnecte lui-même.
+    showLogin("Ce compte n'est pas autorisé à animer de session. Demandez à l'administrateur de vous donner le rôle animateur.",
+              { sessionActive: true })
     return
   }
 
