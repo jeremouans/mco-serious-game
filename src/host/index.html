@@ -774,6 +774,21 @@
   </style>
 </head>
 <body class="theme-admin with-mask">
+<script>
+  // Filet de diagnostic — script classique volontairement : il s'exécute même si
+  // le script principal (module ES) ne démarre jamais, par ex. si le CDN esm.sh
+  // dont dépend la bibliothèque Supabase est injoignable (réseau d'entreprise,
+  // proxy, filtrage). Sans ce filet, on reste sur l'écran de connexion dont
+  // aucun champ n'est branché : impossible de comprendre ce qui se passe.
+  window.__APP_BOOTED__ = false
+  window.addEventListener('load', function () {
+    setTimeout(function () {
+      if (window.__APP_BOOTED__) return
+      var box = document.getElementById('boot-error')
+      if (box) box.style.display = 'block'
+    }, 5000)
+  })
+</script>
 <img id="e2030-brand" src="/assets/logo-beige.svg" alt="Engagements 2030">
 <!-- Rappel permanent du code + QR : permet de rejoindre / se reconnecter en cours de partie -->
 <div id="mini-session" title="Code et QR pour rejoindre la session — cliquez pour agrandir">
@@ -845,6 +860,15 @@
             <div style="font-size:.75rem;font-weight:800;text-transform:uppercase;letter-spacing:2.5px;color:var(--green);">Espace animateur</div>
             <h2 style="margin-top:2px;">Connexion</h2>
           </div>
+        </div>
+
+        <div id="boot-error" style="display:none;background:rgba(231,76,60,.14);border:1.5px solid rgba(231,76,60,.45);border-radius:14px;padding:14px 16px;font-size:.88rem;line-height:1.5;color:#ffb3a7;">
+          <strong style="color:#ff8f7a;">⚠️ L'application n'a pas démarré.</strong><br>
+          Normalement cet écran ne s'affiche pas : l'accès animateur est automatique.
+          Le script principal n'a pas pu se charger — le plus souvent une ressource
+          externe bloquée par le réseau (<code>esm.sh</code>, <code>supabase.co</code>).
+          Les champs ci-dessous ne sont branchés à rien et ne servent à rien.<br>
+          <span style="opacity:.85;">Ouvrez la console du navigateur pour l'erreur exacte.</span>
         </div>
 
         <div class="login-tabs">
@@ -1563,11 +1587,17 @@ async function refreshHomeLists() {
 }
 
 async function startApp() {
+  window.__APP_BOOTED__ = true
   currentUser = DEMO_USER
   hostProfile = { first_name: 'Animateur', last_name: '' }
   if ($('user-email')) $('user-email').textContent = 'Mode démo'
   applyMancheTheme('yellow', '')
   initManagerInput()
+
+  // Mode démo : on bascule sur l'accueil AVANT le moindre appel réseau.
+  // Aucun échec Supabase ne peut donc laisser l'utilisateur coincé sur
+  // l'écran de connexion (dont les champs ne sont branchés à rien ici).
+  showScreen('screen-home')
 
   // Chaque chargement est isolé : une requête Supabase en échec ne doit jamais
   // empêcher d'atteindre l'accueil. Sinon on reste bloqué sur l'écran de
@@ -1581,7 +1611,6 @@ async function startApp() {
     try { await fn() } catch (e) { reportStartupError(label, e) }
   }
 
-  showScreen('screen-home')
 }
 
 startApp()
