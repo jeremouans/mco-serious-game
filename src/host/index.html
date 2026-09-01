@@ -2683,6 +2683,16 @@ async function persistPlayersAtStart() {
   } catch (e) { console.warn('persistPlayers:', e) }
 }
 
+// Scores écrits au fil de la partie : `results` n'étant produit qu'à la
+// clôture, une partie interrompue n'aurait sinon aucun score exploitable.
+async function persistScores() {
+  if (!activeSession || OFFLINE_MODE || !GS?.dbPlayerIds?.size) return
+  try {
+    await Promise.all([...GS.dbPlayerIds.entries()].map(([tid, pid]) =>
+      sb.from('players').update({ score: GS.players.get(tid)?.score ?? 0 }).eq('id', pid)))
+  } catch (e) { console.warn('persistScores:', e) }
+}
+
 async function persistAnswers(questionId, logAnswers) {
   if (!activeSession || OFFLINE_MODE || !GS?.dbPlayerIds?.size) return
   const rows = []
@@ -2975,6 +2985,7 @@ function offlineEnd() {
 
 // ── Scoreboard ────────────────────────────────────────────────
 function renderScoreboard() {
+  persistScores()   // les scores survivent à une partie non clôturée
   const sorted = Array.from(GS.players.values()).sort((a, b) => b.score - a.score)
   const maxScore = sorted[0]?.score || 1
   const lines = $('sb-lines'); lines.innerHTML = ''
@@ -3228,19 +3239,27 @@ async function openReport(sessionId, code, date, settings) {
   showScreen('screen-report')
   $('report-body').innerHTML = '<p class="rep-empty" style="text-align:center;padding:40px;">Chargement…</p>'
   try {
-    const [{ data: results }, { data: answers }, { data: submissions }, { data: wcVotes }, { data: votes }] = await Promise.all([
+    const [{ data: results }, { data: answers }, { data: submissions }, { data: wcVotes }, { data: votes }, { data: players }] = await Promise.all([
       sb.from('results').select('*').eq('session_id', sessionId).order('rank'),
       sb.from('answers').select('question_id, value, is_correct, time_ms, points, players(name)').eq('session_id', sessionId),
       sb.from('submissions').select('*').eq('session_id', sessionId).order('points', { ascending: false }),
       sb.from('wordcloud_votes').select('round_key, word').eq('session_id', sessionId),
-      sb.from('votes').select('*').eq('session_id', sessionId)
+      sb.from('votes').select('*').eq('session_id', sessionId),
+      sb.from('players').select('id,name,score').eq('session_id', sessionId)
     ])
     // Toujours repartir de la config du quiz RÉELLEMENT joué par cette session :
     // se rabattre sur le quiz sélectionné à l'écran faisait disparaître des
     // manches (engagements, idées…) du bilan quand ce n'était pas le même quiz.
     let config = await loadQuizConfigById(settings?.quiz_id)
     if (!config) config = QUIZ_CONFIG
-    const scoreboard = (results ?? []).map(r => ({ name: r.player_name, score: r.final_score }))
+    // `results` n'est écrit qu'à la clôture par l'animateur. Une session close
+    // depuis l'admin, ou interrompue, n'en a aucun : on retombe alors sur les
+    // scores des joueurs, tenus à jour au fil de la partie. Sans ce repli, le
+    // bilan n'affichait aucun classement.
+    const scoreboard = (results?.length)
+      ? results.map(r => ({ name: r.player_name, score: r.final_score }))
+      : (players ?? []).map(p => ({ name: p.name || '?', score: p.score || 0 }))
+                       .sort((a, b) => b.score - a.score)
     const mancheLog = buildMancheLogFromDB({ answers: answers??[], submissions: submissions??[], wordcloudVotes: wcVotes??[], votes: votes??[], config })
     $('report-body').innerHTML = buildBilanHtml({ code, date, scoreboard, mancheLog, logoHtml: LOGO_SVG })
   } catch(e) { $('report-body').innerHTML = `<p style="color:#e74c3c;padding:20px;">Erreur : ${e.message}</p>` }
