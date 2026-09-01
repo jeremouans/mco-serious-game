@@ -2683,6 +2683,10 @@ async function persistPlayersAtStart() {
   } catch (e) { console.warn('persistPlayers:', e) }
 }
 
+// `answers.time_ms` est un integer : toute valeur hors bornes fait échouer
+// l'insertion du lot entier. On borne systématiquement.
+const clampTimeMs = ms => Math.max(0, Math.min(2147483647, Math.round(Number(ms) || 0)))
+
 // Scores écrits au fil de la partie : `results` n'étant produit qu'à la
 // clôture, une partie interrompue n'aurait sinon aucun score exploitable.
 async function persistScores() {
@@ -2701,7 +2705,7 @@ async function persistAnswers(questionId, logAnswers) {
     if (!pid || a.value === null || a.value === undefined) return
     rows.push({ session_id: activeSession.id, player_id: pid, question_id: questionId,
                 value: String(a.value), is_correct: !!a.isCorrect,
-                time_ms: a.timeMs || 0, points: a.points || 0 })
+                time_ms: clampTimeMs(a.timeMs), points: a.points || 0 })
   })
   if (!rows.length) { GS.persistedQuestions.add(questionId); return }
   try {
@@ -2740,6 +2744,7 @@ function showQuestion(skipIntro = false) {
   const timerDur = 0
   GS.endsAt = Date.now() + 9999999
   GS.timerDuration = 9999999
+  GS.questionStartTs = Date.now()   // référence réelle pour mesurer le temps de réponse
   GS.currentAnswers = new Map()
   GS.revealed = false
 
@@ -2904,10 +2909,18 @@ function receiveAnswer(payload) {
   if (payload.clientTs > GS.endsAt + 500) return
 
   const isCorrect  = String(payload.value) === String(q.correct)
-  const startTs    = GS.endsAt - GS.timerDuration * 1000
-  const timeMs     = Math.max(0, payload.clientTs - startTs)
+  // Le temps de réponse se mesure depuis l'affichage réel de la question.
+  // L'ancien calcul partait de `endsAt - timerDuration*1000`, or les minuteurs
+  // sont désactivés (endsAt = maintenant + 9999999 ms, timerDuration = 9999999
+  // SECONDES) : la référence tombait ~116 jours dans le passé et timeMs valait
+  // ~10 milliards. Au-delà de la capacité d'un `integer`, l'enregistrement des
+  // réponses échouait en bloc — d'où les bilans vides.
+  const timeMs     = clampTimeMs(payload.clientTs - (GS.questionStartTs || payload.clientTs))
   const basePoints = q.points ?? 1000
-  const points     = isCorrect ? Math.round(basePoints * (1 - 0.5 * (timeMs / (GS.timerDuration * 1000)))) : 0
+  // Sans minuteur, aucune fenêtre ne permet de pondérer par la vitesse : une
+  // bonne réponse vaut la totalité des points. L'ancienne formule en retirait
+  // arbitrairement la moitié (500 sur 1000).
+  const points     = isCorrect ? basePoints : 0
 
   GS.currentAnswers.set(payload.tempId, { value: payload.value, isCorrect, points, timeMs, name: payload.name })
   updateAnswerBars()
@@ -3063,7 +3076,7 @@ async function endGame() {
           if (!pid || a.value === null || a.value === undefined) return
           rows.push({ session_id: activeSession.id, player_id: pid, question_id: entry.questionId,
                       value: String(a.value), is_correct: !!a.isCorrect,
-                      time_ms: a.timeMs || 0, points: a.points || 0 })
+                      time_ms: clampTimeMs(a.timeMs), points: a.points || 0 })
         })
       })
       if (rows.length > 0) {
@@ -3857,6 +3870,7 @@ function showSliderQuestion() {
   } else {
     timerWrap.style.display = 'none'
     GS.endsAt = Date.now() + 9999999
+    GS.questionStartTs = Date.now()
   }
 
   const payload = { type:'slider', idx:GS.qIdx, total:GS.questions.length, questionId:q.id,
