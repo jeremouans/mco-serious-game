@@ -1033,11 +1033,28 @@ function renderHistory() {
       <td>${fmtDate(s.created_at)}</td>
       <td><strong>${escHtml(s.code)}</strong>${sessionSubLine(s, 4)}</td>
       <td>${escHtml(hostName)}</td>
-      <td>${s.playerCount}</td>
+      <td>${s.playerCount}${s.status !== 'ended' && s.playerCount === 0
+            ? ' <span style="font-size:.7rem;color:rgba(243,238,218,.45);">(en cours)</span>' : ''}</td>
       <td><span class="badge badge-${s.status}">${s.status}</span></td>
-      <td><button class="btn ghost sm" onclick="event.stopPropagation();openSessionReport('${s.id}')">Bilan →</button></td>
+      <td style="white-space:nowrap;">
+        <button class="btn ghost sm" onclick="event.stopPropagation();openSessionReport('${s.id}')">Bilan →</button>
+        ${s.status !== 'ended'
+          ? `<button class="btn ghost sm" style="color:#F4C84A;" onclick="event.stopPropagation();terminerSession('${s.id}','${escHtml(s.code)}')">🏁 Terminer</button>`
+          : ''}
+      </td>
     </tr>`
   }).join('')
+}
+
+// Clore une session restée ouverte. Les parties en `lobby` ou `playing`
+// n'apparaissaient nulle part côté animateur et ne pouvaient pas être closes.
+window.terminerSession = async (id, code) => {
+  if (!confirm(`Terminer la session ${code} ?\n\nElle passera en « ended » et restera consultable. `
+             + `Attention : si une partie est réellement en cours, l'animateur perdra la main.`)) return
+  const { error } = await sb.from('sessions')
+    .update({ status: 'ended', ended_at: new Date().toISOString() }).eq('id', id)
+  if (error) { alert('Erreur : ' + error.message); return }
+  await loadHistory()
 }
 
 $('history-search').addEventListener('input', e => {

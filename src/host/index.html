@@ -1767,15 +1767,39 @@ $('tab-guide').addEventListener('click', () => {
 
 // ── Sessions ─────────────────────────────────────────────────
 async function loadOpenSessions() {
-  const { data, error } = await sb.from('sessions').select('id,code,status,settings,created_at').eq('status','lobby').order('created_at',{ascending:false}).limit(5)
+  // `lobby` ET `playing` : une partie restée en cours n'apparaissait nulle part
+  // — ni ici (filtré sur lobby) ni dans « Mes parties » (filtré sur ended) —
+  // et devenait impossible à retrouver ou à clore.
+  const { data, error } = await sb.from('sessions')
+    .select('id,code,status,settings,created_at')
+    .in('status', ['lobby','playing'])
+    .order('created_at',{ascending:false}).limit(10)
   if (error) throw error
   const list = $('sessions-list')
   if (!data || data.length === 0) { list.innerHTML = '<p class="empty-msg" style="font-size:.88rem;">Aucune session ouverte.</p>'; return }
   list.innerHTML = ''
   data.forEach(s => {
+    const enCours = s.status === 'playing'
     const chip = document.createElement('div'); chip.className = 'session-chip'
-    chip.innerHTML = `<span class="status-dot"></span><span class="code">${s.code}</span><span>lobby ouvert</span>`
-    chip.addEventListener('click', () => { activeSession = s; openLobby(s) })
+    chip.innerHTML = `<span class="status-dot"></span><span class="code">${escHtml(s.code)}</span>` +
+      `<span>${enCours ? 'partie en cours' : 'lobby ouvert'}</span>`
+    if (enCours) {
+      // L'état de jeu vit dans le navigateur : une partie en cours ne peut pas
+      // être reprise ailleurs. On propose seulement de la clore proprement.
+      const fin = document.createElement('button')
+      fin.className = 'btn sm'; fin.textContent = '🏁 Terminer'
+      fin.style.cssText = 'margin-left:8px;'
+      fin.addEventListener('click', async ev => {
+        ev.stopPropagation()
+        if (!confirm(`Terminer la session ${s.code} ?\nElle restera consultable dans « Mes parties ».`)) return
+        await sb.from('sessions').update({ status:'ended', ended_at:new Date().toISOString() }).eq('id', s.id)
+        await refreshHomeLists()
+      })
+      chip.appendChild(fin)
+    } else {
+      chip.style.cursor = 'pointer'
+      chip.addEventListener('click', () => { activeSession = s; openLobby(s) })
+    }
     list.appendChild(chip)
   })
 }
@@ -2565,6 +2589,7 @@ $('start-btn').addEventListener('click', async () => {
       initialPlayers
     })
     initGame()
+    await persistPlayersAtStart()
     showQuestion()
   } catch (err) { alert('Erreur : ' + err.message) }
 })
@@ -2581,9 +2606,51 @@ function initGame() {
       email: p.email || null
     })
   })
-  GS = { questions: QUIZ, qIdx: 0, endsAt: 0, timerDuration: 0, timerInterval: null, players, currentAnswers: new Map(), revealed: false, log: [] }
+  GS = { questions: QUIZ, qIdx: 0, endsAt: 0, timerDuration: 0, timerInterval: null,
+         players, currentAnswers: new Map(), revealed: false, log: [],
+         dbPlayerIds: new Map(),        // tempId → id en base
+         persistedQuestions: new Set() } // questions déjà écrites en base
   GAME_LOG = []
   P4S = null; WCS = null; OQS = null
+}
+
+// ── Persistance au fil de la partie ────────────────────────────
+// Tout était écrit uniquement à la clôture : une partie non terminée
+// (onglet fermé, batterie, réseau) perdait joueurs ET réponses.
+// Les joueurs sont créés au démarrage, les réponses après chaque révélation.
+async function persistPlayersAtStart() {
+  if (!activeSession || OFFLINE_MODE || !GS?.players?.size) return
+  const manager = activeSession?.settings?.manager || null
+  const tempIds = [...GS.players.keys()]
+  const rows = tempIds.map(tid => {
+    const p = GS.players.get(tid)
+    return { session_id: activeSession.id, name: p.name, score: 0, email: p.email || null, manager }
+  })
+  try {
+    const { data, error } = await sb.from('players').insert(rows).select('id')
+    if (error) throw error
+    // Appariement par position : l'ancien appariement par nom perdait les
+    // homonymes (deux « Jean » ne recevaient qu'un seul identifiant).
+    ;(data || []).forEach((row, i) => { if (tempIds[i]) GS.dbPlayerIds.set(tempIds[i], row.id) })
+  } catch (e) { console.warn('persistPlayers:', e) }
+}
+
+async function persistAnswers(questionId, logAnswers) {
+  if (!activeSession || OFFLINE_MODE || !GS?.dbPlayerIds?.size) return
+  const rows = []
+  ;(logAnswers || []).forEach(a => {
+    const pid = GS.dbPlayerIds.get(a.tempId)
+    if (!pid || a.value === null || a.value === undefined) return
+    rows.push({ session_id: activeSession.id, player_id: pid, question_id: questionId,
+                value: String(a.value), is_correct: !!a.isCorrect,
+                time_ms: a.timeMs || 0, points: a.points || 0 })
+  })
+  if (!rows.length) { GS.persistedQuestions.add(questionId); return }
+  try {
+    const { error } = await sb.from('answers').insert(rows)
+    if (error) throw error
+    GS.persistedQuestions.add(questionId)   // sinon rejouée en fin de partie
+  } catch (e) { console.warn('persistAnswers:', e) }
 }
 
 // ── Question ──────────────────────────────────────────────────
@@ -2826,6 +2893,7 @@ function doReveal() {
     logAnswers.push({ tempId, name: player.name, value: ans?.value ?? null, isCorrect: ans?.isCorrect ?? false, points: ans?.points ?? 0, timeMs: ans?.timeMs ?? 0 })
   })
   GS.log.push({ questionId: q.id, type: q.type, answers: logAnswers })
+  persistAnswers(q.id, logAnswers)
 
   // Broadcast (uniquement en mode connecté)
   if (activeChannel && !OFFLINE_MODE) {
@@ -2895,32 +2963,46 @@ async function endGame() {
 
   await sb.from('sessions').update({ status: 'ended', ended_at: new Date().toISOString() }).eq('id', activeSession.id)
 
-  // Logs DB
+  // Logs DB — les joueurs et les réponses ont normalement déjà été écrits au
+  // fil de la partie. Ici on met à jour les scores, on enregistre le
+  // classement, et on rattrape ce qui n'a pas pu être persisté.
   try {
     if (scoreboard.length > 0) {
+      // 1. Joueurs : mise à jour des scores (créés au démarrage)
+      if (GS.dbPlayerIds?.size) {
+        await Promise.all([...GS.dbPlayerIds.entries()].map(([tid, pid]) =>
+          sb.from('players').update({ score: GS.players.get(tid)?.score ?? 0 }).eq('id', pid)))
+      } else {
+        // Repli : la création au démarrage a échoué, on crée maintenant
+        const tempIds = [...GS.players.keys()]
+        const { data } = await sb.from('players').insert(
+          tempIds.map(tid => {
+            const p = GS.players.get(tid)
+            return { session_id: activeSession.id, name: p.name, score: p.score,
+                     email: p.email || null, manager: sessionManager }
+          })).select('id')
+        ;(data || []).forEach((row, i) => { if (tempIds[i]) GS.dbPlayerIds.set(tempIds[i], row.id) })
+      }
+
       await sb.from('results').insert(scoreboard.map(p => ({
         session_id: activeSession.id, player_name: p.name, final_score: p.score, rank: p.rank
       })))
-      // Players
-      const { data: dbPlayers } = await sb.from('players').insert(
-        scoreboard.map(p => ({
-          session_id: activeSession.id, name: p.name, score: p.score,
-          email: p.email, manager: p.manager
-        }))
-      ).select('id, name')
-      // Answers
-      if (dbPlayers?.length > 0 && GS.log.length > 0) {
-        const nameToId = new Map(dbPlayers.map(p => [p.name, p.id]))
-        const rows = []
-        GS.log.forEach(entry => {
-          entry.answers.forEach(a => {
-            const player = GS.players.get(a.tempId)
-            const pid = player ? nameToId.get(player.name) : null
-            if (!pid) return
-            rows.push({ session_id: activeSession.id, player_id: pid, question_id: entry.questionId, value: a.value !== null ? String(a.value) : null, is_correct: a.isCorrect, time_ms: a.timeMs, points: a.points })
-          })
+
+      // 2. Réponses restantes : uniquement les questions pas encore écrites
+      const rows = []
+      GS.log.forEach(entry => {
+        if (GS.persistedQuestions?.has(entry.questionId)) return
+        ;(entry.answers || []).forEach(a => {
+          const pid = GS.dbPlayerIds.get(a.tempId)
+          if (!pid || a.value === null || a.value === undefined) return
+          rows.push({ session_id: activeSession.id, player_id: pid, question_id: entry.questionId,
+                      value: String(a.value), is_correct: !!a.isCorrect,
+                      time_ms: a.timeMs || 0, points: a.points || 0 })
         })
-        if (rows.length > 0) await sb.from('answers').insert(rows)
+      })
+      if (rows.length > 0) {
+        const { error } = await sb.from('answers').insert(rows)
+        if (error) console.warn('answers (rattrapage) :', error)
       }
     }
   } catch(e) { console.warn('DB log:', e) }
@@ -3747,7 +3829,9 @@ function doSliderReveal() {
     type:'slider', questionId:q.id, correct, unit:q.unit||'',
     answers:answers.map(a=>({ tempId:a.tempId, name:a.name, value:a.value, pts:a.pts })), scores
   }})
-  GS.log.push({ questionId:q.id, type:'slider', answers:answers.map(a=>({ tempId:a.tempId, name:a.name, value:a.value, pts:a.pts, isCorrect:a.delta===0 })) })
+  const sliderLog = answers.map(a => ({ tempId:a.tempId, name:a.name, value:a.value, points:a.pts, pts:a.pts, isCorrect:a.delta===0 }))
+  GS.log.push({ questionId:q.id, type:'slider', answers:sliderLog })
+  persistAnswers(q.id, sliderLog)
 
   if ($('sr-title')) $('sr-title').textContent = q.text
   showScreen('screen-slider-reveal')
