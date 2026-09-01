@@ -2524,7 +2524,7 @@ async function startPresence(code) {
   await cleanupChannel()
   activeChannel = sb.channel(`session:${code}`)
   activeChannel
-    .on('presence',  { event: 'sync' }, () => renderPlayers())
+    .on('presence',  { event: 'sync' }, () => { renderPlayers(); syncLatePlayers() })
     .on('broadcast', { event: 'answer' },          ({ payload }) => receiveAnswer(payload))
     .on('broadcast', { event: 'submit:idea' },     ({ payload }) => receiveIdeaSubmit(payload))
     .on('broadcast', { event: 'vote:idea' },       ({ payload }) => receiveIdeaVote(payload))
@@ -2536,6 +2536,53 @@ async function startPresence(code) {
     .subscribe(async status => {
       if (status === 'SUBSCRIBED' && currentUser) await activeChannel.track({ role: 'host', userId: currentUser.id, phase: 'lobby' })
     })
+}
+
+// ── Joueurs arrivés en cours de partie ────────────────────────
+// GS.players n'était constitué qu'au démarrage : un participant rejoignant
+// ensuite via « Nouveau joueur » n'était compté nulle part — ni dans le
+// dénominateur des réponses, ni au scoring (doReveal parcourt GS.players),
+// ni en base, ni au bilan. On l'intègre dès qu'il apparaît en presence.
+let syncLateEnCours = false
+async function syncLatePlayers() {
+  if (!GS || GS.ended || OFFLINE_MODE || !activeChannel || syncLateEnCours) return
+  const presents = Object.values(activeChannel.presenceState()).flat()
+    .filter(p => p.role === 'player' && p.tempId)
+  const nouveaux = presents.filter(p => !GS.players.has(p.tempId))
+  if (!nouveaux.length) return
+
+  syncLateEnCours = true
+  try {
+    nouveaux.forEach(p => GS.players.set(p.tempId, {
+      name: p.name || '?', score: 0, emoji: p.emoji || '🎮', email: p.email || null
+    }))
+    updatePlayerTotals()
+
+    // Ligne en base immédiate, sinon ses réponses seraient ignorées faute
+    // d'identifiant (persistAnswers écarte les joueurs inconnus).
+    if (activeSession && GS.dbPlayerIds) {
+      const manager = activeSession?.settings?.manager || null
+      for (const p of nouveaux) {
+        try {
+          const { data, error } = await sb.from('players').insert({
+            session_id: activeSession.id, name: p.name || '?', score: 0,
+            email: p.email || null, manager
+          }).select('id').single()
+          if (error) throw error
+          if (data) GS.dbPlayerIds.set(p.tempId, data.id)
+        } catch (e) { console.warn('joueur tardif non enregistré :', e) }
+      }
+    }
+  } finally { syncLateEnCours = false }
+}
+
+// Dénominateurs « … sur N » de tous les écrans de jeu
+function updatePlayerTotals() {
+  if (!GS) return
+  const n = GS.players.size
+  ;['ans-total','sq-ans-total','idea-total-players','idea-vote-total',
+    'engage-total-players','engagefree-total-players','open-total-players',
+    'wc-total-players'].forEach(id => { const el = $(id); if (el) el.textContent = n })
 }
 
 function renderPlayers() {
@@ -2957,6 +3004,7 @@ $('end-game-btn').addEventListener('click', endGame)
 async function endGame() {
   // Mode offline : pas de session/joueurs à logger, juste revenir à l'accueil
   if (OFFLINE_MODE) { offlineEnd(); return }
+  if (GS) GS.ended = true   // plus aucun joueur tardif enregistré après la clôture
 
   const sessionManager = activeSession?.settings?.manager || null
   const scoreboard = Array.from(GS.players.entries())
@@ -2973,21 +3021,23 @@ async function endGame() {
   // classement, et on rattrape ce qui n'a pas pu être persisté.
   try {
     if (scoreboard.length > 0) {
-      // 1. Joueurs : mise à jour des scores (créés au démarrage)
-      if (GS.dbPlayerIds?.size) {
-        await Promise.all([...GS.dbPlayerIds.entries()].map(([tid, pid]) =>
-          sb.from('players').update({ score: GS.players.get(tid)?.score ?? 0 }).eq('id', pid)))
-      } else {
-        // Repli : la création au démarrage a échoué, on crée maintenant
-        const tempIds = [...GS.players.keys()]
+      // 1. Joueurs. Rattrapage individuel : un joueur peut manquer en base si
+      //    son enregistrement au démarrage — ou à son arrivée en cours de
+      //    partie — a échoué. Sans cette ligne, ses réponses seraient perdues.
+      const manquants = [...GS.players.keys()].filter(tid => !GS.dbPlayerIds.has(tid))
+      if (manquants.length) {
         const { data } = await sb.from('players').insert(
-          tempIds.map(tid => {
+          manquants.map(tid => {
             const p = GS.players.get(tid)
             return { session_id: activeSession.id, name: p.name, score: p.score,
                      email: p.email || null, manager: sessionManager }
           })).select('id')
-        ;(data || []).forEach((row, i) => { if (tempIds[i]) GS.dbPlayerIds.set(tempIds[i], row.id) })
+        ;(data || []).forEach((row, i) => { if (manquants[i]) GS.dbPlayerIds.set(manquants[i], row.id) })
       }
+      // Scores définitifs pour tous ceux déjà créés
+      await Promise.all([...GS.dbPlayerIds.entries()]
+        .filter(([tid]) => !manquants.includes(tid))
+        .map(([tid, pid]) => sb.from('players').update({ score: GS.players.get(tid)?.score ?? 0 }).eq('id', pid)))
 
       await sb.from('results').insert(scoreboard.map(p => ({
         session_id: activeSession.id, player_name: p.name, final_score: p.score, rank: p.rank
