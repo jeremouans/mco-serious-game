@@ -11,8 +11,12 @@
     html, body { overflow: hidden; }
 
     /* ── Join ── */
-    #screen-join { justify-content: center; align-items: center; padding: 20px; }
+    #screen-join {
+      justify-content: flex-start; align-items: center; padding: 20px;
+      overflow-y: auto; -webkit-overflow-scrolling: touch;
+    }
     .join-card {
+      margin: auto 0;
       background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.12);
       backdrop-filter: blur(18px); border-radius: 28px;
       padding: clamp(28px,6vw,48px); box-shadow: 0 24px 60px rgba(0,0,0,.45);
@@ -257,15 +261,33 @@
     .p4j-result-sub { font-size: clamp(.95rem,3vw,1.2rem); color: var(--fg-soft); text-align: center; font-weight: 600; }
 
     /* ── Pick player (late join) ── */
-    #screen-pick-player { justify-content: center; align-items: center; padding: 20px; }
+    /* `justify-content:center` + `body{overflow:hidden}` rendaient les boutons
+       du bas inatteignables dès que la liste dépassait l'écran (12 joueurs).
+       On défile, et la carte reste centrée tant qu'elle tient. */
+    #screen-pick-player {
+      justify-content: flex-start; align-items: center; padding: 20px;
+      overflow-y: auto; -webkit-overflow-scrolling: touch;
+    }
     .pick-card {
+      margin: auto 0;   /* centré s'il y a la place, sans jamais rogner le haut */
       background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.12);
       backdrop-filter: blur(18px); border-radius: 28px;
       padding: clamp(24px,5vw,40px); box-shadow: 0 24px 60px rgba(0,0,0,.45);
       width: min(420px, 100%); display: flex; flex-direction: column; gap: 16px; animation: pop .3s ease-out;
     }
     .pick-intro { font-size: clamp(.88rem,2.5vw,1rem); color: var(--fg-soft); line-height: 1.5; }
-    .pick-player-list { display: flex; flex-direction: column; gap: 8px; }
+    /* La liste défile dans son propre cadre : « Nouveau joueur » reste
+       visible quel que soit le nombre de participants. */
+    .pick-player-list {
+      display: flex; flex-direction: column; gap: 8px;
+      max-height: 38vh; overflow-y: auto; -webkit-overflow-scrolling: touch;
+      padding-right: 4px; overscroll-behavior: contain;
+    }
+    .pick-player-list::-webkit-scrollbar { width: 6px; }
+    .pick-player-list::-webkit-scrollbar-thumb {
+      background: rgba(255,255,255,.25); border-radius: 3px;
+    }
+    .pick-scroll-hint { font-size: .78rem; color: var(--fg-mute); text-align: center; }
     .pick-player-btn {
       font-family: inherit; display: flex; align-items: center; gap: 14px;
       background: rgba(255,255,255,.08); border: 2px solid rgba(255,255,255,.15);
@@ -384,6 +406,7 @@
       </div>
       <p class="pick-intro">Cette partie a déjà démarré. Sélectionnez votre place dans la liste des participants inscrits. Les places <strong style="color:var(--fg-mute);">⚪ Hors ligne</strong> sont disponibles ; celles <strong style="color:var(--green);">🟢 En ligne</strong> sont déjà occupées sur un autre appareil.</p>
       <div class="pick-player-list" id="pick-player-list"></div>
+      <div class="pick-scroll-hint" id="pick-scroll-hint" style="display:none;"></div>
       <div class="pick-divider">— ou —</div>
       <button class="btn big" id="pick-new-btn" style="justify-content:center;">➕ Nouveau joueur</button>
       <button class="btn ghost sm" id="pick-back-btn" style="justify-content:center;">← Changer de code</button>
@@ -885,6 +908,11 @@ async function doTrackAsPlayer() {
 
 function showPickPlayerScreen(players, activeIds = new Set()) {
   const list = $('pick-player-list'); list.innerHTML = ''
+  const hint = $('pick-scroll-hint')
+  if (hint) {
+    hint.style.display = players.length > 5 ? 'block' : 'none'
+    hint.textContent = `${players.length} participants — faites défiler la liste`
+  }
   if (!players.length) {
     list.innerHTML = '<p style="color:var(--fg-soft);text-align:center;font-size:.9rem;">Aucun participant initial enregistré.</p>'
   } else {
