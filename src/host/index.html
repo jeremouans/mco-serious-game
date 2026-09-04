@@ -2914,7 +2914,21 @@ function renderOptionsHost(q) {
   grid.className = 'opts-host ' + (q.options.length === 2 ? 'two' : 'four')
 }
 
+// Appelée à chaque réponse reçue : avec 1000 participants répondant en
+// quelques secondes, un recomptage complet par message devient quadratique.
+// On limite à un rafraîchissement toutes les 120 ms.
+let barsTimer = null, barsDernier = 0
 function updateAnswerBars() {
+  const reste = 120 - (Date.now() - barsDernier)
+  if (reste > 0) {
+    if (!barsTimer) barsTimer = setTimeout(() => { barsTimer = null; updateAnswerBars() }, reste)
+    return
+  }
+  barsDernier = Date.now()
+  updateAnswerBarsNow()
+}
+
+function updateAnswerBarsNow() {
   const q = GS.questions[GS.qIdx]
   const total = Math.max(1, GS.players.size)
   const counts = new Array(q.options.length).fill(0)
@@ -2975,6 +2989,8 @@ function doReveal() {
   }
   GS.revealed = true
   clearInterval(GS.timerInterval)
+  if (barsTimer) { clearTimeout(barsTimer); barsTimer = null }
+  updateAnswerBarsNow()   // compte exact au moment de révéler
   $('timer-fill').style.width = '0%'; $('timer-secs').textContent = '0'
 
   const q = GS.questions[GS.qIdx]
