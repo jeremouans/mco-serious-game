@@ -2561,17 +2561,17 @@ async function syncLatePlayers() {
     // Ligne en base immédiate, sinon ses réponses seraient ignorées faute
     // d'identifiant (persistAnswers écarte les joueurs inconnus).
     if (activeSession && GS.dbPlayerIds) {
+      // Insertion groupée : lors d'une arrivée massive, une requête par joueur
+      // saturait le navigateur de l'animateur.
       const manager = activeSession?.settings?.manager || null
-      for (const p of nouveaux) {
-        try {
-          const { data, error } = await sb.from('players').insert({
-            session_id: activeSession.id, name: p.name || '?', score: 0,
-            email: p.email || null, manager
-          }).select('id').single()
-          if (error) throw error
-          if (data) GS.dbPlayerIds.set(p.tempId, data.id)
-        } catch (e) { console.warn('joueur tardif non enregistré :', e) }
-      }
+      try {
+        const { data, error } = await sb.from('players').insert(
+          nouveaux.map(p => ({ session_id: activeSession.id, name: p.name || '?',
+                               score: 0, email: p.email || null, manager }))
+        ).select('id')
+        if (error) throw error
+        ;(data || []).forEach((row, i) => { if (nouveaux[i]) GS.dbPlayerIds.set(nouveaux[i].tempId, row.id) })
+      } catch (e) { console.warn('joueurs tardifs non enregistrés :', e) }
     }
   } finally { syncLateEnCours = false }
 }
@@ -2585,20 +2585,47 @@ function updatePlayerTotals() {
     'wc-total-players'].forEach(id => { const el = $(id); if (el) el.textContent = n })
 }
 
+// La liste du lobby est reconstruite à chaque événement de présence. Avec un
+// afflux massif, cela devient quadratique : N arrivées × N éléments recréés.
+// On limite donc à un rendu toutes les 250 ms, et on plafonne l'affichage.
+const MAX_CHIPS_AFFICHES = 60
+let renderPlayersTimer = null, renderPlayersDernier = 0
 function renderPlayers() {
+  const maintenant = Date.now()
+  const reste = 250 - (maintenant - renderPlayersDernier)
+  if (reste > 0) {
+    if (!renderPlayersTimer) renderPlayersTimer = setTimeout(() => {
+      renderPlayersTimer = null; renderPlayers()
+    }, reste)
+    return
+  }
+  renderPlayersDernier = maintenant
+  renderPlayersNow()
+}
+
+function renderPlayersNow() {
   const state = activeChannel.presenceState()
   const players = Object.values(state).flat().filter(p => p.role === 'player')
   $('player-count').textContent = players.length
   const list = $('player-list')
   if (players.length === 0) { list.innerHTML = '<p class="empty-msg">En attente des participants…</p>'; updateStartBtn(0); return }
-  list.innerHTML = ''
-  players.forEach(p => {
+
+  // Un seul rattachement au DOM plutôt qu'un par joueur
+  const frag = document.createDocumentFragment()
+  players.slice(0, MAX_CHIPS_AFFICHES).forEach(p => {
     const color = colorFor(p.name)
     const chip = document.createElement('div'); chip.className = 'p-chip'
     const av = p.emoji ? `<div class="av" style="background:${color};font-size:1.05em;line-height:1;">${p.emoji}</div>` : `<div class="av" style="background:${color}">${initial(p.name)}</div>`
-    chip.innerHTML = av + `<span class="nm">${p.name}</span>`
-    list.appendChild(chip)
+    chip.innerHTML = av + `<span class="nm">${escHtml(p.name)}</span>`
+    frag.appendChild(chip)
   })
+  if (players.length > MAX_CHIPS_AFFICHES) {
+    const reste = document.createElement('div'); reste.className = 'p-chip'
+    reste.innerHTML = `<span class="nm">+ ${players.length - MAX_CHIPS_AFFICHES} autres…</span>`
+    frag.appendChild(reste)
+  }
+  list.innerHTML = ''
+  list.appendChild(frag)
   updateStartBtn(players.length)
 }
 
@@ -2691,9 +2718,14 @@ const clampTimeMs = ms => Math.max(0, Math.min(2147483647, Math.round(Number(ms)
 // clôture, une partie interrompue n'aurait sinon aucun score exploitable.
 async function persistScores() {
   if (!activeSession || OFFLINE_MODE || !GS?.dbPlayerIds?.size) return
+  // Une seule requête groupée : une par joueur représentait 14 000 appels HTTP
+  // pour une partie de 1000 participants sur 14 questions.
+  const ids = [], scores = []
+  GS.dbPlayerIds.forEach((pid, tid) => { ids.push(pid); scores.push(GS.players.get(tid)?.score ?? 0) })
   try {
-    await Promise.all([...GS.dbPlayerIds.entries()].map(([tid, pid]) =>
-      sb.from('players').update({ score: GS.players.get(tid)?.score ?? 0 }).eq('id', pid)))
+    const { error } = await sb.rpc('set_player_scores',
+      { p_session: activeSession.id, p_ids: ids, p_scores: scores })
+    if (error) throw error
   } catch (e) { console.warn('persistScores:', e) }
 }
 
@@ -3058,10 +3090,8 @@ async function endGame() {
           })).select('id')
         ;(data || []).forEach((row, i) => { if (manquants[i]) GS.dbPlayerIds.set(manquants[i], row.id) })
       }
-      // Scores définitifs pour tous ceux déjà créés
-      await Promise.all([...GS.dbPlayerIds.entries()]
-        .filter(([tid]) => !manquants.includes(tid))
-        .map(([tid, pid]) => sb.from('players').update({ score: GS.players.get(tid)?.score ?? 0 }).eq('id', pid)))
+      // Scores définitifs, en une seule requête groupée
+      await persistScores()
 
       await sb.from('results').insert(scoreboard.map(p => ({
         session_id: activeSession.id, player_name: p.name, final_score: p.score, rank: p.rank
