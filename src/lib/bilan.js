@@ -126,7 +126,9 @@
           pushQuizManche(m.name, m.questions || [])
         } else if (mt === 'idea') {
           const ideas = takeSubs('idea', m.id)
-          if (ideas.length) mancheLog.push({ type: 'idea', mancheName: m.name, ranking: ideaRanking(ideas) })
+          // Le thème choisi par l'animateur est stocké dans `category`
+          if (ideas.length) mancheLog.push({ type: 'idea', mancheName: m.name,
+            theme: ideas.find(s => s.category)?.category || '', ranking: ideaRanking(ideas) })
         } else if (mt === 'engage') {
           const eng = takeSubs('engage', m.id)
           if (eng.length) {
@@ -166,7 +168,8 @@
     const leftIdeas = submissions.filter(s => s.kind === 'idea' && !usedSubIds.has(s.id))
     if (leftIdeas.length) {
       leftIdeas.forEach(s => usedSubIds.add(s.id))
-      mancheLog.push({ type: 'idea', mancheName: 'Idées en Or', ranking: ideaRanking(leftIdeas) })
+      mancheLog.push({ type: 'idea', mancheName: 'Idées en Or',
+        theme: leftIdeas.find(s => s.category)?.category || '', ranking: ideaRanking(leftIdeas) })
     }
     const leftEngage = submissions.filter(s => s.kind === 'engage' && !usedSubIds.has(s.id))
     if (leftEngage.length) {
@@ -327,7 +330,11 @@
           <td style="text-align:center;font-weight:700;color:#6aa517">${r.votes}</td>
           <td style="font-weight:900;color:#c9a000">+${r.pts}</td>
         </tr>`).join('')
+        const theme = entry.theme
+          ? `<div style="font-size:.9rem;color:#5a6b60;margin-bottom:8px;">Thème : <strong style="color:#113124">${esc(entry.theme)}</strong></div>`
+          : ''
         return `<div><div class="rep-section-title">💡 ${esc(entry.mancheName)}</div>
+          ${theme}
           <table class="rep-table"><thead><tr><th>Auteur</th><th>Idée</th><th>Votes</th><th>Points</th></tr></thead>
           <tbody>${rows}</tbody></table></div>`
       }

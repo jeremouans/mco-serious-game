@@ -895,12 +895,13 @@ $('export-ideas-btn').addEventListener('click', async () => {
       s.author_name || '',
       s.author_email || '',
       s.author_manager || '',
+      s.category || '',            // thème choisi par l'animateur
       s.text || '',
       votesMap[s.id] || 0,
       s.is_gold ? 'Oui' : ''
     ])
     downloadCSV('idees-en-or.csv',
-      ['Session', 'Date', 'Nom', 'Email', 'Manager', 'Idée', 'Votes reçus', 'Idée en Or'],
+      ['Session', 'Date', 'Nom', 'Email', 'Manager', 'Thème', 'Idée', 'Votes reçus', 'Idée en Or'],
       rows)
     setExportStatus(`✅ ${subs.length} idée(s) exportée(s).`)
   } catch (e) { console.warn(e); setExportStatus('❌ Erreur : ' + e.message, true) }
@@ -1455,10 +1456,28 @@ function buildMancheEditorHTML(m, mi) {
         </div>
       </div>`
   } else if (m.type === 'idea') {
+    const themes = m.themes || []
+    const themesHtml = themes.map((th, ti) => `
+      <div class="engage-slot-opt" style="margin-bottom:6px;">
+        <input class="field-input" value="${escHtml(th)}" placeholder="Thème ${ti + 1}"
+               oninput="updateTheme(${mi},${ti},this.value)">
+        <button class="chip-btn" title="Supprimer" style="color:rgba(231,76,60,.6);"
+                onclick="removeTheme(${mi},${ti})">✕</button>
+      </div>`).join('')
     specificFields = `
       <div class="field-group">
-        <label class="field-lbl">Défi / challenge proposé</label>
-        <textarea class="field-input" id="idea-challenge-${mi}" rows="3" style="resize:vertical;">${escHtml(m.challenge||'')}</textarea>
+        <label class="field-lbl">Consigne générale (affichée à l'écran et sur les mobiles)</label>
+        <textarea class="field-input" id="idea-challenge-${mi}" rows="3" style="resize:vertical;"
+                  placeholder="Ex : Quelle innovation proposez-vous ?">${escHtml(m.challenge||'')}</textarea>
+      </div>
+      <div class="field-group">
+        <label class="field-lbl">🎯 Thèmes proposés
+          <span style="font-size:.72rem;color:rgba(243,238,218,.5);font-weight:600;margin-left:6px;">
+            L'animateur en choisit un en début de manche ; c'est le sujet sur lequel les participants proposent leur idée.
+          </span>
+        </label>
+        <div id="idea-themes-${mi}">${themesHtml || '<div style="color:rgba(243,238,218,.4);font-size:.85rem;padding:6px 0;">Aucun thème — la consigne générale servira de sujet.</div>'}</div>
+        <button class="btn ghost sm" style="margin-top:6px;" onclick="addTheme(${mi})">＋ Ajouter un thème</button>
       </div>
       <div class="field-group">
         <label class="field-lbl">Durée de saisie (secondes)</label>
@@ -1784,7 +1803,7 @@ window.setMancheType = (mi, type) => {
   currentQuiz.config.manches[mi] = { id: m.id, type, name: oldName, theme: m.theme || 'yellow', picto: m.picto || '' }
   if (type === 'quiz') currentQuiz.config.manches[mi].questions = []
   if (type === 'wordcloud') { currentQuiz.config.manches[mi].prompt = ''; currentQuiz.config.manches[mi].words = [...WORDCLOUD_DEFAULTS]; currentQuiz.config.manches[mi].durationSecs = 120 }
-  if (type === 'idea') { currentQuiz.config.manches[mi].challenge = ''; currentQuiz.config.manches[mi].durationSecs = 90 }
+  if (type === 'idea') { currentQuiz.config.manches[mi].challenge = ''; currentQuiz.config.manches[mi].themes = []; currentQuiz.config.manches[mi].durationSecs = 90 }
   if (type === 'engage') {
     currentQuiz.config.manches[mi].intro = ''
     currentQuiz.config.manches[mi].subject = 'Mes engagements'
@@ -1850,6 +1869,19 @@ window.updateQField = (mi, qi, field, val) => {
 window.updateQOption = (mi, qi, oi, val) => {
   currentQuiz.config.manches[mi].questions[qi].options[oi] = val
 }
+// ─ Thèmes de la manche « idée en Or » ─
+window.addTheme = mi => {
+  const m = currentQuiz.config.manches[mi]
+  if (!m.themes) m.themes = []
+  m.themes.push('')
+  renderMancheEditor()
+}
+window.updateTheme = (mi, ti, val) => { currentQuiz.config.manches[mi].themes[ti] = val }
+window.removeTheme = (mi, ti) => {
+  currentQuiz.config.manches[mi].themes.splice(ti, 1)
+  renderMancheEditor()
+}
+
 window.addWord = mi => {
   const inp = $(`wc-new-word-${mi}`)
   const word = inp?.value.trim(); if (!word) return
@@ -1981,6 +2013,7 @@ $('new-quiz-btn').addEventListener('click', () => {
   'moveMancheUp','moveMancheDown','deleteManche','setMancheTheme','setManchePicto','setMancheType',
   'addQuestion','deleteQ','moveQUp','moveQDown','updateQField','updateQOption',
   'addWord','removeWord','resetWords','updateCat','addCat','removeCat',
+  'addTheme','updateTheme','removeTheme',
   'addSlotOpt','updateSlotOpt','removeSlotOpt'
 ].forEach(fnName => {
   const orig = window[fnName]

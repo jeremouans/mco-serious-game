@@ -540,6 +540,9 @@
     <button class="back-btn" id="idea-input-back-btn">⬅ Attente</button>
     <div class="p4j-badge">💡 L'idée en Or</div>
     <div class="p4j-head">Votre idée</div>
+    <div id="idea-theme-p" style="display:none;font-weight:800;color:var(--ever);
+         background:var(--gold);border-radius:12px;padding:.5em 1em;text-align:center;
+         font-size:clamp(1rem,3.5vw,1.2rem);line-height:1.3;"></div>
     <div class="p4j-challenge" id="idea-challenge-p"></div>
     <div>
       <textarea class="p4j-textarea" id="idea-text-inp" maxlength="280" placeholder="Écrivez votre idée ici…"></textarea>
@@ -564,6 +567,7 @@
     <div class="p4j-badge">💡 Vote</div>
     <div class="p4j-head">Choisissez votre idée préférée</div>
     <div class="p4j-sub">Votez pour l'idée la plus prometteuse. Pas la vôtre !</div>
+    <div id="idea-theme-vote-p" style="display:none;font-weight:700;color:var(--gold);text-align:center;"></div>
     <div class="idea-vote-list" id="idea-vote-list-p"></div>
     <div id="idea-vote-err" class="err"></div>
     <button class="btn big" id="idea-vote-submit-btn" style="justify-content:center;display:none;">✅ Confirmer mon vote</button>
@@ -1180,6 +1184,11 @@ function handleIdeaPrompt(payload) {
   clearInterval(PS.timerInterval)
   P4J.kind = 'idea'; P4J.hasSubmitted = false; P4J.selectedVoteId = null
   $('idea-challenge-p').textContent = payload.challenge || ''
+  const th = $('idea-theme-p')
+  if (th) {
+    if (payload.theme) { th.textContent = '🎯 ' + payload.theme; th.style.display = 'block' }
+    else th.style.display = 'none'
+  }
   $('idea-text-inp').value = ''; $('idea-char-count').textContent = '0'
   $('idea-input-err').classList.remove('show')
   $('idea-submit-btn').disabled = false; $('idea-submit-btn').textContent = '💡 Soumettre mon idée'
@@ -1198,6 +1207,11 @@ $('idea-submit-btn').addEventListener('click', () => {
 })
 
 function handleIdeaVotePhase(payload) {
+  const thv = $('idea-theme-vote-p')
+  if (thv) {
+    if (payload.theme) { thv.textContent = '🎯 ' + payload.theme; thv.style.display = 'block' }
+    else thv.style.display = 'none'
+  }
   if (!payload.items?.length) { p4Wait('⏳', 'Vote en cours…', 'Pas assez d\'idées pour voter.'); return }
   P4J.selectedVoteId = null
   const myAnonId = payload.ownerMap?.[PS.tempId]

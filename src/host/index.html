@@ -605,7 +605,13 @@
     }
 
     /* ── Phase 4 shared ── */
-    #screen-idea-prompt, #screen-idea-vote, #screen-idea-reveal,
+    /* Ces trois écrans étaient groupés par erreur avec .engage-subject-big :
+       ils héritaient du style d'une carte-sujet centrée au lieu d'être des
+       conteneurs défilants, d'où l'impossibilité de voir toutes les idées. */
+    #screen-idea-prompt, #screen-idea-vote, #screen-idea-reveal, #screen-idea-theme {
+      overflow-y: auto; padding: clamp(14px,2.5vw,36px);
+    }
+
     /* Grande carte sujet + liste engagements */
     .engage-subject-big {
       font-size: clamp(1.6rem, 4.5vw, 2.6rem); font-weight: 800; color: var(--fg);
@@ -613,10 +619,9 @@
       border-radius: 18px; padding: clamp(18px,3vw,32px);
       text-align: center; line-height: 1.15;
     }
-    .engage-reveal-list {
-      display: flex; flex-direction: column; gap: 10px;
-      max-height: 60vh; overflow-y: auto;
-    }
+    /* Plus de hauteur bornée : la page défile, ce qui est plus lisible en
+       projection que deux zones de défilement imbriquées. */
+    .engage-reveal-list { display: flex; flex-direction: column; gap: 10px; }
     .engage-rev-item {
       display: flex; gap: 12px; align-items: flex-start;
       background: var(--panel); color: var(--ever); border-radius: 14px;
@@ -664,6 +669,23 @@
     .idea-text { flex: 1; font-weight: 700; font-size: clamp(.9rem,1.8vw,1.1rem); line-height: 1.35; }
     .idea-votes { font-weight: 900; font-size: .95rem; color: var(--green); min-width: 3em; text-align: right; flex: none; white-space: nowrap; }
     .idea-item.gold-idea { background: linear-gradient(135deg,rgba(244,200,74,.22),rgba(244,200,74,.05)); border: 2px solid var(--gold); }
+    /* Choix du thème par l'animateur, avant la saisie des idées */
+    .theme-choice-grid {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px;
+    }
+    .theme-choice-btn {
+      font-family: inherit; font-weight: 700; font-size: clamp(1rem, 2.2vw, 1.3rem);
+      color: var(--fg); background: rgba(255,255,255,.08);
+      border: 2px solid rgba(255,255,255,.16); border-radius: 16px;
+      padding: clamp(16px,2.5vw,24px); cursor: pointer; text-align: left; line-height: 1.3;
+      transition: background .15s, border-color .15s, transform .1s;
+    }
+    .theme-choice-btn:hover { background: rgba(255,255,255,.14); border-color: var(--gold); transform: translateY(-2px); }
+    .idea-theme-banner {
+      display: inline-block; font-size: clamp(1rem,2.2vw,1.35rem); font-weight: 800;
+      color: var(--ever); background: var(--gold); border-radius: 14px;
+      padding: .5em 1.1em; line-height: 1.25;
+    }
     .gold-winner-box { background: linear-gradient(135deg,rgba(244,200,74,.2),rgba(244,200,74,.05)); border: 2px solid var(--gold); border-radius: 22px; padding: clamp(20px,3vw,36px); text-align: center; animation: pop .5s ease-out; }
     .gold-crown { font-size: clamp(3rem,8vw,5rem); animation: floatY 2.2s ease-in-out infinite; line-height: 1; margin-bottom: 8px; }
     .gold-kicker { font-size: .78rem; font-weight: 900; text-transform: uppercase; letter-spacing: 3px; color: var(--gold); margin-bottom: 8px; }
@@ -1206,6 +1228,7 @@
         <span class="p4-badge">💡 L'idée en Or</span>
         <h2 id="idea-manche-name">L'idée en Or</h2>
       </div>
+      <div id="idea-theme-prompt" class="idea-theme-banner" style="display:none;"></div>
       <div class="p4-challenge-box" id="idea-challenge">–</div>
       <div class="p4-stats">
         <div class="p4-stat">
@@ -1223,6 +1246,22 @@
     </div>
   </section>
 
+  <!-- ══ IDEA — CHOIX DU THÈME ══════════════════════════════════ -->
+  <section class="screen" id="screen-idea-theme">
+    <div class="p4-wrap">
+      <div class="p4-topbar">
+        <span class="p4-badge">💡 L'idée en Or</span>
+        <h2 id="idea-theme-manche">Choisissez le thème</h2>
+        <button class="btn sm ghost" onclick="goHome()">⌂</button>
+      </div>
+      <div id="idea-theme-challenge" class="p4-challenge-box" style="display:none;"></div>
+      <p style="color:var(--fg-soft);font-size:.95rem;">
+        Le thème retenu sera le sujet sur lequel les participants proposeront leur idée.
+      </p>
+      <div class="theme-choice-grid" id="idea-theme-list"></div>
+    </div>
+  </section>
+
   <!-- ══ IDEA VOTE ══════════════════════════════════════════ -->
   <section class="screen" id="screen-idea-vote">
     <div class="p4-wrap">
@@ -1230,6 +1269,7 @@
         <span class="p4-badge">💡 Vote</span>
         <h2>Choisissez l'idée la plus prometteuse</h2>
       </div>
+      <div id="idea-theme-vote" class="idea-theme-banner" style="display:none;"></div>
       <div class="p4-stats">
         <div class="p4-stat">
           <div class="p4-stat-num" id="idea-vote-count">0</div>
@@ -1250,6 +1290,7 @@
         <span class="p4-badge">💡 Révélation</span>
         <h2>L'idée en Or !</h2>
       </div>
+      <div id="idea-theme-reveal" class="idea-theme-banner" style="display:none;"></div>
       <div class="gold-winner-box">
         <div class="gold-crown">✨</div>
         <div class="gold-kicker" id="idea-gold-kicker">💡 L'idée en Or</div>
@@ -1447,7 +1488,7 @@ const BRAND_HIDDEN_SCREENS = new Set([
 const GAME_SCREENS = new Set([
   'screen-round-intro','screen-game','screen-slider','screen-slider-reveal',
   'screen-scoreboard-host','screen-slide','screen-wordcloud',
-  'screen-idea-prompt','screen-idea-vote','screen-idea-reveal',
+  'screen-idea-theme','screen-idea-prompt','screen-idea-vote','screen-idea-reveal',
   'screen-engage-prompt','screen-engage-reveal',
   'screen-engage-free-prompt','screen-engage-free-reveal',
   'screen-open-prompt','screen-open-reveal'
@@ -1930,7 +1971,7 @@ function buildOfflineExportItems() {
     } else if (mtype === 'wordcloud') {
       items.push({ type: 'wordcloud', id: m.id, prompt: m.prompt || '', words: m.words || [], ...meta })
     } else if (mtype === 'idea') {
-      items.push({ type: 'idea', id: m.id, challenge: m.challenge || '', ...meta })
+      items.push({ type: 'idea', id: m.id, challenge: m.challenge || '', themes: m.themes || [], ...meta })
     } else if (mtype === 'engage') {
       items.push({ type: 'engage', id: m.id, categories: m.categories || [], ...meta })
     } else if (mtype === 'engage-free') {
@@ -1980,10 +2021,12 @@ function offlineExportQuestionnaire() {
       return
     }
     if (it.type === 'idea') {
+      const th = (it.themes || []).filter(Boolean)
       body += `<div class="freeform-block">
         <div class="ff-label">💡 L'idée en Or</div>
         ${it.challenge ? `<div class="ff-prompt">${escHtml(it.challenge)}</div>` : ''}
-        <div class="ff-note"><em>Manche participative — chaque participant propose une idée, le groupe vote pour la meilleure.</em></div>
+        <div class="ff-note"><em>Manche participative — l'animateur choisit un thème, chaque participant propose une idée, le groupe vote pour la meilleure.</em></div>
+        ${th.length ? `<div class="wc-chips"><strong>Thèmes au choix&nbsp;:</strong> ${th.map(t => `<span class="wc-chip">${escHtml(t)}</span>`).join('')}</div>` : ''}
       </div>`
       return
     }
@@ -2092,9 +2135,14 @@ function offlineExportForm() {
       return
     }
     if (it.type === 'idea') {
+      const th = (it.themes || []).filter(Boolean)
       body += `<div class="freeform-block avoid-break">
         <div class="ff-label">💡 L'idée en Or</div>
         ${it.challenge ? `<div class="ff-prompt">${escHtml(it.challenge)}</div>` : ''}
+        ${th.length ? `<div style="margin-bottom:8px;"><strong>Thème retenu&nbsp;:</strong>
+          <ul class="cbx-list" style="display:grid;grid-template-columns:1fr 1fr;gap:2px 12px;">
+            ${th.map(t => `<li><span class="cbx"></span> <span class="cbx-lbl">${escHtml(t)}</span></li>`).join('')}
+          </ul></div>` : ''}
         <div class="ff-instr">Notez votre idée sur les lignes ci-dessous.</div>
         <div class="write-area"></div>
       </div>`
@@ -2324,7 +2372,8 @@ function rebroadcastCurrentState() {
     }})
   } else if (currentScreen === 'screen-idea-prompt' && P4S?.kind === 'idea') {
     activeChannel.send({ type:'broadcast', event:'round:idea:prompt', payload:{
-      challenge: P4S.mancheConfig?.challenge || 'Quelle innovation proposez-vous ?'
+      challenge: P4S.mancheConfig?.challenge || 'Quelle innovation proposez-vous ?',
+      theme: P4S.theme || ''
     }})
   } else if (currentScreen === 'screen-engage-prompt' && P4S?.kind === 'engage') {
     const m = P4S.mancheConfig
@@ -3541,12 +3590,51 @@ function launchConfetti() {
 
 // ─ Idea manche ───────────────────────────────────────────────────────────────
 function startIdeaManche(m) {
-  P4S = { kind:'idea', mancheConfig:m, phase:'prompt', submissions:new Map(), votes:new Map(), anonymousMap:new Map(), endsAt:0, timerInterval:null }
+  P4S = { kind:'idea', mancheConfig:m, phase:'theme', theme:null, submissions:new Map(),
+          votes:new Map(), anonymousMap:new Map(), endsAt:0, timerInterval:null }
+  const themes = (m.themes || []).map(t => String(t || '').trim()).filter(Boolean)
+  // Sans thème configuré, on garde le comportement d'origine : la consigne
+  // générale tient lieu de sujet.
+  if (!themes.length) { lancerSaisieIdee(null); return }
+
+  $('idea-theme-manche').textContent = m.name || 'L\'idée en Or'
+  const ch = $('idea-theme-challenge')
+  if (ch) {
+    if (m.challenge) { ch.textContent = m.challenge; ch.style.display = 'block' }
+    else ch.style.display = 'none'
+  }
+  const list = $('idea-theme-list'); list.innerHTML = ''
+  themes.forEach(th => {
+    const b = document.createElement('button')
+    b.className = 'theme-choice-btn'
+    b.textContent = th
+    b.addEventListener('click', () => lancerSaisieIdee(th))
+    list.appendChild(b)
+  })
+  showScreen('screen-idea-theme')
+}
+
+// Affiche le thème retenu sur les écrans de la manche
+function afficherThemeIdee(theme) {
+  ;['idea-theme-prompt','idea-theme-vote','idea-theme-reveal'].forEach(id => {
+    const el = $(id); if (!el) return
+    if (theme) { el.textContent = '🎯 ' + theme; el.style.display = 'inline-block' }
+    else el.style.display = 'none'
+  })
+}
+
+function lancerSaisieIdee(theme) {
+  const m = P4S.mancheConfig
+  P4S.theme = theme
+  P4S.phase = 'prompt'
+  const challenge = m.challenge || 'Quelle innovation proposez-vous ?'
   $('idea-manche-name').textContent     = m.name || 'L\'idée en Or'
-  $('idea-challenge').textContent       = m.challenge || 'Quelle innovation proposez-vous ?'
+  $('idea-challenge').textContent       = challenge
   $('idea-submitted-count').textContent = '0'
   $('idea-total-players').textContent   = GS.players.size
-  if (activeChannel) activeChannel.send({ type:'broadcast', event:'round:idea:prompt', payload:{ challenge: m.challenge || 'Quelle innovation proposez-vous ?' }})
+  afficherThemeIdee(theme)
+  if (activeChannel) activeChannel.send({ type:'broadcast', event:'round:idea:prompt',
+    payload:{ challenge, theme: theme || '' }})
   showScreen('screen-idea-prompt')
 }
 
@@ -3563,7 +3651,7 @@ function receiveIdeaSubmit(payload) {
 }
 
 $('idea-start-vote-btn').addEventListener('click', () => {
-  if (!P4S || P4S.kind !== 'idea') return
+  if (!P4S || P4S.kind !== 'idea' || P4S.phase === 'theme') return
   if (P4S.timerInterval) { clearInterval(P4S.timerInterval); P4S.timerInterval = null }
   P4S.phase = 'vote'
   if (P4S.submissions.size <= 1) { showIdeaReveal(); return }
@@ -3572,7 +3660,7 @@ $('idea-start-vote-btn').addEventListener('click', () => {
     const anonId = uid(); P4S.anonymousMap.set(anonId, authorId); return { tempId: anonId, text: sub.text }
   })
   const ownerMap = Object.fromEntries([...P4S.anonymousMap.entries()].map(([anonId, authorId]) => [authorId, anonId]))
-  activeChannel.send({ type:'broadcast', event:'round:idea:vote', payload:{ items, ownerMap }})
+  activeChannel.send({ type:'broadcast', event:'round:idea:vote', payload:{ items, ownerMap, theme: P4S.theme || '' }})
   $('idea-vote-count').textContent = '0'; $('idea-vote-total').textContent = GS.players.size
   const list = $('idea-items-host'); list.innerHTML = ''
   items.forEach((item, i) => {
@@ -3615,7 +3703,7 @@ function showIdeaReveal() {
   })
   ranking.sort((a,b) => b.votes - a.votes || b.pts - a.pts)
   activeChannel.send({ type:'broadcast', event:'round:idea:reveal', payload:{
-    goldCount: goldAuths.length, maxVotes,
+    goldCount: goldAuths.length, maxVotes, theme: P4S.theme || '',
     ranking: ranking.map(r => ({ name:r.name, text:r.text, votes:r.votes, isGold:r.isGold, pts:r.pts })),
     playerPoints: Object.fromEntries(ranking.map(r => [r.authorId, { delta:r.pts, isGold:r.isGold }]))
   }})
@@ -3654,7 +3742,8 @@ function showIdeaReveal() {
     div.innerHTML = `<div class="idea-num">${r.isGold ? '🥇' : i+1}</div><div class="idea-text"><strong>${escHtml(r.name)}</strong><br>${escHtml(r.text)}</div><div class="idea-votes">${r.votes}v<br><span style="color:var(--gold);font-size:.85em">+${r.pts}pts</span></div>`
     rankList.appendChild(div)
   })
-  GAME_LOG.push({ type:'idea', mancheName: P4S.mancheConfig?.name||'Idée en Or', mancheConfig: P4S.mancheConfig, ranking: ranking.map(r=>({...r})) })
+  GAME_LOG.push({ type:'idea', mancheName: P4S.mancheConfig?.name||'Idée en Or',
+    theme: P4S.theme || '', mancheConfig: P4S.mancheConfig, ranking: ranking.map(r=>({...r})) })
   showScreen('screen-idea-reveal')
   if (maxVotes > 0) launchConfetti()
   logIdeaManche(ranking)
@@ -3668,6 +3757,7 @@ async function logIdeaManche(ranking) {
       session_id: activeSession.id, round_key: P4S.mancheConfig.id, kind: 'idea',
       author_tempid: r.authorId, author_name: r.name,
       author_email: r.email, author_manager: sessionManager,
+      category: P4S.theme || null,   // thème choisi par l'animateur
       text: r.text, points: r.pts, is_gold: r.isGold
     }))).select('id,author_tempid')
     if (subs?.length && P4S.votes.size > 0) {
