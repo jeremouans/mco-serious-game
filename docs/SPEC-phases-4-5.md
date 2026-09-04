@@ -1,7 +1,7 @@
-# Spec — Phases 4 & 5 · Engagements 2030 le Quizz LIVE
+# Spec — Phases 4 & 5 · Engagements 2030 le Quiz LIVE
 
 Spec destinée à Claude Code. Prérequis : Phases 0–3 livrées (schéma + RLS, auth animateur,
-lobby, boucle quizz temps réel, bilan). Mêmes règles que `CLAUDE.md` :
+lobby, boucle quiz temps réel, bilan). Mêmes règles que `CLAUDE.md` :
 modèle **écran-animateur fait autorité** + **Supabase Realtime**, **joueurs anonymes**
 (aucun accès direct aux tables ; tout passe par Realtime, l'animateur écrit les logs),
 **RLS** stricte, **région UE**, charte MGEN reprise de `reference/`.
@@ -68,7 +68,7 @@ modération avancée (Phase 5 : sanitation de base seulement).
 create table if not exists public.submissions (
   id          uuid primary key default gen_random_uuid(),
   session_id  uuid not null references public.sessions(id) on delete cascade,
-  round_key   text not null,                         -- identifiant de la manche dans le quizz
+  round_key   text not null,                         -- identifiant de la manche dans le quiz
   kind        text not null check (kind in ('idea','engage')),
   author_id   uuid not null references public.players(id) on delete cascade,
   text        text not null,

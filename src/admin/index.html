@@ -419,6 +419,8 @@
   <div class="editor-topbar">
     <button class="btn ghost sm" id="editor-back-btn">← Accueil</button>
     <input type="text" class="editor-quiz-title" id="editor-quiz-title" placeholder="Titre de la configuration…">
+    <span id="editor-status-badge" style="display:none;font-size:.75rem;font-weight:700;
+          padding:4px 10px;border-radius:999px;white-space:nowrap;"></span>
     <button class="btn sm" id="editor-save-btn">💾 Enregistrer</button>
     <div class="err-msg" id="editor-save-err" style="margin-top:6px;"></div>
     <button class="btn ghost sm" id="editor-new-btn">＋ Nouveau</button>
@@ -799,7 +801,7 @@ function sessionSubLine(s, maxNames = 6) {
 async function loadHome() {
   const [sessRes, quizRes, playRes, profRes] = await Promise.all([
     sb.from('sessions').select('*').order('created_at', { ascending: false }),
-    sb.from('quizzes').select('id,title,created_at').order('created_at', { ascending: false }),
+    sb.from('quizzes').select('id,title,created_at,status,sort_order').order('sort_order').order('created_at'),
     sb.from('players').select('id,session_id,name,first_name,last_name'),
     sb.from('host_profiles').select('*')
   ])
@@ -1308,13 +1310,55 @@ function openQuizEditor(quizId = null) {
 }
 
 function renderQuizSelectList() {
-  $('quiz-select-list').innerHTML = quizList.map(q => `
-    <div class="manche-chip${currentQuiz?.id===q.id?' selected':''}" onclick="switchQuiz('${q.id}')">
-      <span class="manche-chip-icon">🎲</span>
+  $('quiz-select-list').innerHTML = quizList.map((q, i) => {
+    const brouillon = q.status === 'draft'
+    return `
+    <div class="manche-chip${currentQuiz?.id===q.id?' selected':''}"
+         style="${brouillon ? 'opacity:.62;' : ''}" onclick="switchQuiz('${q.id}')">
+      <span class="manche-chip-icon">${brouillon ? '📝' : '🎲'}</span>
       <div class="manche-chip-info">
         <div class="manche-chip-name">${escHtml(q.title||'Sans titre')}</div>
+        <div class="manche-chip-type">${brouillon ? 'brouillon — masqué aux animateurs' : 'publié'}</div>
       </div>
-    </div>`).join('') || '<div style="color:rgba(243,238,218,.35);font-size:.8rem;padding:6px;">Aucun quiz</div>'
+      <div class="manche-chip-actions">
+        <button class="chip-btn" title="Monter"    onclick="event.stopPropagation();deplacerQuiz(${i},-1)" ${i===0?'disabled':''}>↑</button>
+        <button class="chip-btn" title="Descendre" onclick="event.stopPropagation();deplacerQuiz(${i},1)" ${i===quizList.length-1?'disabled':''}>↓</button>
+        <button class="chip-btn" title="${brouillon ? 'Publier' : 'Passer en brouillon'}"
+                onclick="event.stopPropagation();basculerBrouillon('${q.id}')">${brouillon ? '👁️' : '🚫'}</button>
+      </div>
+    </div>`}).join('') || '<div style="color:rgba(243,238,218,.35);font-size:.8rem;padding:6px;">Aucun quiz</div>'
+}
+
+// Réordonner : on échange deux voisins puis on réécrit tous les rangs, ce qui
+// répare au passage d'éventuels rangs en double.
+window.deplacerQuiz = async (i, sens) => {
+  const j = i + sens
+  if (j < 0 || j >= quizList.length) return
+  ;[quizList[i], quizList[j]] = [quizList[j], quizList[i]]
+  renderQuizSelectList()
+  try {
+    await Promise.all(quizList.map((q, k) =>
+      sb.from('quizzes').update({ sort_order: k + 1 }).eq('id', q.id)))
+    quizList.forEach((q, k) => { q.sort_order = k + 1 })
+  } catch (e) { alert('Erreur d\'enregistrement de l\'ordre : ' + e.message); await rechargerQuizList() }
+}
+
+window.basculerBrouillon = async (id) => {
+  const q = quizList.find(x => x.id === id); if (!q) return
+  const nouveau = q.status === 'draft' ? 'published' : 'draft'
+  if (nouveau === 'draft' && !confirm(`Passer « ${q.title} » en brouillon ?\n\nIl disparaîtra de la liste des animateurs. Les sessions déjà jouées avec ce quiz ne sont pas affectées.`)) return
+  const { error } = await sb.from('quizzes').update({ status: nouveau }).eq('id', id)
+  if (error) { alert('Erreur : ' + error.message); return }
+  q.status = nouveau
+  renderQuizSelectList()
+  renderEditorUI()
+}
+
+async function rechargerQuizList() {
+  const { data } = await sb.from('quizzes')
+    .select('id,title,created_at,status,sort_order').order('sort_order').order('created_at')
+  quizList = data || []
+  renderQuizSelectList()
 }
 window.switchQuiz = id => {
   if (id === currentQuiz?.id) return
@@ -1334,6 +1378,14 @@ async function loadQuizById(id) {
 
 function renderEditorUI() {
   $('editor-quiz-title').value = currentQuiz?.title || ''
+  const badge = $('editor-status-badge')
+  if (badge) {
+    const q = quizList.find(x => x.id === currentQuiz?.id)
+    if (q?.status === 'draft') {
+      badge.textContent = '📝 Brouillon — masqué aux animateurs'
+      badge.style.cssText += ';display:inline-block;background:rgba(244,200,74,.18);color:#F4C84A;'
+    } else badge.style.display = 'none'
+  }
   renderMancheList()
   renderMancheEditor()
   renderQuizSelectList()
@@ -1947,7 +1999,11 @@ async function saveCurrentQuiz() {
   if (currentQuiz.id) {
     result = await sb.from('quizzes').update({ title, config: currentQuiz.config }).eq('id', currentQuiz.id).select().single()
   } else {
-    result = await sb.from('quizzes').insert({ title, config: currentQuiz.config, owner_id: ownerId }).select().single()
+    // Un nouveau quiz naît en brouillon : il ne doit pas surgir chez les
+    // animateurs avant d'être prêt.
+    const rangMax = quizList.reduce((m, q) => Math.max(m, q.sort_order || 0), 0)
+    result = await sb.from('quizzes').insert({ title, config: currentQuiz.config, owner_id: ownerId,
+      status: 'draft', sort_order: rangMax + 1 }).select().single()
     if (result.data) { currentQuiz.id = result.data.id }
   }
   if (result.error) {
@@ -1960,7 +2016,7 @@ async function saveCurrentQuiz() {
   }
   setTimeout(() => { $('editor-save-btn').textContent = '💾 Enregistrer'; $('editor-save-btn').disabled = false }, 2200)
   // Refresh quiz list
-  const { data } = await sb.from('quizzes').select('id,title,created_at').order('created_at', { ascending: false })
+  const { data } = await sb.from('quizzes').select('id,title,created_at,status,sort_order').order('sort_order').order('created_at')
   quizList = data || []
   renderQuizSelectList()
 }
@@ -1977,7 +2033,7 @@ $('editor-delete-btn').addEventListener('click', async () => {
   if (!currentQuiz?.id) return
   if (!confirm(`Supprimer "${currentQuiz.title}" ? Cette action est irréversible.`)) return
   await sb.from('quizzes').delete().eq('id', currentQuiz.id)
-  const { data } = await sb.from('quizzes').select('id,title,created_at').order('created_at', { ascending: false })
+  const { data } = await sb.from('quizzes').select('id,title,created_at,status,sort_order').order('sort_order').order('created_at')
   quizList = data || []
   currentQuiz = quizList.length ? null : { id:null, title:'Nouveau quiz', config:{ manches:[] } }
   selectedMancheIdx = -1

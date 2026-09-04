@@ -1,6 +1,6 @@
 {
-  "title": "Engagements 2030 — le Quizz (contenu MGEN)",
-  "_note": "Extrait fidèlement du jeu mono-écran existant. Manches 'quizz' uniquement. 'L'idée en Or' et 'Mes engagements' = manches participatives, à porter en Phase 4 (saisie+vote mobile). type: choice|truefalse auto-scorées ; type: text = validation manuelle (Phase 2). 'explain' = texte de révélation (le 'fun' du jeu).",
+  "title": "Engagements 2030 — le Quiz (contenu MGEN)",
+  "_note": "Extrait fidèlement du jeu mono-écran existant. Manches 'quiz' uniquement. 'L'idée en Or' et 'Mes engagements' = manches participatives, à porter en Phase 4 (saisie+vote mobile). type: choice|truefalse auto-scorées ; type: text = validation manuelle (Phase 2). 'explain' = texte de révélation (le 'fun' du jeu).",
   "questions": [
     {
       "id": "vision-1", "section": "🔭 La vision MGEN 2030", "type": "choice",

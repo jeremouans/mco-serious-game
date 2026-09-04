@@ -391,7 +391,7 @@
       <div class="rep-head">
         <div class="bilan-logo-slot" style="width:64px;height:64px;flex:none;border-radius:12px;overflow:hidden;">${logoHtml}</div>
         <div>
-          <h2>Engagements 2030 — le Quizz</h2>
+          <h2>Engagements 2030 — le Quiz</h2>
           <p class="rep-sub">Session <strong>${esc(code)}</strong> · ${esc(date)}${extraMeta ? ' · ' + extraMeta : ''}</p>
         </div>
       </div>
@@ -406,7 +406,7 @@
         <table class="rep-table"><thead><tr><th>Rang</th><th>Joueur</th><th>Score</th></tr></thead>
         <tbody>${rankRows}</tbody></table></div>` : ''}
       ${sections || '<p class="rep-empty">Aucune manche enregistrée.</p>'}
-      <div class="rep-foot">Engagements 2030, le Quizz · MGEN · Session ${esc(code)} · ${esc(date)}</div>
+      <div class="rep-foot">Engagements 2030, le Quiz · MGEN · Session ${esc(code)} · ${esc(date)}</div>
     `
   }
 })(window)

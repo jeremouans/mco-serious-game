@@ -1,9 +1,9 @@
-# Engagements 2030 — le Quizz **LIVE**
+# Engagements 2030 — le Quiz **LIVE**
 
 Brief projet pour Claude Code. Lis-le avant d'agir.
 
 ## Le projet
-Version temps réel (type Kahoot) du serious game MGEN « Engagements 2030, le Quizz ».
+Version temps réel (type Kahoot) du serious game MGEN « Engagements 2030, le Quiz ».
 L'animateur diffuse les questions sur un écran ; les participants répondent depuis leur **mobile**
 via un **code de session**. Points attribués **automatiquement**, **toutes les parties loguées**.
 
@@ -25,7 +25,7 @@ via un **code de session**. Points attribués **automatiquement**, **toutes les 
 `answers` (log par réponse) · `results` (classement final).
 
 ## Posture RLS (sécurité = thème central du projet)
-- RLS activée partout. **L'animateur authentifié possède** ses quizz/sessions, et est le **seul**
+- RLS activée partout. **L'animateur authentifié possède** ses quiz/sessions, et est le **seul**
   à lire/écrire players/answers/results de ses sessions (via `is_session_host()`).
 - **Le rôle `anon` n'a AUCUNE policy** → zéro accès direct aux tables pour les joueurs.
   Les joueurs n'utilisent que Realtime ; l'animateur écrit les logs.
@@ -56,7 +56,7 @@ via un **code de session**. Points attribués **automatiquement**, **toutes les 
 ## État d'avancement
 - [x] **Phase 0** — schéma + RLS : `supabase/migrations/0001_init.sql` (à appliquer).
 - [ ] **Phase 1** — Auth animateur + création de session (code + QR) + lobby (Presence).
-- [ ] **Phase 2** — Boucle quizz temps réel (broadcast, minuteur `endsAt`, scoring auto, reveal, scoreboard, logs).
+- [ ] **Phase 2** — Boucle quiz temps réel (broadcast, minuteur `endsAt`, scoring auto, reveal, scoreboard, logs).
 - [ ] **Phase 3** — Historique « mes parties » + bilan d'appropriation (export PDF).
 - [ ] **Phase 4** — Manches participatives mobiles (« L'idée en Or », « Mes engagements » : saisie + vote sur tel).
 - [ ] **Phase 5** — Polish PWA, reconnexion, Realtime privé, rétention auto.

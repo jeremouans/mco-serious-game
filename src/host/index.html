@@ -953,7 +953,7 @@
       <div class="home-header">
         <img src="/assets/logo-beige.svg" alt="MGEN" style="width:auto;height:56px;flex:none;">
         <div style="flex:1;">
-          <h1>Engagements 2030, le Quizz</h1>
+          <h1>Engagements 2030, le Quiz</h1>
           <div class="home-sub" id="user-email"></div>
         </div>
         <button class="btn ghost sm" id="logout-btn">Déconnexion</button>
@@ -3412,7 +3412,12 @@ $('settings-create-btn').addEventListener('click', async () => {
 function uid() { return Math.random().toString(36).slice(2, 9) }
 
 async function loadAllQuizzes() {
-  const { data, error } = await sb.from('quizzes').select('id, title, config, created_at').order('created_at', { ascending: false })
+  // L'ordre est celui défini par l'administration ; les brouillons sont exclus.
+  // La RLS les masque déjà côté serveur, ce filtre rend l'intention explicite.
+  const { data, error } = await sb.from('quizzes')
+    .select('id, title, config, created_at, status, sort_order')
+    .eq('status', 'published')
+    .order('sort_order').order('created_at')
   if (error) {
     // Distinguer « aucun quiz » d'une requête refusée : afficher « demandez à
     // l'admin d'en créer un » alors que la session a expiré envoie sur une
