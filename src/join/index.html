@@ -591,6 +591,8 @@
     <!-- Étape 2 : mad-libs -->
     <div id="engage-step2" style="display:none;flex-direction:column;gap:14px;width:100%;overflow-y:auto;">
       <button class="engage-chip" id="engage-change-cat-btn" style="align-self:flex-start;">← Changer de catégorie</button>
+      <div id="engage-cat-fixe" style="display:none;align-self:flex-start;font-size:.78rem;
+           font-weight:800;text-transform:uppercase;letter-spacing:1.2px;color:var(--green-b);"></div>
 
       <!-- Prévisualisation -->
       <div class="engage-preview">
@@ -1289,12 +1291,19 @@ function handleEngagePrompt(payload) {
       grid.appendChild(card)
     })
   }
-  $('engage-step1').style.display = 'flex'
-  $('engage-step2').style.display = 'none'
   $('engage-submit-btn').disabled = false
   $('engage-submit-btn').textContent = '🤝 Soumettre mon engagement'
   $('engage-input-err').classList.remove('show')
   showScreen('screen-engage-input')
+
+  // Une seule catégorie : le choix n'en est pas un. On la sélectionne et on
+  // passe directement à la rédaction, plutôt que d'imposer un écran inutile.
+  if (engageCategories.length === 1) {
+    selectEngageCategory(0)
+  } else {
+    $('engage-step1').style.display = 'flex'
+    $('engage-step2').style.display = 'none'
+  }
 }
 
 function selectEngageCategory(i) {
@@ -1303,6 +1312,18 @@ function selectEngageCategory(i) {
   $('engage-step1').style.display = 'none'
   $('engage-step2').style.display = 'flex'
   const cat = engageCategories[i]
+
+  // Avec une seule catégorie, revenir en arrière n'aurait aucun sens : on
+  // remplace le bouton par un simple rappel de la catégorie retenue.
+  const seule = engageCategories.length <= 1
+  const btnChg = $('engage-change-cat-btn')
+  if (btnChg) btnChg.style.display = seule ? 'none' : 'inline-block'
+  const fixe = $('engage-cat-fixe')
+  if (fixe) {
+    if (seule && cat?.name) { fixe.textContent = cat.name; fixe.style.display = 'block' }
+    else fixe.style.display = 'none'
+  }
+
   const slots = cat?.slots || { action: [], moyen: [], echeance: [] }
   buildEngageChips('engage-action-chips',   'engage-action-inp',   slots.action   || [], 'action')
   buildEngageChips('engage-moyen-chips',    'engage-moyen-inp',    slots.moyen    || [], 'moyen')
