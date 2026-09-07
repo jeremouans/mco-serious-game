@@ -958,7 +958,9 @@
         </div>
         <button class="btn ghost sm" id="logout-btn">Déconnexion</button>
       </div>
-      <div class="home-tabs">
+      <!-- Guide animateur masqué : barre d'onglets et volet conservés dans le code,
+           il suffit de retirer les display:none pour les réafficher. -->
+      <div class="home-tabs" style="display:none;">
         <button class="home-tab active" id="tab-sessions">🎮 Sessions</button>
         <button class="home-tab" id="tab-guide">📖 Guide animateur</button>
       </div>
@@ -1001,7 +1003,7 @@
       </div>
 
       <!-- Onglet Guide animateur -->
-      <div class="home-pane" id="pane-guide">
+      <div class="home-pane" id="pane-guide" style="display:none;">
         <div class="guide-grid">
           <div class="guide-card"><div class="guide-icon">🚀</div><h4>Démarrer une session</h4><ol><li>Choisissez un quiz dans l'onglet Sessions</li><li>Cliquez "Démarrer une session"</li><li>Partagez le code ou le QR code</li><li>Attendez les joueurs → Démarrez</li></ol></div>
           <div class="guide-card"><div class="guide-icon">❓</div><h4>Questions quiz</h4><p>Laissez les joueurs répondre. Cliquez "Révéler" quand vous êtes prêt — même avant le timer. Le classement s'affiche automatiquement.</p><p class="guide-tip">Commentez la bonne réponse avant de passer à la suite.</p></div>
