@@ -1131,7 +1131,7 @@ function handleReveal(payload) {
   PS.score        = myEntry?.total ?? PS.score
 
   $('reveal-icon').textContent  = isCorrect ? '✅' : PS.hasAnswered ? '❌' : '⏰'
-  $('reveal-msg').textContent   = isCorrect ? 'Bonne réponse !' : PS.hasAnswered ? 'Raté !' : 'Pas de réponse'
+  $('reveal-msg').textContent   = isCorrect ? 'Bonne réponse !' : PS.hasAnswered ? 'Oups !' : 'Pas de réponse'
   $('reveal-delta').textContent = delta > 0 ? `+${delta} pts` : '0 pt'
   $('reveal-delta').className   = 'result-pts ' + (delta > 0 ? 'gain' : 'zero')
   $('reveal-total').textContent = `Total : ${PS.score} pt${PS.score > 1 ? 's' : ''}`
