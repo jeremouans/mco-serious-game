@@ -1,3 +1,7 @@
 .DS_Store
 *.DS_Store
 node_modules/
+
+# Sauvegardes de sessions : données personnelles de participants
+# (e-mails professionnels, engagements nominatifs) — jamais sur GitHub.
+sauvegardes/
